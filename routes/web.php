@@ -11,8 +11,8 @@
 |
 */
 
-Route::get('/', function () {
-    return view('app');
-});
+Route::get('/', "DashboardController@index")->name('dashboard');
+Route::get('employee/', "EmployeeController@index")->name('employee');
+Route::get('profile/', "ProfileController@index")->name('profile');
+Route::get('task/', "TaskController@index")->name('task');
 
-Route::get('/{id}', 'Vuetify@jsonMessage');
