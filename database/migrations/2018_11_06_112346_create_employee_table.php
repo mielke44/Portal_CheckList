@@ -13,7 +13,13 @@ class CreateEmployeeTable extends Migration
      */
     public function up()
     {
-        Schema::create('employee', function (Blueprint $table) {
+        Schema::create('employees', function (Blueprint $table) {
+            $table->string('name');
+            $table->string('password');
+            $table->string('email');
+            $table->string('cpf');
+            $table->string('type');
+            $table->string('fone');
             $table->increments('id');
             $table->timestamps();
         });
@@ -26,6 +32,6 @@ class CreateEmployeeTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('employee');
+        Schema::dropIfExists('employees');
     }
 }

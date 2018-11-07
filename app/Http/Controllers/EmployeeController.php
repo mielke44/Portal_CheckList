@@ -24,7 +24,7 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        //
+        return view("create");
     }
 
     /**
@@ -35,7 +35,22 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        //$this -> Employee = \Auth::Employee();
+
+        $Employee = new Employee;
+        $Employee -> name = $request -> name;
+        $Employee -> email = $request -> email;
+        $Employee -> password = bcrypt($request -> password);
+        $Employee -> type = $request -> type;
+        $Employee -> CPF = $request -> cpf;
+        $Employee -> fone = $request -> fone;
+        if ($Employee -> save()) {
+            return json_encode(array('error' => false,
+                'message' => $Employee -> id));
+        } else {
+            return json_encode(array('error' => true,
+                'message' => 'Ocorreu um erro, tente novamente!'));
+        }
     }
 
     /**
@@ -44,7 +59,7 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function show(Employee $employee)
+    public function show(Employee $Employee)
     {
         //
     }
@@ -55,9 +70,10 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function edit(Employee $employee)
+    public function edit($id)
     {
-        //
+        $eid = Employee::get($id);
+        return view("emp-edit",compact('eid'));
     }
 
     /**
@@ -67,7 +83,7 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Employee $employee)
+    public function update(Request $request, Employee $Employee)
     {
         //
     }
@@ -78,8 +94,16 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Employee $employee)
+    public function destroy(Employee $Employee)
     {
-        //
+        $employee = employee::findOrFail($id);
+        if ($employee->delete()) {
+            return json_encode(array('error' => false,
+                                        'message' => ''));
+        } else {
+            return json_encode(array('error' => true,
+                                    'message' => 'Erro ao deletar usuário. Por favor, tente novamente.'));
+        }
+        //return redirect()->route('Employee$Employee.list');
     }
 }

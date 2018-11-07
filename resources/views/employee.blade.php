@@ -10,11 +10,11 @@
 <v-container grid-list-lg fill-height>
     <v-layout row wrap>
         <v-flex class='text-xs-right'>
-            <v-btn color="primary">Adicionar empregado</v-btn>
+            <v-btn href="{{ route('emp.create') }}" color="primary">Adicionar empregado</v-btn>
         </v-flex>
         <v-flex xs12>
                 <v-expansion-panel>
-                        <v-expansion-panel-content v-for='em in employess'>
+                        <v-expansion-panel-content v-for='em in employees'>
                             <div slot="header">
                                 <v-layout row wrap fill-height align-center>
                                     <v-flex xs6>
@@ -41,9 +41,9 @@
                                     <v-flex xs3>Data admissão</v-flex>
                                     <v-flex xs3 class='font-weight-bold'>@{{em.date}}</v-flex>
                                     <v-flex xs12 class='text-xs-right'>
-                                        <v-btn color="blue" outline> <v-icon dark class='mr-2'>check</v-icon> Checklist</v-btn>
-                                        <v-btn color="yellow darken-2" outline><v-icon dark class='mr-2'>edit</v-icon> Editar</v-btn>
-                                        <v-btn color="red" outline><v-icon dark class='mr-2'>delete</v-icon> Remover</v-btn>
+                                        <v-btn href="" color="blue" outline> <v-icon dark class='mr-2'>check</v-icon> Checklist</v-btn>
+                                        <v-btn href="{{ route('emp.edit',$) }}" color="yellow darken-2" outline><v-icon dark class='mr-2'>edit</v-icon> Editar</v-btn>
+                                        <v-btn href="{{ route('emp.remove') }}" color="red" outline><v-icon dark class='mr-2'>delete</v-icon> Remover</v-btn>
                                     </v-flex>
                                 </v-layout>
                             </v-container>
@@ -60,7 +60,7 @@
     Vue.component("page", {
         data() {
             return {
-                employess: [{
+                employees: [{
                         id: 1,
                         name: "Christiano Oishi de Carvalho",
                         profile: "Estagiário",
