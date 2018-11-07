@@ -41,13 +41,12 @@
                                     <v-flex xs3>Data admissão</v-flex>
                                     <v-flex xs3 class='font-weight-bold'>@{{em.date}}</v-flex>
                                     <v-flex xs12 class='text-xs-right'>
-                                        <v-btn href="" color="blue" outline> <v-icon dark class='mr-2'>check</v-icon> Checklist</v-btn>
-                                        <v-btn href="{{ route('emp.edit',$) }}" color="yellow darken-2" outline><v-icon dark class='mr-2'>edit</v-icon> Editar</v-btn>
-                                        <v-btn href="{{ route('emp.remove') }}" color="red" outline><v-icon dark class='mr-2'>delete</v-icon> Remover</v-btn>
+                                        <v-btn  color="blue" outline> <v-icon dark class='mr-2'>check</v-icon> Checklist</v-btn>
+                                        <v-btn @click="edit(em.id)" color="yellow darken-2" outline><v-icon dark class='mr-2'>edit</v-icon> Editar</v-btn>
+                                        <v-btn @click="remove(em.id)" color="red" outline><v-icon dark class='mr-2'>delete</v-icon> Remover</v-btn>
                                     </v-flex>
                                 </v-layout>
                             </v-container>
-
         </v-flex>
     </v-layout>
 </v-container>
@@ -85,6 +84,14 @@
                 ]
             }
         },
+        methods:{
+            edit: function(id){
+                location.href="{{ route('employee') }}"+"/edit/"+id;
+            },
+            remove: function(id){
+                location.href="{{ route('employee') }}"+"/remove/"+id;
+            }
+        }
     });
 </script>
 @endsection

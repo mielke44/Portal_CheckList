@@ -24,7 +24,7 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return view("create");
+        return view("Employee/create");
     }
 
     /**
@@ -36,14 +36,14 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         //$this -> Employee = \Auth::Employee();
-
+        
         $Employee = new Employee;
-        $Employee -> name = $request -> name;
-        $Employee -> email = $request -> email;
-        $Employee -> password = bcrypt($request -> password);
-        $Employee -> type = $request -> type;
-        $Employee -> CPF = $request -> cpf;
-        $Employee -> fone = $request -> fone;
+        $Employee -> name = $request['name'];
+        $Employee -> email = $request['email'];
+        $Employee -> password = bcrypt($request['password']);
+        $Employee -> type = $request['select']['type'];
+        $Employee -> CPF = $request['cpf'];
+        $Employee -> fone = $request['fone'];
         if ($Employee -> save()) {
             return json_encode(array('error' => false,
                 'message' => $Employee -> id));
