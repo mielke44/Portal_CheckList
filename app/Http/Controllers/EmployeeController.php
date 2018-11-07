@@ -24,7 +24,11 @@ class EmployeeController extends Controller
      */
     public function create()
     {
+<<<<<<< HEAD
         return view("Employee/create");
+=======
+        return view("Employee.create");
+>>>>>>> Users
     }
 
     /**
@@ -72,8 +76,6 @@ class EmployeeController extends Controller
      */
     public function edit($id)
     {
-        $eid = Employee::get($id);
-        return view("emp-edit",compact('eid'));
     }
 
     /**
@@ -83,9 +85,28 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Employee $Employee)
+    public function update(Request $request)
     {
-        //
+        $this->Employee = \Auth::Employee();
+
+            $Employee = Employee::findOrFail($request->get('id'));
+            $Employee->name        = $request->name;
+            $Employee->email      =$request->email;
+            $Employee->is_admin     =$request->is_admin;
+
+            $all_request = $request->all();
+            $Employee->fill($all_request);
+
+            if ($Employee->save()) {
+                return json_encode(array('error' => false,
+                                        'message' => $Employee->id));
+            }
+            else {
+                return json_encode(array('error' => true,
+                                        'message' => 'Erro ao editar usuário. Por favor, tente novamente.'));
+            }
+
+            return redirect()->route('employee');
     }
 
     /**
@@ -94,7 +115,7 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Employee $Employee)
+    public function destroy($id)
     {
         $employee = employee::findOrFail($id);
         if ($employee->delete()) {
@@ -105,5 +126,14 @@ class EmployeeController extends Controller
                                     'message' => 'Erro ao deletar usuário. Por favor, tente novamente.'));
         }
         //return redirect()->route('Employee$Employee.list');
+    }
+
+    public function list(){
+        $list = Employee::all();
+        foreach($list as $emp){
+            $emp -> checks= 2;
+            $emp -> list = 22;
+        }
+        return json_encode($list);
     }
 }
