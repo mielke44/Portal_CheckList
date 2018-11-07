@@ -14,12 +14,16 @@
                     <v-card-text>
                         <v-text-field v-model="data.name" :rules="nameRules" label="Name" required></v-text-field>
                         <v-text-field v-model="data.email" :rules="emailRules" label="E-mail" required></v-text-field>
-                        <v-text-field v-model="data.cpf" :rules="cpfRules" label="CPF" required></v-text-field>
-                        <v-text-field v-model="data.fone" :rules="foneRules" label="Telefone" required></v-text-field>
+                        <v-text-field mask="###.###.###-##" v-model="data.cpf" :rules="cpfRules" label="CPF" required></v-text-field>
+                        <v-text-field mask="+##(##)#####.####" v-model="data.fone" :rules="foneRules" label="Telefone" required></v-text-field>
                     
                         <v-flex xs6>
                             <v-select v-model="data.select" :hint="`${data.select.type}`" 
+<<<<<<< HEAD
                             :items="items" item-text="type" label="Select" persistent-hint return-object single-line required></v-select>
+=======
+                            :items="items" item-text="type" label="Tipo" persistent-hint return-object single-line required></v-select>
+>>>>>>> Users
                         </v-flex>
                         <v-btn @click="save" color="primary">Adicionar empregado</v-btn>
                     </v-card-text>
@@ -43,7 +47,11 @@
             email: '',
             cpf: '',
             fone: '',
+<<<<<<< HEAD
             select: {type: 'Tipo',value:''},
+=======
+            select: {type: 'Tipo'},
+>>>>>>> Users
             },
             items: [
             { type: 'Efetivado'},
@@ -64,14 +72,17 @@
                 v => !!v || 'CPF é obrigatório!',
                 v => v.length <= 11 || 'CPF deve ser válido!'
             ],
-            mask: 'cpf',
+            mask: '',
             value: '123.123.123-12',
             mask: 'phone',
             value: '(12) 12345 - 1234',
             
         }),
     methods:{
+<<<<<<< HEAD
         
+=======
+>>>>>>> Users
         save: function(){
             console.log(JSON.stringify(this.data));
             $.ajax({
@@ -79,7 +90,11 @@
                 method: "POST",
                 url: "{!! route('emp.store') !!}",
                 data: this.data,
+<<<<<<< HEAD
                 headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+=======
+                headers: app.headers,
+>>>>>>> Users
                 error: function (data) {
                             console.log(data.error+"teste");
                                 if( data.status === 422 ) {
@@ -100,7 +115,8 @@
                                 }
                             }
             })   
-        }
+        },
+
     }
 })
 </script>
