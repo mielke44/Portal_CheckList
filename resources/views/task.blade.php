@@ -7,22 +7,10 @@
 @section('l-content')
 
 
-<v-container grid-list-lg style='height:300px'>
-    <v-layout row wrap fill-height>
-        <v-flex xs4>
-            <v-card height="100%" color='orange' dark>
-                asfas
-            </v-card>
-        </v-flex>
-        <v-flex xs4>
-            <v-card height="100%" color='blue' dark>
-                asfas
-            </v-card>
-        </v-flex>
-        <v-flex xs4>
-            <v-card height="100%" color='purple' dark>
-                asfas
-            </v-card>
+<v-container>
+    <v-layout row wrap>
+        <v-flex class='text-xs-right'>
+            <v-btn color="primary">Adicionar empregado</v-btn>
         </v-flex>
     </v-layout>
 </v-container>
