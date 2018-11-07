@@ -2,6 +2,10 @@
 
 @section('vuetify-app-content')
 
+@section('css')
+@yield("l-css");
+<link href="{{asset('css/extras.css')}}" rel="stylesheet">
+@endsection
 
 <v-navigation-drawer :mini-variant.sync="mini" fixend app v-model="drawer" hide-overlay stateless class="red accent-3"
     dark>
@@ -66,18 +70,14 @@
                 <v-icon>more_vert</v-icon>
             </v-btn>
             <v-list>
-                <v-list-tile @click="">
-                    <v-list-tile-title>
-                        <v-icon class="mr-2">delete</v-icon>Sair
-                    </v-list-tile-title>
-
+                <v-list-tile @click="m.link" v-for='m in more'>
+                    <v-list-tile-avatar>
+                        <v-icon>@{{m.icon}}</v-icon>
+                    </v-list-tile-avatar>
+                    <v-list-tile-content class='body-1'>
+                        @{{m.text}}
+                    </v-list-tile-content>
                 </v-list-tile>
-                <v-list-tile @click="">
-                        <v-list-tile-title>
-                            <v-icon class="mr-2">more</v-icon>sdgsd
-                        </v-list-tile-title>
-
-                    </v-list-tile>
             </v-list>
         </v-menu>
     </v-toolbar-items>
@@ -105,6 +105,9 @@
         },
         data() {
             return {
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 app_name: "Portal Checklist",
                 notifications: "2",
                 name: "Christiano",
@@ -139,6 +142,17 @@
                             window.location = '/task/'
                         }
                     }
+                ],
+                more: [{
+                        icon: "settings",
+                        text: "Configurações",
+                        link: function () {}
+                    },
+                    {
+                        icon: "exit_to_app",
+                        text: "Sair",
+                        link: function () {}
+                    },
                 ]
             }
         },
