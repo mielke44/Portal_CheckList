@@ -113,7 +113,7 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Employee $Employee)
+    public function destroy($id)
     {
         $employee = employee::findOrFail($id);
         if ($employee->delete()) {
@@ -127,6 +127,11 @@ class EmployeeController extends Controller
     }
 
     public function list(){
-        
+        $list = Employee::all();
+        foreach($list as $emp){
+            $emp -> checks= 2;
+            $emp -> list = 22;
+        }
+        return json_encode($list);
     }
 }

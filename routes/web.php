@@ -22,3 +22,4 @@ Route::post('/store', "EmployeeController@store")->name('emp.store');
 Route::get('employee/edit/{id}', "EmployeeController@edit")->name('emp.edit');
 Route::delete('employee/remove/{id}', "EmployeeController@destroy")->name('emp.remove');
 Route::post('/',"EmployeeController@Update")->name('emp.update');
+Route::get('/list',"EmployeeController@list")->name('emp.list');

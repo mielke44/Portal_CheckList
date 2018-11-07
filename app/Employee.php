@@ -13,7 +13,7 @@ class Employee extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'CPF', 'fone', 'password', 'type'
+        'name', 'email', 'CPF', 'fone', 'type'
     ];
 
     /**
@@ -22,6 +22,6 @@ class Employee extends Model
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'remember_token'
     ];
 }

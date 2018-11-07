@@ -39,7 +39,7 @@
                                     <v-flex xs3>Telefone:</v-flex>
                                     <v-flex xs3 class='font-weight-bold'>@{{em.phone}}</v-flex>
                                     <v-flex xs3>Data admissão</v-flex>
-                                    <v-flex xs3 class='font-weight-bold'>@{{em.date}}</v-flex>
+                                    <v-flex xs3 class='font-weight-bold'>@{{em.created_at}}</v-flex>
                                     <v-flex xs12 class='text-xs-right'>
                                             <v-btn  color="blue" outline> <v-icon dark class='mr-2'>check</v-icon> Checklist</v-btn>
                                             <v-btn @click="edit(em.id)" color="yellow darken-2" outline><v-icon dark class='mr-2'>edit</v-icon> Editar</v-btn>
@@ -60,28 +60,7 @@
     Vue.component("page", {
         data() {
             return {
-                employees: [{
-                        id: 1,
-                        name: "Christiano Oishi de Carvalho",
-                        profile: "Estagiário",
-                        cpf: "079.323.579.00",
-                        email: "oishi.chris@gmail.com",
-                        phone: "41 9 990 1427",
-                        date: "04/06/2018",
-                        checks: 2,
-                        list: 22
-                    },
-                    {
-                        id: 1,
-                        name: "Christiano Oishi de Carvalho",
-                        profile: "Estagiário",
-                        cpf: "079.323.579.00",
-                        email: "oishi.chris@gmail.com",
-                        phone: "41 9 990 1427",
-                        date: "04/06/2018",
-                        checks: 2,
-                        list: 22
-                    }
+                employees: [
                 ]
             }
         },
@@ -90,8 +69,36 @@
                 location.href="{{ route('employee') }}"+"/edit/"+id;
             },
             remove: function(id){
-                location.href="{{ route('employee') }}"+"/remove/"+id;
-            }
+                $.ajax({
+                    method:"DELETE",
+                    url:"{{ route('employee') }}"+"/remove/"+id,
+                    headers:app.headers,
+                success: (Response)=> {
+                                console.log(Response.error);
+                                if (Response.error == true) {
+                                }
+                                else {
+                                    this.list();
+                                }
+                            }
+                });
+                
+            },
+            list: function(){
+            $.ajax({
+                url: "{!! route('emp.list') !!}",
+                method: "GET",
+                dataType: "json"
+
+            }).done(Response => {
+                console.log(JSON.stringify(Response));
+                this.employees = Response;
+
+            })
+        }
+        },
+        mounted(){
+            this.list();
         }
 
     });
