@@ -12,12 +12,13 @@
 */
 
 Route::get('/', "DashboardController@index")->name('dashboard');
-Route::get('employee/', "EmployeeController@index")->name('employee');
 Route::get('profile/', "ProfileController@index")->name('profile');
 Route::get('task/', "TaskController@index")->name('task');
 
 //User
+Route::get('employee/', "EmployeeController@index")->name('employee');
 Route::get('employee/create', "EmployeeController@create")->name('emp.create');
-Route::post('/', "EmployeeController@store")->name('emp.store');
-Route::get('employee/edit/{Employee}', "EmployeeController@edit")->name('emp.edit');
-Route::delete('employee/remove/{Employee}', "EmployeeController@destroy")->name('emp.remove');
+Route::post('/store', "EmployeeController@store")->name('emp.store');
+Route::get('employee/edit/{id}', "EmployeeController@edit")->name('emp.edit');
+Route::delete('employee/remove/{id}', "EmployeeController@destroy")->name('emp.remove');
+Route::post('/',"EmployeeController@Update")->name('emp.update');

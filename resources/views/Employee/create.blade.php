@@ -18,8 +18,8 @@
                         <v-text-field v-model="data.fone" :rules="foneRules" label="Telefone" required></v-text-field>
                     
                         <v-flex xs6>
-                            <v-select v-model="select" :hint="`${select.type}`" 
-                            :items="items" item-text="type" label="Select" persistent-hint return-object single-line required></v-select>
+                            <v-select v-model="data.select" :hint="`${data.select.type}`" 
+                            :items="items" item-text="type" label="Tipo" persistent-hint return-object single-line required></v-select>
                         </v-flex>
                         <v-btn @click="save" color="primary">Adicionar empregado</v-btn>
                     </v-card-text>
@@ -44,11 +44,11 @@
             cpf: '',
             fone: '',
             select: {type: 'Tipo'},
+            },
             items: [
             { type: 'Efetivado'},
             { type: 'Estagiário'}
-            ]
-            },
+            ],
             nameRules: [
                 v => !!v || 'Nome é obrigatório!',
                 v => v.length <= 10 || 'Nome deve ter pelo menos 10 caracteres!'
@@ -70,16 +70,14 @@
             value: '(12) 12345 - 1234',
             
         }),
-    method:{
+    methods:{
         save: function(){
             $.ajax({
                 dataType: "json",
-                type: "POST",
-                url: "{!! route('client-store') !!}",
-                data: formData,
+                method: "POST",
+                url: "{!! route('emp.store') !!}",
+                data: this.data,
                 headers: app.headers,
-                processData: false,
-                contentType: false,
                 error: function (data) {
                             console.log(data.error);
                                 if( data.status === 422 ) {
@@ -96,10 +94,13 @@
                                 if (response.error == true) {
                                 }
                                 else {
-                                    window.location = "{!! route('client-list') !!}";
+                                    window.location = "{!! route('employee') !!}";
                                 }
                             }
             })   
+        },
+        list: function(){
+
         }
     }
 })

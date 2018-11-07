@@ -24,7 +24,7 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return view("create");
+        return view("Employee.create");
     }
 
     /**
@@ -38,12 +38,12 @@ class EmployeeController extends Controller
         //$this -> Employee = \Auth::Employee();
 
         $Employee = new Employee;
-        $Employee -> name = $request -> name;
-        $Employee -> email = $request -> email;
-        $Employee -> password = bcrypt($request -> password);
-        $Employee -> type = $request -> type;
-        $Employee -> CPF = $request -> cpf;
-        $Employee -> fone = $request -> fone;
+        $Employee -> name = $request['name'];
+        $Employee -> email = $request['email'];
+        $Employee -> password = bcrypt($request['password']);
+        $Employee -> type = $request['select']['type'];
+        $Employee -> CPF = $request['cpf'];
+        $Employee -> fone = $request['fone'];
         if ($Employee -> save()) {
             return json_encode(array('error' => false,
                 'message' => $Employee -> id));
@@ -72,8 +72,8 @@ class EmployeeController extends Controller
      */
     public function edit($id)
     {
-        $eid = Employee::get($id);
-        return view("emp-edit",compact('eid'));
+        $eid = Employee::findOrFail($id);
+        return view("Employee.edit",compact('eid'));
     }
 
     /**
@@ -83,9 +83,28 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Employee $Employee)
+    public function update(Request $request)
     {
-        //
+        $this->Employee = \Auth::Employee();
+
+            $Employee = Employee::findOrFail($request->get('id'));
+            $Employee->name        = $request->name;
+            $Employee->email      =$request->email;
+            $Employee->is_admin     =$request->is_admin;
+
+            $all_request = $request->all();
+            $Employee->fill($all_request);
+
+            if ($Employee->save()) {
+                return json_encode(array('error' => false,
+                                        'message' => $Employee->id));
+            }
+            else {
+                return json_encode(array('error' => true,
+                                        'message' => 'Erro ao editar usuário. Por favor, tente novamente.'));
+            }
+
+            return redirect()->route('employee');
     }
 
     /**
@@ -105,5 +124,9 @@ class EmployeeController extends Controller
                                     'message' => 'Erro ao deletar usuário. Por favor, tente novamente.'));
         }
         //return redirect()->route('Employee$Employee.list');
+    }
+
+    public function list(){
+        
     }
 }
