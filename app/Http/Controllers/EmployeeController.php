@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Employee;
 use Illuminate\Http\Request;
+use Auth;
 
 class EmployeeController extends Controller
 {
@@ -24,11 +25,7 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-<<<<<<< HEAD
-        return view("Employee/create");
-=======
         return view("Employee.create");
->>>>>>> Users
     }
 
     /**
@@ -40,11 +37,10 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         //$this -> Employee = \Auth::Employee();
-        
+
         $Employee = new Employee;
         $Employee -> name = $request['name'];
         $Employee -> email = $request['email'];
-        $Employee -> password = bcrypt($request['password']);
         $Employee -> type = $request['select']['type'];
         $Employee -> CPF = $request['cpf'];
         $Employee -> fone = $request['fone'];
@@ -87,8 +83,8 @@ class EmployeeController extends Controller
      */
     public function update(Request $request)
     {
-        $this->Employee = \Auth::Employee();
-
+        $this->Employee = Auth::Employee();
+        
             $Employee = Employee::findOrFail($request->get('id'));
             $Employee->name        = $request->name;
             $Employee->email      =$request->email;

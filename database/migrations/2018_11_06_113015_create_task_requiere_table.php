@@ -14,7 +14,8 @@ class CreateTaskRequiereTable extends Migration
     public function up()
     {
         Schema::create('task_requiere', function (Blueprint $table) {
-            $table->increments('id');
+            $table->integer('task_id');
+            $table->integer('task_requiere_id');
             $table->timestamps();
         });
     }
