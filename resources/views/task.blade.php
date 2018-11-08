@@ -11,7 +11,7 @@
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view">
         <v-flex class='text-xs-right'>
-            <v-btn color="primary" @click="form_view=true">Adicionar tarefa</v-btn>
+            <v-btn color="primary" @click="add()">Adicionar tarefa</v-btn>
         </v-flex>
         <v-flex xs12>
             <v-expansion-panel>
@@ -44,10 +44,10 @@
                                 <template v-for="d in t.dependence">@{{d.name}},</template>
                             </v-flex>
                             <v-flex xs12 class='text-xs-right'>
-                                <v-btn @click="" color="yellow darken-2" outline>
+                                <v-btn @click="edit(t.id)" color="yellow darken-2" outline>
                                     <v-icon dark class='mr-2'>edit</v-icon> Editar
                                 </v-btn>
-                                <v-btn @click="" color="red" outline>
+                                <v-btn @click="destroy(t.id)" color="red" outline>
                                     <v-icon dark class='mr-2'>delete</v-icon> Remover
                                 </v-btn>
                             </v-flex>
@@ -64,16 +64,17 @@
         <v-flex s12>
             <v-card>
                 <v-container grid-list-xs>
-                    <div class='display-3'>Criar tarefa</div>
+                    <div class='display-3'>@{{form_texts.title}}</div>
                     <v-form ref='form'>
                         <v-card-text>
                             <v-text-field v-model="form.name" label="Tarefa" required :rules="rules.name" counter='25'></v-text-field>
-                            <v-textarea v-model="form.description" label="Descrição" :rules="rules.description" required counter='300'></v-textarea>
-                            <v-select v-model="form.type" :items="types" item-text="text" :rules="rules.type" label="Tipo de tarefa"
-                                persistent-hint return-object single-line required></v-select>
-                                <v-select v-model="form.dependences" :items="dependences" item-text="text" label="Dependencias"
-                                persistent-hint return-object multiple required></v-select>
-                            <v-btn @click="save" color="primary">Adicionar Tarefa</v-btn>
+                            <v-textarea v-model="form.description" label="Descrição" :rules="rules.description"
+                                required counter='300'></v-textarea>
+                            <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
+                                label="Tipo de tarefa" persistent-hint single-line required></v-select>
+                            <v-select v-model="form.dependences" :items="tasks" item-text="name" item-value="id" label="Dependencias"
+                                persistent-hint multiple required></v-select>
+                            <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
 
                     </v-form>
@@ -134,20 +135,25 @@
                 ],
 
                 form_view: false,
-                rules:{
-                    name:[
-                        v=>!!v||'Campo obrigtório',
+                form_texts: {
+                    title: "",
+                    button: ""
+                },
+                rules: {
+                    name: [
+                        v => !!v || 'Campo obrigtório',
                         v => (v && v.length <= 25) || 'Máximo 25 caracteres'
                     ],
-                    description:[
-                        v=>!!v||'Campo obrigtório',
+                    description: [
+                        v => !!v || 'Campo obrigtório',
                         v => (v && v.length <= 300) || 'Máximo 300 caracteres'
                     ],
-                    type:[
-                        v=>!!v||'Campo obrigtório'
+                    type: [
+                        v => !!v || 'Campo obrigtório'
                     ],
                 },
                 form: {
+                    id: "",
                     name: '',
                     description: '',
                     type: '',
@@ -155,52 +161,84 @@
                 },
                 types: [{
                         text: "Solicitação",
+                        value: "1",
                     },
                     {
                         text: "Documento",
+                        value: "2",
                     },
                 ],
-                dependences: [{
-                        text: "Solicitação",
-                    },
-                    {
-                        text: "Documento1",
-                    },
-                    {
-                        text: "Documento2",
-                    },
-                    {
-                        text: "Documento3",
-                    },
-                    {
-                        text: "Documento4",
-                    },
-                    {
-                        text: "Documento5",
-                    },
-                    {
-                        text: "Documento6",
-                    },
-                    {
-                        text: "Documento7",
-                    },
-                    {
-                        text: "Documento8",
-                    },
-                    {
-                        text: "Documento9",
-                    },
-                    {
-                        text: "Documento10",
-                    },
-
-                ]
             }
         },
         methods: {
-            save: function () {
-                this.$refs.form.validate();
-            }
+            add: function () {
+                this.form_view = true;
+                this.form_texts.title = "Criar tarefa";
+                this.form_texts.button = "Criar";
+                this.form = {
+                    id: "",
+                    name: '',
+                    description: '',
+                    type: '',
+                    dependences: ''
+                }
+            },
+            store: function () {
+                if (this.$refs.form.validate()) {
+                    $.ajax({
+                        url: "{{route('task.store')}}",
+                        method: "POST",
+                        dataType: "json",
+                        headers: app.headers,
+                        data: this.form,
+                        success: (response) => {
+                            this.list();
+                            this.form_view = false;
+                        }
+                    });
+                }
+            },
+            list: function () {
+                $.ajax({
+                    url: "{{route('task.list')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response => {
+                    this.tasks = response;
+                });
+            },
+            edit: function (task_id) {
+                $.ajax({
+                    url: "{{route('task.edit')}}",
+                    method: "GET",
+                    dataType: "json",
+                    data: {
+                        id: task_id
+                    },
+                }).done(response => {
+                    this.form_texts.title = "Editar tarefa";
+                    this.form_texts.button = "Salvar";
+                    this.form = response;
+                    this.form_view = true;
+                });
+            },
+            destroy: function (task_id) {
+                $.ajax({
+                    url: "{{route('task.destroy')}}",
+                    method: "DELETE",
+                    dataType: "json",
+                    headers: app.headers,
+                    data: {
+                        id: task_id
+                    },
+                    success: (response) => {
+                        this.list();
+                    }
+                });
+            },
+        },
+        mounted() {
+            this.list();
         }
     });
 </script>

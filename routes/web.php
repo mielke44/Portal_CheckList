@@ -13,13 +13,21 @@
 
 Route::get('/', "DashboardController@index")->name('dashboard');
 Route::get('profile/', "ProfileController@index")->name('profile');
-Route::get('task/', "TaskController@index")->name('task');
 
-//User
+
+//Employess
 Route::get('employee/', "EmployeeController@index")->name('employee');
 Route::get('employee/create', "EmployeeController@create")->name('emp.create');
-Route::post('/store', "EmployeeController@store")->name('emp.store');
+Route::post('employee/store', "EmployeeController@store")->name('emp.store');
 Route::get('employee/edit/{id}', "EmployeeController@edit")->name('emp.edit');
 Route::delete('employee/remove/{id}', "EmployeeController@destroy")->name('emp.remove');
-Route::post('/',"EmployeeController@Update")->name('emp.update');
-Route::get('/list',"EmployeeController@list")->name('emp.list');
+Route::post('employee/update',"EmployeeController@Update")->name('emp.update');
+Route::get('employee/list',"EmployeeController@list")->name('emp.list');
+
+//Tasks
+Route::get('task/', "TaskController@index")->name('task');
+Route::post('task/store', "TaskController@store")->name('task.store');
+Route::get('task/list',"TaskController@list")->name('task.list');
+Route::get('task/edit',"TaskController@edit")->name('task.edit');
+Route::delete('task/destroy', "TaskController@destroy")->name('task.destroy');
+
