@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ChecklistTemplate;
 use Illuminate\Http\Request;
+use App\Profile;
 
 class ChecklistTemplateController extends Controller
 {
@@ -14,17 +15,23 @@ class ChecklistTemplateController extends Controller
      */
     public function index()
     {
-        //
+        return view("checklist");
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Sends a JSON list with all instances.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function list()
     {
-        //
+        $clists = ChecklistTemplate::all();
+        $profile = Profile::all();
+        foreach($clists as $c){
+            $c ->dependences= '';
+        }
+        $a = array('clists'=> $clists, 'profile'=> $profile);
+        return json_encode($a);
     }
 
     /**
@@ -35,18 +42,12 @@ class ChecklistTemplateController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\ChecklistTemplate  $checklistTemplate
-     * @return \Illuminate\Http\Response
-     */
-    public function show(ChecklistTemplate $checklistTemplate)
-    {
-        //
+        if($request["id"] != "") $clist = ChecklistTemplate::find($request["id"]);
+        else $clist = new ChecklistTemplate();
+        $clist->name = $request["name"];
+        $clist->type = $request["type"];
+        if($clist->save()) return json_encode(array('success'=>"true"));
+        else return json_encode(array('error'=>"true"));
     }
 
     /**
@@ -55,22 +56,12 @@ class ChecklistTemplateController extends Controller
      * @param  \App\ChecklistTemplate  $checklistTemplate
      * @return \Illuminate\Http\Response
      */
-    public function edit(ChecklistTemplate $checklistTemplate)
+    public function edit(Request $request)
     {
-        //
+        $clist = ChecklistTemplate::findOrFail($request["id"]);
+        return $clist;
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\ChecklistTemplate  $checklistTemplate
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, ChecklistTemplate $checklistTemplate)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -78,8 +69,10 @@ class ChecklistTemplateController extends Controller
      * @param  \App\ChecklistTemplate  $checklistTemplate
      * @return \Illuminate\Http\Response
      */
-    public function destroy(ChecklistTemplate $checklistTemplate)
+    public function destroy(Request $request)
     {
-        //
+        $clist = ChecklistTemplate::findOrFail($request["id"]);
+        if($clist->delete()) return json_encode(array('success'=>"true"));
+        else return json_encode(array('error'=>"true"));
     }
 }

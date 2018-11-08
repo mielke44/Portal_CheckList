@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Profile;
 use Illuminate\Http\Request;
+use App\ChecklistTemplate;
 
 class ProfileController extends Controller
 {
@@ -18,13 +19,19 @@ class ProfileController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Sends a JSON with all instances.
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function list()
     {
-        //
+        $profile = Profile::all();
+        $clist = ChecklistTemplate::all();
+        foreach($profile as $p){
+            $p ->dependences= '';
+        }
+        $b = array('profile'=>$profile,'clist'=>$clist);
+        return json_encode($b);
     }
 
     /**
@@ -35,18 +42,11 @@ class ProfileController extends Controller
      */
     public function store(Request $request)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Profile  $profile
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Profile $profile)
-    {
-        //
+        if($request["id"] != "") $profile = Profile::find($request["id"]);
+        else $profile = new Profile();
+        $profile->name = $request["name"];
+        if($profile->save()) return json_encode(array('success'=>"true"));
+        else return json_encode(array('error'=>"true"));
     }
 
     /**
@@ -55,21 +55,10 @@ class ProfileController extends Controller
      * @param  \App\Profile  $profile
      * @return \Illuminate\Http\Response
      */
-    public function edit(Profile $profile)
+    public function edit(Request $request)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Profile  $profile
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Profile $profile)
-    {
-        //
+        $profile = Profile::findOrFail($request["id"]);
+        return $profile;
     }
 
     /**
@@ -78,8 +67,10 @@ class ProfileController extends Controller
      * @param  \App\Profile  $profile
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Profile $profile)
+    public function destroy(Request $request)
     {
-        //
+        $profile= Profile::findOrFail($request["id"]);
+        if($profile->delete()) return json_encode(array('success'=>"true"));
+        else return json_encode(array('error'=>"true"));
     }
 }
