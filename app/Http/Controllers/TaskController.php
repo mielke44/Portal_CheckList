@@ -17,14 +17,14 @@ class TaskController extends Controller
         return view("task");
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+
+    public function list()
     {
-        //
+        $tasks = Task::all();
+        foreach($tasks as  $t){
+            $t->dependence = array();
+        }
+        return json_encode($tasks);
     }
 
     /**
@@ -35,7 +35,13 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        if($request["id"] != "") $task = Task::find($request["id"]);
+        else $task = new Task();
+        $task->name = $request["name"];
+        $task->description = $request["description"];
+        $task->type = $request["type"];
+        if($task->save()) return json_encode(array('success'=>"true"));
+        else return json_encode(array('error'=>"true"));
     }
 
     /**
@@ -44,33 +50,12 @@ class TaskController extends Controller
      * @param  \App\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function show(Task $task)
+    public function edit(Request $request)
     {
-        //
+        $task = Task::findOrFail($request["id"]);
+        return $task;
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Task $task)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Task $task)
-    {
-        //
-    }
 
     /**
      * Remove the specified resource from storage.
@@ -78,8 +63,10 @@ class TaskController extends Controller
      * @param  \App\Task  $task
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Task $task)
+    public function destroy(Request $request)
     {
-        //
+        $task = Task::findOrFail($request["id"]);
+        if($task->delete()) return json_encode(array('success'=>"true"));
+        else return json_encode(array('error'=>"true"));
     }
 }
