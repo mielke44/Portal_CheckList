@@ -89,7 +89,11 @@
     </page>
 </v-content>
 
-
+<!-- COPONENTES -->
+<v-snackbar v-model="snackbar_notify.model" multi-line timeout="3000" bottom right :color='snackbar_notify.color'>
+    @{{snackbar_notify.text}}
+    <v-btn flat  @click.native="value = false"><v-icon>clear</v-icon></v-btn>
+</v-snackbar>
 
 @endsection
 
@@ -148,19 +152,37 @@
                         text: "Configurações",
                         link: function () {}
                     },
+
+
+
+
+
                     {
                         icon: "exit_to_app",
                         text: "Sair",
                         link: function () {}
                     },
-                ]
+                ],
+                snackbar_notify:{
+                    text:"",
+                    model: false,
+                    color: "",
+                }
             }
         },
         computed: {
             letter: function () {
                 return this.name[0];
-            }
+            },
         },
+        methods:{
+            notify: function(text,color){
+                this.snackbar_notify.text = text;
+                this.snackbar_notify.model = true;
+                if(this.snackbar_notify.color==null)this.snackbar_notify.color = "black";
+                this.snackbar_notify.color = color;
+            }
+        }
     });
 </script>
 @endsection

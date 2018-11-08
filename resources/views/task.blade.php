@@ -194,6 +194,8 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
+                            if(this.form.id=="")app.notify("Tarefa criada","success");
+                            else app.notify("Edição salva","success");
                         }
                     });
                 }
@@ -233,6 +235,7 @@
                     },
                     success: (response) => {
                         this.list();
+                        app.notify("Tarefa removida","error");
                     }
                 });
             },
