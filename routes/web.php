@@ -31,3 +31,17 @@ Route::get('task/list',"TaskController@list")->name('task.list');
 Route::get('task/edit',"TaskController@edit")->name('task.edit');
 Route::delete('task/destroy', "TaskController@destroy")->name('task.destroy');
 
+//checklistsTemplates
+Route::get('checklist/', "ChecklistTemplateController@index")->name('checklist');
+Route::post('checklist/store', "ChecklistTemplateController@store")->name('checklist.store');
+Route::get('checklist/list', "ChecklistTemplateController@list")->name('checklist.list');
+Route::get('checklist/edit', "ChecklistTemplateController@edit")->name('checklist.edit');
+Route::delete('checklist/destroy', "ChecklistTemplateController@destroy")->name('checklist.destroy');
+
+//Profiles
+Route::get('profile/', "ProfileController@index")->name('profile');
+Route::post('profile/store', "ProfileController@store")->name('profile.store');
+Route::get('profile/list', "ProfileController@list")->name('profile.list');
+Route::get('profile/edit', "ProfileController@edit")->name('profile.edit');
+Route::delete('profile/destroy', "ProfileController@destroy")->name('profile.destroy');
+

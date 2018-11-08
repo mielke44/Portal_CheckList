@@ -141,6 +141,13 @@
                     },
                     {
                         icon: "list_alt",
+                        text: "Checklists",
+                        link:function(){
+                            window.location = '/checklist/'
+                        }
+                    },
+                    {
+                        icon:"list",
                         text: "Tarefas",
                         link: function () {
                             window.location = '/task/'
