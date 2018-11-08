@@ -14,8 +14,8 @@
                     <v-card-text>
                         <v-text-field v-model="data.name" :rules="nameRules" label="Name" required></v-text-field>
                         <v-text-field v-model="data.email" :rules="emailRules" label="E-mail" required></v-text-field>
-                        <v-text-field mask="###.###.###-##" v-model="data.cpf" :rules="cpfRules" label="CPF" required></v-text-field>
-                        <v-text-field mask="+##(##)#####.####" v-model="data.fone" :rules="foneRules" label="Telefone" required></v-text-field>
+                        <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="data.cpf" :rules="cpfRules" label="CPF" required></v-text-field>
+                        <v-text-field mask="+##(##)#####.####" return-masked-value="true" v-model="data.fone" :rules="foneRules" label="Telefone" required></v-text-field>
                     
                         <v-flex xs6>
                             <v-select v-model="data.select" :hint="`${data.select.type}`" 

@@ -37,7 +37,7 @@
                                     <v-flex xs3>E-mail:</v-flex>
                                     <v-flex xs3 class='font-weight-bold'>@{{em.email}}</v-flex>
                                     <v-flex xs3>Telefone:</v-flex>
-                                    <v-flex xs3 class='font-weight-bold'>@{{em.phone}}</v-flex>
+                                    <v-flex xs3 class='font-weight-bold'>@{{em.fone}}</v-flex>
                                     <v-flex xs3>Data admissão</v-flex>
                                     <v-flex xs3 class='font-weight-bold'>@{{em.created_at}}</v-flex>
                                     <v-flex xs12 class='text-xs-right'>
