@@ -1,11 +1,13 @@
 @extends('layouts.vuetify-default')
 
-@section('vuetify-app-content')
-
 @section('css')
-@yield("l-css");
+@yield("l-css")
 <link href="{{asset('css/extras.css')}}" rel="stylesheet">
 @endsection
+
+@section('vuetify-app-content')
+
+
 
 <v-navigation-drawer :mini-variant.sync="mini" fixend app v-model="drawer" hide-overlay stateless class="red accent-3"
     dark>
@@ -114,7 +116,7 @@
                 },
                 app_name: "Portal Checklist",
                 notifications: "2",
-                name: "Christiano",
+                name: " ",
                 drawer: true,
                 mini: true,
                 data_ajax_get: "",
@@ -160,7 +162,7 @@
                     {
                         icon: "exit_to_app",
                         text: "Sair",
-                        link: function () {}
+                        link: function () {location.href='/logout'}
                     },
                 ],
                 snackbar_notify:{
@@ -181,7 +183,18 @@
                 this.snackbar_notify.model = true;
                 if(this.snackbar_notify.color==null)this.snackbar_notify.color = "black";
                 this.snackbar_notify.color = color;
+            },
+            getName: function(){
+                $.ajax({
+                    url : "{{route('getname')}}",
+                    method: 'GET',
+                }).done(response=>{
+                    this.name = response;
+                });
             }
+        },
+        mounted(){
+            this.getName();
         }
     });
 </script>

@@ -8,11 +8,10 @@ use Auth;
 
 class EmployeeController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     public function index()
     {
         return view("employee");
@@ -84,7 +83,7 @@ class EmployeeController extends Controller
     public function update(Request $request)
     {
         $this->Employee = Auth::Employee();
-        
+
             $Employee = Employee::findOrFail($request->get('id'));
             $Employee->name        = $request->name;
             $Employee->email      =$request->email;

@@ -31,3 +31,10 @@ Route::get('task/list',"TaskController@list")->name('task.list');
 Route::get('task/edit',"TaskController@edit")->name('task.edit');
 Route::delete('task/destroy', "TaskController@destroy")->name('task.destroy');
 
+
+Auth::routes();
+
+//Route::get('/home', 'HomeController@index')->name('home');
+
+Route::get('/logout','HomeController@logout')->name('logout');
+Route::get('/getname','HomeController@getName')->name('getname');
