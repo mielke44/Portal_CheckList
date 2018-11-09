@@ -45,3 +45,6 @@ Route::get('profile/list', "ProfileController@list")->name('profile.list');
 Route::get('profile/edit', "ProfileController@edit")->name('profile.edit');
 Route::delete('profile/destroy', "ProfileController@destroy")->name('profile.destroy');
 
+Auth::routes();
+Route::get('/logout','HomeController@logout')->name('logout');
+Route::get('/getname','HomeController@getName')->name('getname');
