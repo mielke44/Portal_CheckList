@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\ChecklistTemplate;
 use Illuminate\Http\Request;
 use App\Profile;
-
+use App\Task;
+use App\LinkerChecklist;
 class ChecklistTemplateController extends Controller
 {
     public function __construct()
@@ -30,10 +31,10 @@ class ChecklistTemplateController extends Controller
     public function list()
     {
         $clists = ChecklistTemplate::all();
-        $profile = Profile::all();
         $task = Task::all();
         foreach($clists as $c){
             $dep = array();
+            $c->profile = Profile::findOrFail($c->id);
             $clinker = LinkerChecklist::where("checklist_id",$c->id)->get();
             foreach($clinker as $cl){
                 $taskdep = Task::find($cl->task_id);
@@ -41,7 +42,7 @@ class ChecklistTemplateController extends Controller
             }
             $c->dependeces = $dep;
         }
-        $a = array('clists'=> $clists, 'profile'=> $profile, 'task'=> $task);
+        $a = array('clists'=> $clists, 'task'=> $task);
         return json_encode($a);
     }
 

@@ -28,8 +28,8 @@
                             <v-flex xs1 class='font-weight-bold'>
                                 Perfil:
                             </v-flex>
-                            <v-flex v-for='p in profile'>
-                                @{{p.name}}
+                            <v-flex>
+                                @{{l.profile.name}}
                             </v-flex>
                         </v-layout>
                         <v-layout row wrap>
@@ -65,10 +65,35 @@
                     <v-form ref='form'>
                         <v-card-text>
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
-                            <v-select v-model="form.type" :items="types" item-text="text" item-value="value" label="Tipo" required
-                                :rules="rules.type" persistent-hint></v-select>
-                            <v-select v-model="form.dependences" :items="profile" item-text="name" item-value="id" label="Perfil"
-                                persistent-hint multiple required></v-select>
+                            <v-autocomplete 
+                                v-model="form.dependeces" 
+                                :items="task" 
+                                label="Tarefas" 
+                                item-text="name" 
+                                item-value="id" 
+                                multiple
+                            >
+                                <template 
+                                    slot="selection" 
+                                    slot-scope="data"
+                                >
+                                    <v-chip 
+                                        :selected="data.selected" 
+                                        close class="chip--select-multi" 
+                                        @input="remove(data.item)">@{{data.item.name}}</v-chip>
+                                </template>
+                                <template
+                                    slot="item"
+                                    slot-scope="data"
+                                >
+                                    <template>
+                                        <v-list-tile-content>
+                                            <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
+                                            <v-list-tile-sub-title v-html="data.item.description"></v-list-tile-sub-title>
+                                        </v-list-tile-content>
+                                    </template>
+                                </template>
+                            </v-autocomplete>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
                     </v-form>
@@ -92,7 +117,6 @@
                 profile:[
                 ],
                 task:[
-
                 ],
                 form_view: false,
                 form_texts: {
@@ -104,29 +128,15 @@
                         v => !!v || 'Campo obrigtório',
                         v => (v && v.length <= 25) || 'Máximo 25 caracteres'
                     ],
-                    type: [
+                    dep: [
                         v => !!v || 'Campo obrigtório'
                     ],
                 },
                 form: {
                     id: "",
                     name: '',
-                    type: '',
                     dependences: ''
                 },
-                types: [{
-                        text: "Contratação",
-                        value: "1",
-                    },
-                    {
-                        text: "Demissão",
-                        value: "2",
-                    },
-                    {
-                        text: "Transferência",
-                        value: "3",
-                    },
-                ],
             }
         },
         methods: {
@@ -163,7 +173,6 @@
                     dataType: "json",
                 }).done(response => {
                     this.clists = response['clists'];
-                    this.profile = response['profile'];
                     this.task = response['task'];
                 });
             },
@@ -196,6 +205,17 @@
                     }
                 });
             },
+            remove (item) {
+                const index = this.friends.indexOf(item.name)
+                if (index >= 0) this.friends.splice(index, 1)
+            }
+        },
+        watch: {
+            isUpdating (val) {
+                if (val) {
+                    setTimeout(() => (this.isUpdating = false), 3000)
+                }
+            }
         },
         mounted() {
             this.list();
