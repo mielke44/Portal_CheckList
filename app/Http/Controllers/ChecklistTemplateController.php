@@ -32,17 +32,18 @@ class ChecklistTemplateController extends Controller
     {
         $clists = ChecklistTemplate::all();
         $task = Task::all();
+        $prof = Profile::all();
         foreach($clists as $c){
             $dep = array();
-            $c->profile = Profile::findOrFail($c->id);
+            $c->profile = Profile::findOrFail($c->profile_id);
             $clinker = LinkerChecklist::where("checklist_id",$c->id)->get();
             foreach($clinker as $cl){
                 $taskdep = Task::find($cl->task_id);
-                $dep[]=array('task_id'=>$clinker->task_id,"name"=>$taskdep->name);
+                $dep[]=array('task_id'=>$cl->task_id,"name"=>$taskdep->name, "desc"=>$taskdep->description);
             }
-            $c->dependeces = $dep;
+            $c->dependences = $dep;
         }
-        $a = array('clists'=> $clists, 'task'=> $task);
+        $a = array('clists'=> $clists, 'task'=> $task,'profiles'=> $prof);
         return json_encode($a);
     }
 
@@ -57,10 +58,10 @@ class ChecklistTemplateController extends Controller
         if($request["id"] != "") $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
         $clist->name = $request["name"];
-        $clist->type = $request["type"];
+        $clist->profile_id = $request["profile_id"];
 
         if($clist->save()){
-            if($request->dependeces != "")foreach($request->dependences as $d){
+            if($request->dependences != "")foreach($request->dependences as $d){
                 $clinker = new LinkerChecklist();
                 $clinker->checklist_id = $clist->id;
                 $clinker->task_id = $d;

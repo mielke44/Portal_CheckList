@@ -25,7 +25,7 @@
                     </div>
                     <v-container grid-list-xs>
                         <v-layout row wrap>
-                            <v-flex xs1 class='font-weight-bold'>
+                            <v-flex xs3 class='font-weight-bold'>
                                 Perfil:
                             </v-flex>
                             <v-flex>
@@ -34,15 +34,21 @@
                         </v-layout>
                         <v-layout row wrap>
                             <v-flex xs3 class='font-weight-bold' v-if="l.dependences.length>0">
-                                Dependência:
+                                Tarefas:
                             </v-flex>
-                            <v-flex xs3>
-                                <template v-for="d in l.dependences">@{{d.name}},</template>
+                            <v-flex xs9>
+                                <v-layout row wrap>
+                                    <template v-for="d in l.dependences">
+                                        <v-flex xs6>
+                                            @{{d.name}}
+                                        </v-flex>
+                                        <v-flex xs6 class='caption'>
+                                            @{{d.desc}}
+                                        </v-flex>
+                                    </template>    
+                                </v-layout>
                             </v-flex>
                             <v-flex xs12 class='text-xs-right'>
-                                <v-btn @click="tasks(l.id)" color="green" outline>
-                                    <v-icon dark class='mr-2'>list</v-icon>Tarefas
-                                </v-btn>
                                 <v-btn @click="edit(l.id)" color="yellow darken-2" outline>
                                     <v-icon dark class='mr-2'>edit</v-icon> Editar
                                 </v-btn>
@@ -65,8 +71,10 @@
                     <v-form ref='form'>
                         <v-card-text>
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
+                            <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil" 
+                            :rules="rules.prof_id" persistent-hint required></v-select>
                             <v-autocomplete 
-                                v-model="form.dependeces" 
+                                v-model="form.dependences" 
                                 :items="task" 
                                 label="Tarefas" 
                                 item-text="name" 
@@ -131,10 +139,14 @@
                     dep: [
                         v => !!v || 'Campo obrigtório'
                     ],
+                    prof_id: [
+                        v => !!v || 'Campo obrigtório'
+                    ],
                 },
                 form: {
                     id: "",
                     name: '',
+                    profile_id:'',
                     dependences: ''
                 },
             }
@@ -147,7 +159,7 @@
                 this.form = {
                     id: "",
                     name: '',
-                    type: '',
+                    profile_id: '',
                     dependences: ''
                 }
             },
@@ -174,6 +186,7 @@
                 }).done(response => {
                     this.clists = response['clists'];
                     this.task = response['task'];
+                    this.profile = response['profiles'];
                 });
             },
             edit: function (id) {

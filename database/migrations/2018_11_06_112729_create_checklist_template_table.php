@@ -15,7 +15,7 @@ class CreateChecklistTemplateTable extends Migration
     {
         Schema::create('checklist_template', function (Blueprint $table) {
             $table->string('name');
-            $table->string('type');
+            $table->string('profile_id');
             $table->increments('id');
             $table->timestamps();
         });
