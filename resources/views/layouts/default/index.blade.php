@@ -54,18 +54,36 @@
     <v-toolbar-title>
         @yield('l-title')
     </v-toolbar-title>
+    <template v-if="search.model">
+        <v-text-field v-model='search.value' append-icon="search" label="Procurar" full-width solo slot='extension' @click:append='searching'></v-text-field>
+    </template>
     <v-spacer></v-spacer>
     <v-toolbar-items class="hidden-sm-and-down">
 
-        <v-btn icon>
+        <v-btn icon @click="search.model=!search.model">
             <v-icon>search</v-icon>
         </v-btn>
-        <v-btn icon>
-            <v-badge right color='primary'>
-                <span slot="badge" v-if='notifications>0'>@{{notifications}}</span>
-                <v-icon>notifications</v-icon>
-            </v-badge>
-        </v-btn>
+
+        <v-menu offset-y left>
+            <v-btn icon slot='activator'>
+                <v-badge right color='primary'>
+                    <span slot="badge" v-if='notifications.length>0'>@{{notifications.length}}</span>
+                    <v-icon>notifications</v-icon>
+                </v-badge>
+            </v-btn>
+            <v-list>
+                <v-list-tile @click="" v-for='n in notifications'>
+                    <v-list-tile-avatar>
+                        <v-icon>@{{n.icon}}</v-icon>
+                    </v-list-tile-avatar>
+                    <v-list-tile-content class='body-1'>
+                        <v-list-tile-title>@{{n.title}}</v-list-tile-title>
+                        <v-list-tile-sub-title>@{{n.text}}</v-list-tile-sub-title>
+
+                    </v-list-tile-content>
+                </v-list-tile>
+            </v-list>
+        </v-menu>
 
         <v-menu offset-y left>
             <v-btn icon slot="activator">
@@ -94,7 +112,9 @@
 <!-- COPONENTES -->
 <v-snackbar v-model="snackbar_notify.model" multi-line timeout="3000" bottom right :color='snackbar_notify.color'>
     @{{snackbar_notify.text}}
-    <v-btn flat  @click.native="value = false"><v-icon>clear</v-icon></v-btn>
+    <v-btn flat @click.native="value = false">
+        <v-icon>clear</v-icon>
+    </v-btn>
 </v-snackbar>
 
 @endsection
@@ -115,11 +135,22 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 app_name: "Portal Checklist",
-                notifications: "2",
+                notifications: [{
+                    icon: "list_alt",
+                    title: "Christiano Oishi",
+                    text: "Atualizou a tarefa"
+                }, {
+                    icon: "list_alt",
+                    title: "Christiano Oishi",
+                    text: "Removeu a tarefa"
+                }, ],
                 name: " ",
                 drawer: true,
                 mini: true,
-                data_ajax_get: "",
+                search:{
+                    value: "",
+                    model:false
+                },
                 menu: [{
                         icon: "dashboard",
                         text: "Dashboard",
@@ -143,13 +174,13 @@
                     },
                     {
                         icon: "list_alt",
-                        text: "Checklists",
-                        link:function(){
+                        text: "Lista de tarefas",
+                        link: function () {
                             window.location = '/checklist/'
                         }
                     },
                     {
-                        icon:"list",
+                        icon: "list",
                         text: "Tarefas",
                         link: function () {
                             window.location = '/task/'
@@ -169,11 +200,13 @@
                     {
                         icon: "exit_to_app",
                         text: "Sair",
-                        link: function () {location.href='/logout'}
+                        link: function () {
+                            location.href = '/logout'
+                        }
                     },
                 ],
-                snackbar_notify:{
-                    text:"",
+                snackbar_notify: {
+                    text: "",
                     model: false,
                     color: "",
                 }
@@ -184,23 +217,26 @@
                 return this.name[0];
             },
         },
-        methods:{
-            notify: function(text,color){
+        methods: {
+            notify: function (text, color) {
                 this.snackbar_notify.text = text;
                 this.snackbar_notify.model = true;
-                if(this.snackbar_notify.color==null)this.snackbar_notify.color = "black";
+                if (this.snackbar_notify.color == null) this.snackbar_notify.color = "black";
                 this.snackbar_notify.color = color;
             },
-            getName: function(){
+            getName: function () {
                 $.ajax({
-                    url : "{{route('getname')}}",
+                    url: "{{route('getname')}}",
                     method: 'GET',
-                }).done(response=>{
+                }).done(response => {
                     this.name = response;
                 });
+            },
+            searching: function(){
+                alert(this.search.value);
             }
         },
-        mounted(){
+        mounted() {
             this.getName();
         }
     });
