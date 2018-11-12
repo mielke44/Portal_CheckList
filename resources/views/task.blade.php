@@ -94,46 +94,7 @@
     Vue.component("page", {
         data() {
             return {
-                tasks: [{
-                        id: 1,
-                        name: "Fazer crachá",
-                        type: "Solicitação",
-                        description: "Criar crachá",
-                        dependence: [{
-                                task_id: 1,
-                                name: "oi"
-                            },
-                            {
-                                task_id: 1,
-                                name: "oi"
-                            },
-                            {
-                                task_id: 1,
-                                name: "oi"
-                            },
-                        ]
-                    },
-                    {
-                        id: 1,
-                        name: "Identidade",
-                        type: "Documento",
-                        description: "Solicitar documento",
-                        dependence: [{
-                                task_id: 1,
-                                name: "oi"
-                            },
-                            {
-                                task_id: 1,
-                                name: "oi"
-                            },
-                            {
-                                task_id: 1,
-                                name: "oi"
-                            },
-                        ]
-                    },
-                ],
-
+                tasks: [],
                 form_view: false,
                 form_texts: {
                     title: "",

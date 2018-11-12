@@ -1,7 +1,7 @@
 @extends('layouts.default.index')
 
 @section('title','Portal Checklist')
-@section('l-title','Checklists')
+@section('l-title','Lista de tarefas')
 
 
 @section('l-content')
@@ -14,7 +14,7 @@
             <v-btn color="primary" @click="add()">Adicionar Lista de Tarefas</v-btn>
         </v-flex>
         <v-flex xs12>
-            <v-expansion-panel> 
+            <v-expansion-panel>
                 <v-expansion-panel-content v-for='l in clists'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
@@ -45,7 +45,7 @@
                                         <v-flex xs6 class='caption'>
                                             @{{d.desc}}
                                         </v-flex>
-                                    </template>    
+                                    </template>
                                 </v-layout>
                             </v-flex>
                             <v-flex xs12 class='text-xs-right'>
@@ -71,23 +71,23 @@
                     <v-form ref='form'>
                         <v-card-text>
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
-                            <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil" 
+                            <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil"
                             :rules="rules.prof_id" persistent-hint required></v-select>
-                            <v-autocomplete 
-                                v-model="form.dependences" 
-                                :items="task" 
-                                label="Tarefas" 
-                                item-text="name" 
-                                item-value="id" 
+                            <v-autocomplete
+                                v-model="form.dependences"
+                                :items="task"
+                                label="Tarefas"
+                                item-text="name"
+                                item-value="id"
                                 multiple
                             >
-                                <template 
-                                    slot="selection" 
+                                <template
+                                    slot="selection"
                                     slot-scope="data"
                                 >
-                                    <v-chip 
-                                        :selected="data.selected" 
-                                        close class="chip--select-multi" 
+                                    <v-chip
+                                        :selected="data.selected"
+                                        close class="chip--select-multi"
                                         @input="remove(data.item)">@{{data.item.name}}</v-chip>
                                 </template>
                                 <template
@@ -174,6 +174,8 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
+                            if(this.form.id=="")app.notify("Lista de tarefa criada","success");
+                            else app.notify("Edição salva","success");
                         }
                     });
                 }
@@ -215,6 +217,7 @@
                     },
                     success: (response) => {
                         this.list();
+                        app.notify("Lista de tarefa removida","error");
                     }
                 });
             },

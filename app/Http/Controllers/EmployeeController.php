@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Employee;
+use App\Profile;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -32,7 +33,7 @@ class EmployeeController extends Controller
         else $Employee = new Employee();
         $Employee -> name = $request['name'];
         $Employee -> email = $request['email'];
-        $Employee -> type = $request['type'];
+        $Employee -> profile_id = $request['profile_id'];
         $Employee -> CPF = $request['cpf'];
         $Employee -> fone = $request['fone'];
         if ($Employee -> save()) {
@@ -74,6 +75,7 @@ class EmployeeController extends Controller
         foreach($list as $emp){
             $emp -> checks= 2;
             $emp -> list = 22;
+            $emp->profile=Profile::find($emp->profile_id)->name;
         }
         return json_encode($list);
     }

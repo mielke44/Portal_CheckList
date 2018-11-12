@@ -1,7 +1,7 @@
 @extends('layouts.default.index')
 
 @section('title','Portal Checklist')
-@section('l-title','Profile')
+@section('l-title','Perfis')
 
 
 @section('l-content')
@@ -14,7 +14,7 @@
             <v-btn color="primary" @click="add()">Adicionar Perfil</v-btn>
         </v-flex>
         <v-flex xs12>
-            <v-expansion-panel> 
+            <v-expansion-panel>
                 <v-expansion-panel-content v-for='p in profile'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
@@ -25,11 +25,15 @@
                     </div>
                     <v-container grid-list-xs>
                         <v-layout row wrap>
-                            <v-flex xs3 class='font-weight-bold' v-if="p.dependences.length>0">
-                                Checklists relacionadas:
+                            <v-flex xs3 class='font-weight-bold' v-if="p.clist.length>0">
+                                Lista de tarefas relacionadas:
                             </v-flex>
-                            <v-flex xs3>
-                                <template v-for="d in p.dependeces">@{{d.name}},</template>
+                            <v-flex xs9>
+                                <v-layout row wrap>
+                                    <v-flex xs12 v-for="d in p.clist">
+                                            @{{d.name}}
+                                    </v-flex>
+                                </v-layout>
                             </v-flex>
                             <v-flex xs12 class='text-xs-right'>
                                 <v-btn @click="edit(p.id)" color="yellow darken-2" outline>
@@ -73,9 +77,6 @@
         data() {
             return {
                 profile: [
-                    
-                ],
-                dependencies:[
                 ],
                 form_view: false,
                 form_texts: {
@@ -91,7 +92,7 @@
                 form: {
                     id: "",
                     name: '',
-                    dependences: ''
+                    checklists: ''
                 }
             }
         },
@@ -118,6 +119,8 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
+                            if(this.form.id=="")app.notify("Perfil criado","success");
+                            else app.notify("Edição salva","success");
                         }
                     });
                 }
@@ -128,8 +131,8 @@
                     method: "GET",
                     dataType: "json",
                 }).done(response => {
-                    this.profile = response['profile'];
-                    this.dependencies = response['clist'];
+                    this.profile = response;
+
                 });
             },
             edit: function (id) {
@@ -158,12 +161,14 @@
                     },
                     success: (response) => {
                         this.list();
+                        app.notify("Perfil removido","error");
                     }
                 });
             },
         },
         mounted() {
             this.list();
+
         }
     });
 </script>

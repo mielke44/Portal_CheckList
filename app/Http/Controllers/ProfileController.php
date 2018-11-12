@@ -25,12 +25,10 @@ class ProfileController extends Controller
     public function list()
     {
         $profile = Profile::all();
-        $clist = ChecklistTemplate::all();
         foreach($profile as $p){
-            $p ->dependences= '';
+            $p->clist = ChecklistTemplate::where("profile_id",$p->id)->select("name")->get();
         }
-        $b = array('profile'=>$profile,'clist'=>$clist);
-        return json_encode($b);
+        return json_encode($profile);
     }
 
     /**

@@ -10,56 +10,53 @@
 <v-container grid-list-lg>
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view">
-            <v-flex class='text-xs-right'>
-                    <v-btn @click="add()" color="primary">Adicionar empregado</v-btn>
-                </v-flex>
-                <v-flex xs12>
-                    <v-expansion-panel>
-                        <v-expansion-panel-content v-for='em in employees'>
-                            <div slot="header">
-                                <v-layout row wrap fill-height align-center>
-                                    <v-flex xs6>
-                                        @{{em.name}}
-                                    </v-flex>
-                                    <v-flex xs3>
-                                        @{{em.profile}}
-                                    </v-flex>
-                                    <v-flex xs3 class='text-xs-right'>
-                                        <span class='mr-2'>@{{em.checks}}/@{{em.list}}</span>
-                                        <v-progress-circular rotate="-90" :value="em.checks/em.list*100" color="primary" class='mr-2'
-                                            width='7'></v-progress-circular>
-                                    </v-flex>
-                                </v-layout>
-                            </div>
-                            <v-container grid-list-xs>
-                                <v-layout row wrap>
-                                    <v-flex xs3>CPF:</v-flex>
-                                    <v-flex xs3 class='font-weight-bold'>@{{em.cpf}}</v-flex>
-                                    <v-flex xs3>E-mail:</v-flex>
-                                    <v-flex xs3 class='font-weight-bold'>@{{em.email}}</v-flex>
-                                    <v-flex xs3>Telefone:</v-flex>
-                                    <v-flex xs3 class='font-weight-bold'>@{{em.fone}}</v-flex>
-                                    <v-flex xs3>Data admissão</v-flex>
-                                    <v-flex xs3 class='font-weight-bold'>@{{em.created_at}}</v-flex>
-                                    <v-flex xs3>Tipo:</v-flex>
-                                    <v-flex xs3 class='font-weight-bold' v-if="em.type==1">Estagiário</v-flex>
-                                    <v-flex xs3 class='font-weight-bold' v-if="em.type==2">Efetivado</v-flex>
-                                    <v-flex xs12 class='text-xs-right'>
-                                        <v-btn color="blue" outline>
-                                            <v-icon dark class='mr-2'>check</v-icon> Checklist
-                                        </v-btn>
-                                        <v-btn @click="edit(em.id)" color="yellow darken-2" outline>
-                                            <v-icon dark class='mr-2'>edit</v-icon> Editar
-                                        </v-btn>
-                                        <v-btn @click="destroy(em.id)" color="red" outline>
-                                            <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                        </v-btn>
-                                    </v-flex>
-                                </v-layout>
-                            </v-container>
-                        </v-expansion-panel-content>
-                    </v-expansion-panel>
-                </v-flex>
+        <v-flex class='text-xs-right'>
+            <v-btn @click="add()" color="primary">Adicionar empregado</v-btn>
+        </v-flex>
+        <v-flex xs12>
+            <v-expansion-panel>
+                <v-expansion-panel-content v-for='em in employees'>
+                    <div slot="header">
+                        <v-layout row wrap fill-height align-center>
+                            <v-flex xs6>
+                                @{{em.name}}
+                            </v-flex>
+                            <v-flex xs3>
+                                @{{em.profile}}
+                            </v-flex>
+                            <v-flex xs3 class='text-xs-right'>
+                                <span class='mr-2'>@{{em.checks}}/@{{em.list}}</span>
+                                <v-progress-circular rotate="-90" :value="em.checks/em.list*100" color="primary" class='mr-2'
+                                    width='7'></v-progress-circular>
+                            </v-flex>
+                        </v-layout>
+                    </div>
+                    <v-container grid-list-xs>
+                        <v-layout row wrap>
+                            <v-flex xs3>CPF:</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{em.cpf}}</v-flex>
+                            <v-flex xs3>E-mail:</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{em.email}}</v-flex>
+                            <v-flex xs3>Telefone:</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{em.fone}}</v-flex>
+                            <v-flex xs3>Data admissão</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{em.created_at}}</v-flex>
+                            <v-flex xs12 class='text-xs-right'>
+                                <v-btn color="blue" outline>
+                                    <v-icon dark class='mr-2'>check</v-icon> Lista de tarefas
+                                </v-btn>
+                                <v-btn @click="edit(em.id)" color="yellow darken-2" outline>
+                                    <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                </v-btn>
+                                <v-btn @click="destroy(em.id)" color="red" outline>
+                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                </v-btn>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+        </v-flex>
     </v-layout>
 
     <v-layout row wrap v-if="form_view">
@@ -71,12 +68,12 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Name" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
-                            <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf" label="CPF" required></v-text-field>
-                            <v-text-field mask="+##(##)#####.####" return-masked-value="true" v-model="form.fone" :rules="rules.fone" label="Telefone" required></v-text-field>
-                            <v-flex xs6>
-                                <v-select v-model="form.type" :items="items" item-text="text" 
-                                item-value="value" label="Tipo" :rules="rules.type" persistent-hint required></v-select>
-                            </v-flex>
+                            <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
+                                label="CPF" required></v-text-field>
+                            <v-text-field mask="+##(##)#####.####" return-masked-value="true" v-model="form.fone"
+                                :rules="rules.fone" label="Telefone" required></v-text-field>
+                            <v-select v-model="form.profile_id" :items="profiles" item-text="name" item-value="id"
+                                label="Lista de tarefas" persistent-hint :rules='rules.profile' required></v-select>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
                     </v-form>
@@ -96,10 +93,10 @@
         data() {
             return {
                 employees: [
-                    
+
                 ],
-                dependencies:[
-                ],
+                dependencies: [],
+                profiles: [],
                 form_view: false,
                 form_texts: {
                     title: "",
@@ -114,14 +111,14 @@
                         v => !!v || 'E-mail é obrigatório!',
                         v => /.+@.+/.test(v) || 'E-mail deve ser válido!'
                     ],
-                    fone:[
+                    fone: [
                         v => (v && v.length < 18) || 'Máximo 11 caracteres'
                     ],
-                    cpf:[
+                    cpf: [
                         v => !!v || 'CPF é obrigatório!',
                         v => (v && v.length < 15) || 'Máximo 11 caracteres'
                     ],
-                    type: [
+                    profile: [
                         v => !!v || 'Campo obrigtório'
                     ],
                 },
@@ -132,19 +129,18 @@
                     fone: '',
                     cpf: '',
                     email: '',
-                    type: '',
+                    profile_id: '',
                 },
-                items: [
-                    { 
+                items: [{
                         text: 'Efetivado',
                         value: "1",
-                        },
-                    { 
+                    },
+                    {
                         text: 'Estagiário',
-                        value: "2",    
+                        value: "2",
                     }
                 ],
-                }
+            }
         },
         methods: {
             add: function () {
@@ -169,6 +165,8 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
+                            if(this.form.id=="")app.notify("Empregado adicionado","success");
+                            else app.notify("Edição salva","success");
                         }
                     });
                 }
@@ -181,6 +179,15 @@
                 }).done(response => {
                     this.employees = response;
                     //this.dependencies = response['clist'];
+                });
+            },
+            list_profile: function () {
+                $.ajax({
+                    url: "{{route('profile.list')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response => {
+                    this.profiles = response;
                 });
             },
             edit: function (id) {
@@ -209,12 +216,14 @@
                     },
                     success: (response) => {
                         this.list();
+                        app.notify("Empregado removido","error");
                     }
                 });
             },
         },
         mounted() {
             this.list();
+            this.list_profile();
         }
     });
 </script>
