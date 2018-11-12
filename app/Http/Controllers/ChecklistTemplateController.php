@@ -8,6 +8,10 @@ use App\Profile;
 
 class ChecklistTemplateController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -27,10 +31,17 @@ class ChecklistTemplateController extends Controller
     {
         $clists = ChecklistTemplate::all();
         $profile = Profile::all();
+        $task = Task::all();
         foreach($clists as $c){
-            $c ->dependences= '';
+            $dep = array();
+            $clinker = LinkerChecklist::where("checklist_id",$c->id)->get();
+            foreach($clinker as $cl){
+                $taskdep = Task::find($cl->task_id);
+                $dep[]=array('task_id'=>$clinker->task_id,"name"=>$taskdep->name);
+            }
+            $c->dependeces = $dep;
         }
-        $a = array('clists'=> $clists, 'profile'=> $profile);
+        $a = array('clists'=> $clists, 'profile'=> $profile, 'task'=> $task);
         return json_encode($a);
     }
 
@@ -46,7 +57,16 @@ class ChecklistTemplateController extends Controller
         else $clist = new ChecklistTemplate();
         $clist->name = $request["name"];
         $clist->type = $request["type"];
-        if($clist->save()) return json_encode(array('success'=>"true"));
+
+        if($clist->save()){
+            if($request->dependeces != "")foreach($request->dependences as $d){
+                $clinker = new LinkerChecklist();
+                $clinker->checklist_id = $clist->id;
+                $clinker->task_id = $d;
+                $clinker->save();
+            }
+            return json_encode(array('success'=>"true"));
+        } 
         else return json_encode(array('error'=>"true"));
     }
 
@@ -59,6 +79,13 @@ class ChecklistTemplateController extends Controller
     public function edit(Request $request)
     {
         $clist = ChecklistTemplate::findOrFail($request["id"]);
+        $dep = array();
+        $clinker = LinkerCheckList::where("checklist_id",$clist->id)->get();
+        foreach($clinker as $cl){
+            $taskdep = Task::find($cl->task_id);
+            $dep[]=$taskdep->id;
+        }
+        $clist->dependeces = $dep;
         return $clist;
     }
 
@@ -72,6 +99,7 @@ class ChecklistTemplateController extends Controller
     public function destroy(Request $request)
     {
         $clist = ChecklistTemplate::findOrFail($request["id"]);
+        LinkerChecklist::where("checklist_id",$clist->id)->delete();
         if($clist->delete()) return json_encode(array('success'=>"true"));
         else return json_encode(array('error'=>"true"));
     }

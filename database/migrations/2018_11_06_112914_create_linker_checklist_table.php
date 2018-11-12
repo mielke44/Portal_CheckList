@@ -15,6 +15,8 @@ class CreateLinkerChecklistTable extends Migration
     {
         Schema::create('linker_checklist', function (Blueprint $table) {
             $table->increments('id');
+            $table->String('task_id');
+            $table->String('checklist_id');
             $table->timestamps();
         });
     }

@@ -26,16 +26,10 @@
                     <v-container grid-list-xs>
                         <v-layout row wrap>
                             <v-flex xs1 class='font-weight-bold'>
-                                Tipo:
+                                Perfil:
                             </v-flex>
-                            <v-flex xs1 v-if="l.type==1">
-                                Contratação
-                            </v-flex>
-                            <v-flex xs1 v-if="l.type==2">
-                                Demissão
-                            </v-flex>
-                            <v-flex xs1 v-if="l.type==3">
-                                Transferência
+                            <v-flex v-for='p in profile'>
+                                @{{p.name}}
                             </v-flex>
                         </v-layout>
                         <v-layout row wrap>
@@ -73,7 +67,7 @@
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="value" label="Tipo" required
                                 :rules="rules.type" persistent-hint></v-select>
-                            <v-select v-model="form.dependences" :items="dependencies" item-text="name" item-value="id" label="Dependencias"
+                            <v-select v-model="form.dependences" :items="profile" item-text="name" item-value="id" label="Perfil"
                                 persistent-hint multiple required></v-select>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
@@ -95,7 +89,9 @@
             return {
                 clists: [
                 ],
-                dependencies:[
+                profile:[
+                ],
+                task:[
 
                 ],
                 form_view: false,
@@ -167,7 +163,8 @@
                     dataType: "json",
                 }).done(response => {
                     this.clists = response['clists'];
-                    this.dependencies = response['profile'];
+                    this.profile = response['profile'];
+                    this.task = response['task'];
                 });
             },
             edit: function (id) {

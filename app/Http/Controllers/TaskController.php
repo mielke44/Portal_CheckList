@@ -12,11 +12,11 @@ class TaskController extends Controller
     {
         $this->middleware('auth');
     }
+    
     public function index()
     {
         return view("task");
     }
-
 
     public function list()
     {

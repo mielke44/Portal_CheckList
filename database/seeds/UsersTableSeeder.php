@@ -46,6 +46,13 @@ class UsersTableSeeder extends Seeder
             'created_at' => new DateTime()
         ]);
 
+        DB::table('users')->insert([
+            'name' => "Wilson Mielke",
+            'email' => "wilson.mielke@t-systems.com.br",
+            'password' => bcrypt('secret'),
+            'is_admin' => true,
+            'created_at' => new DateTime() 
+        ]);
 
 
 
