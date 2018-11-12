@@ -19,16 +19,6 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view("Employee.create");
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -37,11 +27,13 @@ class EmployeeController extends Controller
     public function store(Request $request)
     {
         //$this -> Employee = \Auth::Employee();
-
-        $Employee = new Employee;
+        //print_r($request->all());
+        //return;
+        if($request["id"] != "") $Employee = Employee::find($request["id"]);
+        else $Employee = new Employee();
         $Employee -> name = $request['name'];
         $Employee -> email = $request['email'];
-        $Employee -> type = $request['select']['type'];
+        $Employee -> type = $request['type'];
         $Employee -> CPF = $request['cpf'];
         $Employee -> fone = $request['fone'];
         if ($Employee -> save()) {
@@ -54,55 +46,15 @@ class EmployeeController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     *
-     * @param  \App\Employee  $employee
-     * @return \Illuminate\Http\Response
-     */
-    public function show(Employee $Employee)
-    {
-        //
-    }
-
-    /**
      * Show the form for editing the specified resource.
      *
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Request $request)
     {
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Employee  $employee
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request)
-    {
-        $this->Employee = Auth::Employee();
-        
-            $Employee = Employee::findOrFail($request->get('id'));
-            $Employee->name        = $request->name;
-            $Employee->email      =$request->email;
-            $Employee->is_admin     =$request->is_admin;
-
-            $all_request = $request->all();
-            $Employee->fill($all_request);
-
-            if ($Employee->save()) {
-                return json_encode(array('error' => false,
-                                        'message' => $Employee->id));
-            }
-            else {
-                return json_encode(array('error' => true,
-                                        'message' => 'Erro ao editar usuário. Por favor, tente novamente.'));
-            }
-
-            return redirect()->route('employee');
+        $employee = Employee::findOrFail($request["id"]);
+        return $employee;
     }
 
     /**
@@ -111,17 +63,11 @@ class EmployeeController extends Controller
      * @param  \App\Employee  $employee
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        $employee = employee::findOrFail($id);
-        if ($employee->delete()) {
-            return json_encode(array('error' => false,
-                                        'message' => ''));
-        } else {
-            return json_encode(array('error' => true,
-                                    'message' => 'Erro ao deletar usuário. Por favor, tente novamente.'));
-        }
-        //return redirect()->route('Employee$Employee.list');
+        $employee = Employee::findOrFail($request["id"]);
+        if($employee->delete()) return json_encode(array('success'=>"true"));
+        else return json_encode(array('error'=>"true"));
     }
 
     public function list(){

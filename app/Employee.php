@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Employee extends Model
 {
-
+    protected $table = 'employees';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
+        'name', 'email', 'CPF', 'type', 'fone'
     ];
 
     /**
@@ -21,5 +22,6 @@ class Employee extends Model
      * @var array
      */
     protected $hidden = [
+
     ];
 }
