@@ -67,7 +67,13 @@ class ProfileController extends Controller
     public function destroy(Request $request)
     {
         $profile= Profile::findOrFail($request["id"]);
-        if($profile->delete()) return json_encode(array('success'=>"true"));
+        $emp = Employee::where('profile_id',$profile->id);
+        $clist = ChecklistTemplate::where('profile_id',$profile->id);
+        if($profile->delete()){
+            foreach($emp as $e)$e->profile_id = null;
+            foreach($clist as $c)$c->profile_id = null;
+            return json_encode(array('success'=>"true"));
+        }
         else return json_encode(array('error'=>"true"));
     }
 }
