@@ -177,7 +177,7 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
-                            if(this.form.id=="")app.notify("Lista de tarefa criada","success");
+                            if(this.form.id=="")app.notify("Lista de tarefa criada com sucesso!","success");
                             else app.notify("Edição salva","success");
                         }
                     });

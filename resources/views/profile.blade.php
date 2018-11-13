@@ -122,7 +122,7 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
-                            if(this.form.id=="")app.notify("Perfil criado","success");
+                            if(this.form.id=="")app.notify("Perfil criado com sucesso!","success");
                             else app.notify("Edição salva","success");
                         }
                     });

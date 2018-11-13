@@ -36,6 +36,7 @@ class EmployeeController extends Controller
         $Employee -> profile_id = $request['profile_id'];
         $Employee -> CPF = $request['cpf'];
         $Employee -> fone = $request['fone'];
+        $Employee -> site = $request['site'];
         if ($Employee -> save()) {
             return json_encode(array('error' => false,
                 'message' => $Employee -> id));
@@ -71,7 +72,8 @@ class EmployeeController extends Controller
     }
 
     public function list(){
-        $list = Employee::all();
+        $site = Auth::user()->site;
+        $list = Employee::where("site",$site)->get();
         foreach($list as $emp){
             $emp -> checks= 2;
             $emp -> list = 22;

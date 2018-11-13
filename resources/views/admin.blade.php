@@ -11,7 +11,7 @@
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view && !prof_view">
         <v-flex class='text-xs-right'>
-            <v-btn @click="add()" color="primary">Adicionar admin</v-btn>
+            <v-btn v-if="user.is_admin==1" @click="add()" color="primary">Adicionar admin</v-btn>
         </v-flex>
         <v-flex xs12>
             <v-expansion-panel>
@@ -34,7 +34,9 @@
                             <v-flex xs3 class='font-weight-bold'>@{{adm.email}}</v-flex>
                             <v-flex xs3>Data admissão</v-flex>
                             <v-flex xs3 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
-                            <v-flex xs12 class='text-xs-right'>
+                            <v-flex xs3>Site</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{adm.site}}</v-flex>
+                            <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
                                 <v-btn color="blue" outline>
                                     <v-icon dark class='mr-2'>check</v-icon> Empregados
                                 </v-btn>
@@ -68,6 +70,8 @@
                                 <v-flex xs9 class='font-weight-bold'>@{{user.email}}</v-flex>
                                 <v-flex xs3>Data admissão:</v-flex>
                                 <v-flex xs9 class='font-weight-bold'>@{{user.created_at}}</v-flex>
+                                <v-flex xs9>Site</v-flex>
+                                <v-flex xs9 class='font-weight-bold'>@{{user.site}}</v-flex>
                                 <v-flex class='text-xs-center'>
                                     <v-btn @click="edit(user.id)" color="yellow darken-2" outline>
                                         <v-icon dark class='mr-2'>edit</v-icon> Editar
@@ -92,6 +96,7 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Nome" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
+                            <v-text-field v-model="form.site" :rules="rules.site" label="Site" required></v-text-field>
                             <v-text-field v-model="form.password" :append-icon="show1 ? 'visibility_off' : 'visibility'"
                                 :rules="rules.password" :type="show1 ? 'text' : 'password'" name="input-10-1"
                                 label="Senha" hint="At least 6 characters" counter @click:append="show1 = !show1"></v-text-field>
@@ -146,6 +151,9 @@
                         v => !!v || 'Campo obrigatório!',
                         v => v == this.form.password || 'Senhas não estão iguais!'
                     ],
+                    site: [
+                        v => !!v || 'Campo obrigatório!',
+                    ],
                 },
                 form: {
                     id: "",
@@ -153,6 +161,7 @@
                     email: '',
                     password: '',
                     passwordc: '',
+                    site: '',
                 },
                 items: [
                 ],
@@ -188,7 +197,7 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
-                            if(this.form.id=="")app.notify("Admin adicionado","success");
+                            if(this.form.id=="")app.notify("Admin adicionado com sucesso!","success");
                             else app.notify("Edição salva","success");
                         }
                     });

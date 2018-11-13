@@ -59,6 +59,7 @@
         </v-flex>
     </v-layout>
 
+    <!-- FORM -->
     <v-layout row wrap v-if="form_view">
         <v-flex xs12 sm6 offset-sm3>
             <v-card>
@@ -68,6 +69,7 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Name" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
+                            <v-text-field v-model="form.site" :rules="rules.site" label="Site" required></v-text-field>
                             <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
                                 label="CPF" required></v-text-field>
                             <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="form.fone"
@@ -124,6 +126,9 @@
                     profile: [
                         v => !!v || 'Campo obrigtório'
                     ],
+                    site: [
+                        v => !!v || 'Campo obrigtório'
+                    ],
                 },
                 form: {
                     id: "",
@@ -132,6 +137,7 @@
                     fone: '',
                     cpf: '',
                     email: '',
+                    site: '',
                     profile_id: '',
                 },
                 items: [{
@@ -154,7 +160,8 @@
                     id: "",
                     name: '',
                     type: '',
-                    dependences: ''
+                    dependences: '',
+                    site: '',
                 }
             },
             store: function () {
@@ -168,7 +175,7 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
-                            if(this.form.id=="")app.notify("Empregado adicionado","success");
+                            if(this.form.id=="")app.notify("Empregado adicionado com sucesso!","success");
                             else app.notify("Edição salva","success");
                         }
                     });

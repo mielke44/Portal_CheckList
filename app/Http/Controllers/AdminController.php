@@ -34,6 +34,7 @@ class AdminController extends Controller
         $admin -> name = $request['name'];
         $admin -> email = $request['email'];
         $admin -> password = $request['password'];
+        $admin -> site = $request['site'];
         $admin -> is_admin = '1';
         if ($admin -> save()) {
             return json_encode(array('error' => false,
