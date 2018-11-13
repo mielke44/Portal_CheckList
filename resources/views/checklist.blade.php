@@ -118,6 +118,9 @@
 @section('l-js')
 <script>
     Vue.component("page", {
+        props: {
+            screen: String
+        },
         data() {
             return {
                 clists: [
@@ -187,8 +190,25 @@
                     dataType: "json",
                 }).done(response => {
                     this.clists = response['clists'];
-                    this.task = response['task'];
-                    this.profile = response['profiles'];
+                });
+            },
+            list_profile: function () {
+                $.ajax({
+                    url: "{{route('profile.list')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response => {
+                    app.notify(response);
+                    this.profile = response;
+                });
+            },
+            list_task: function () {
+                $.ajax({
+                    url: "{{route('task.list')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response => {
+                    this.task = response;
                 });
             },
             edit: function (id) {
@@ -235,6 +255,9 @@
         },
         mounted() {
             this.list();
+            this.list_task();
+            this.list_profile();
+            setTimeout(()=>{app.screen = 3},1);
         }
     });
 </script>

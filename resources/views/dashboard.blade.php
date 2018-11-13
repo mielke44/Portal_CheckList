@@ -75,10 +75,16 @@
 @section('l-js')
 <script>
     Vue.component("page", {
+        props: {
+            screen: String
+        },
         data() {
             return {
                 test: "chris"
             }
+        },
+        mounted() {
+            setTimeout(()=>{app.screen = 0},1);
         }
 
     });

@@ -31,8 +31,6 @@ class ChecklistTemplateController extends Controller
     public function list()
     {
         $clists = ChecklistTemplate::all();
-        $task = Task::all();
-        $prof = Profile::all();
         foreach($clists as $c){
             $dep = array();
             $c->profile = Profile::findOrFail($c->profile_id);
@@ -43,7 +41,7 @@ class ChecklistTemplateController extends Controller
             }
             $c->dependences = $dep;
         }
-        $a = array('clists'=> $clists, 'task'=> $task,'profiles'=> $prof);
+        $a = array('clists'=> $clists);
         return json_encode($a);
     }
 

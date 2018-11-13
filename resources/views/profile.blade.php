@@ -74,6 +74,9 @@
 @section('l-js')
 <script>
     Vue.component("page", {
+        props: {
+            screen: String
+        },
         data() {
             return {
                 profile: [
@@ -168,6 +171,7 @@
         },
         mounted() {
             this.list();
+            setTimeout(()=>{app.screen = 2},1);
 
         }
     });

@@ -22,6 +22,14 @@ Route::get('employee/edit', "EmployeeController@edit")->name('emp.edit');
 Route::delete('employee/destroy', "EmployeeController@destroy")->name('emp.remove');
 Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 
+//Admin
+Route::get('Admin/', "AdminController@index")->name('admin');
+Route::post('Admin/store', "AdminController@store")->name('admin.store');
+Route::get('Admin/edit', "AdminController@edit")->name('admin.edit');
+Route::delete('Admin/destroy', "AdminController@destroy")->name('admin.remove');
+Route::get('Admin/list', "AdminController@list")->name('admin.list');
+Route::get('Admin/profile', "AdminController@profile")->name('admin.profile');
+
 //Tasks
 Route::get('task/', "TaskController@index")->name('task');
 Route::post('task/store', "TaskController@store")->name('task.store');

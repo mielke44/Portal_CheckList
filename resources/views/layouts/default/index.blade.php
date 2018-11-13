@@ -17,7 +17,7 @@
                 <v-list-tile avatar>
                     <v-list-tile-avatar>
                         <v-avatar color="grey darken-4" size='40'>
-                            <span class="white--text headline">@{{letter}}</span>
+                            <span @click="admin()" class="white--text headline">@{{letter}}</span>
                         </v-avatar>
                     </v-list-tile-avatar>
 
@@ -33,13 +33,13 @@
         <v-list class="pt-0" dense>
             <v-divider></v-divider>
 
-            <v-list-tile v-for="item in menu" :key="item.title" @click="item.link">
+            <v-list-tile v-for="(item,i) in menu" :key="item.title" @click="item.link">
                 <v-list-tile-action>
-                    <v-icon>@{{ item.icon }}</v-icon>
+                    <v-icon :color="(i==screen) ? 'black': 'white'">@{{ item.icon }}</v-icon>
                 </v-list-tile-action>
 
                 <v-list-tile-content>
-                    <v-list-tile-title>@{{ item.text }}</v-list-tile-title>
+                    <v-list-tile-title :class="(i==screen) ? 'black--text': 'white--text'">@{{ item.text }}</v-list-tile-title>
                 </v-list-tile-content>
             </v-list-tile>
         </v-list>
@@ -104,7 +104,7 @@
 </v-toolbar>
 
 <v-content>
-    <page inline-template>
+    <page inline-template screen="screen">
         <div>@yield('l-content')</div>
     </page>
 </v-content>
@@ -134,6 +134,7 @@
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
+                screen: "0",
                 app_name: "Portal Checklist",
                 notifications: [{
                     icon: "list_alt",
@@ -187,16 +188,19 @@
                         }
                     }
                 ],
-                more: [{
+                more: [
+                    {
+                        icon: "account_box",
+                        text: "Seu Perfil",
+                        link: function(){
+                            
+                        }
+                    },
+                    {
                         icon: "settings",
                         text: "Configurações",
                         link: function () {}
                     },
-
-
-
-
-
                     {
                         icon: "exit_to_app",
                         text: "Sair",
@@ -218,6 +222,10 @@
             },
         },
         methods: {
+            
+            admin: function(){
+                window.location = '/Admin';
+            },
             notify: function (text, color) {
                 this.snackbar_notify.text = text;
                 this.snackbar_notify.model = true;
@@ -237,6 +245,9 @@
             }
         },
         mounted() {
+            this.more[0].link = ()=>{
+                location.href="{{route('admin.profile')}}";
+            };
             this.getName();
         }
     });
