@@ -27,7 +27,6 @@ class AdminController extends Controller
      */
     public function store(Request $request)
     {
-        //$this -> admin = \Auth::admin();
         //print_r($request->all());
         //return;
         if($request["id"] != "") $admin = Admin::find($request["id"]);
@@ -35,6 +34,7 @@ class AdminController extends Controller
         $admin -> name = $request['name'];
         $admin -> email = $request['email'];
         $admin -> password = $request['password'];
+        $admin -> is_admin = '1';
         if ($admin -> save()) {
             return json_encode(array('error' => false,
                 'message' => $admin -> id));

@@ -140,7 +140,7 @@
                     ],
                     password: [
                         v => !!v || 'Campo obrigatório!',
-                        v => (v && v.length >= 7) || 'Mínimo 6 caracteres'
+                        v => (v && v.length >= 6) || 'Mínimo 6 caracteres'
                     ],
                     passwordc: [
                         v => !!v || 'Campo obrigatório!',

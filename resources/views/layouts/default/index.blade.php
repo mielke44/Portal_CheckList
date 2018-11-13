@@ -17,7 +17,7 @@
                 <v-list-tile avatar>
                     <v-list-tile-avatar>
                         <v-avatar color="grey darken-4" size='40'>
-                            <span @click="admin()" class="white--text headline">@{{letter}}</span>
+                            <span class="white--text headline">@{{letter}}</span>
                         </v-avatar>
                     </v-list-tile-avatar>
 
@@ -186,6 +186,13 @@
                         link: function () {
                             window.location = '/task/'
                         }
+                    },
+                    {
+                        icon: "supervisor_account",
+                        text: "Gestores",
+                        link: function () {
+                            window.location = '/Admin'
+                        }
                     }
                 ],
                 more: [
@@ -222,10 +229,6 @@
             },
         },
         methods: {
-            
-            admin: function(){
-                window.location = '/Admin';
-            },
             notify: function (text, color) {
                 this.snackbar_notify.text = text;
                 this.snackbar_notify.model = true;
