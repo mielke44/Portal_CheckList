@@ -104,6 +104,8 @@
 </v-toolbar>
 
 <v-content>
+    <page inline-template>
+        <div style="height:100%">@yield('l-content')</div>
     <page inline-template screen="screen">
         <div>@yield('l-content')</div>
     </page>

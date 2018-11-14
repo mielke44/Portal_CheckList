@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Checklist;
+use App\Employee;
 use Illuminate\Http\Request;
 
 class ChecklistController extends Controller
@@ -12,9 +13,10 @@ class ChecklistController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index($id)
     {
-        //
+        $emp = Employee::findOrFail($id);
+        return view('checklist-employee',compact('emp'));
     }
 
     /**

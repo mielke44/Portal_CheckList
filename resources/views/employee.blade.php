@@ -25,9 +25,11 @@
                                 @{{em.profile}}
                             </v-flex>
                             <v-flex xs3 class='text-xs-right'>
-                                <span class='mr-2'>@{{em.checks}}/@{{em.list}}</span>
-                                <v-progress-circular rotate="-90" :value="em.checks/em.list*100" color="primary" class='mr-2'
-                                    width='7'></v-progress-circular>
+                                <a @click='location.href="{{route("checklist_employee")}}/"+em.id'>
+                                    <span class='mr-2'>@{{em.checks}}/@{{em.list}}</span>
+                                    <v-progress-circular rotate="-90" :value="em.checks/em.list*100" color="primary"
+                                        class='mr-2' width='7'></v-progress-circular>
+                                </a>
                             </v-flex>
                         </v-layout>
                     </div>
@@ -86,7 +88,6 @@
         </v-flex>
     </v-layout>
 
-    <!-- FORM -->
     <v-layout row wrap v-if="form_view">
         <v-flex xs12 sm6 offset-sm3>
             <v-card>
@@ -209,6 +210,9 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
+                            if (this.form.id == "") app.notify("Empregado adicionado",
+                                "success");
+                            else app.notify("Edição salva", "success");
                             if(this.form.id=="")app.notify("Empregado adicionado com sucesso!","success");
                             else app.notify("Edição salva","success");
                         }
@@ -273,7 +277,7 @@
                     },
                     success: (response) => {
                         this.list();
-                        app.notify("Empregado removido","error");
+                        app.notify("Empregado removido", "error");
                     }
                 });
             },
