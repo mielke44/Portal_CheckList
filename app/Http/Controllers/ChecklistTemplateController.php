@@ -41,8 +41,7 @@ class ChecklistTemplateController extends Controller
             }
             $c->dependences = $dep;
         }
-        $a = array('clists'=> $clists);
-        return json_encode($a);
+        return json_encode($clists);
     }
 
     /**

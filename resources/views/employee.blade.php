@@ -35,18 +35,8 @@
                     </div>
                     <v-container grid-list-xs>
                         <v-layout row wrap>
-                            <v-flex xs3>CPF:</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{em.cpf}}</v-flex>
-                            <v-flex xs3>E-mail:</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{em.email}}</v-flex>
-                            <v-flex xs3>Telefone:</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{em.fone}}</v-flex>
-                            <v-flex xs3>Data admissão</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{em.created_at}}</v-flex>
-                            <v-flex xs3>Site</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{getSiteName(em.site)}}</v-flex>
                             <v-layout row wrap>
-                                <template v-for='t in tasks'>
+                                <template v-for='t in checklist'>
                                     <v-flex xs1>
                                         <v-icon @click="t.status=true" v-if="!t.status" color='red'>check_box_outline_blank</v-icon>
                                         <v-icon @click="t.status=false" v-if="t.status" color='green'>check_box</v-icon>
@@ -61,31 +51,53 @@
                                 </v-btn>
                                 <v-btn @click="destroy(em.id)" color="red" outline>
                                         <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                    </v-btn>
+                                </v-btn>
+                                <v-btn @click="dialog2=true" color="yellow" outline>
+                                        <v-icon dark class='mr-2'>list</v-icon> Lista de tarefas
+                                </v-btn>
                                 <v-dialog v-model="dialog" max-width="500"r>
+                                    <v-card>
+                                        <v-card-title >
+                                        <p style="width:100%" class="headline text-xs-center">Dados de Empregados</p>
+                                        </v-card-title>
+                                        <v-card-text>
+                                            <v-layout row wrap>
+                                            <v-flex xs6>Nome:</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{form.name}}</v-flex>
+                                            <v-flex xs6>Perfil:</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{form.profile}}</v-flex>
+                                            <v-flex xs6>CPF:</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{form.cpf}}</v-flex>
+                                            <v-flex xs6>E-mail:</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{form.email}}</v-flex>
+                                            <v-flex xs6>Telefone:</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{form.fone}}</v-flex>
+                                            <v-flex xs6>Data admissão</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{form.created_at}}</v-flex>
+                                            </v-layout>
+                                        </v-card-text>
+                                        <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn color="blue" @click="edit(em.id)" outline><v-icon dark class='mr-2'>edit</v-icon>Editar</v-btn>
+                                        <v-btn color="red" @click="dialog = false" outline><v-icon dark class='mr-2'>close</v-icon>Fechar</v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                </v-dialog>
+                                <v-dialog v-model="dialog2" max-width="700"r>
                                         <v-card>
                                             <v-card-title >
-                                            <p style="width:100%" class="headline text-xs-center">Dados de Empregados</p>
+                                            <p style="width:100%" class="headline text-xs-center">Checklist</p>
                                             </v-card-title>
                                             <v-card-text>
                                                 <v-layout row wrap>
-                                                <v-flex xs6>Nome:</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{form.name}}</v-flex>
-                                                <v-flex xs6>Perfil:</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{form.profile}}</v-flex>
-                                                <v-flex xs6>CPF:</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{form.cpf}}</v-flex>
-                                                <v-flex xs6>E-mail:</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{form.email}}</v-flex>
-                                                <v-flex xs6>Telefone:</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{form.fone}}</v-flex>
-                                                <v-flex xs6>Data admissão</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{form.created_at}}</v-flex>
+                                                <v-flex xs6>Lista de tarefas:</v-flex>
+                                                <v-select v-model="form.checklist_template_id" :items="templates" item-text="name" item-value="id"
+                                                    label="Lista de tarefas" persistent-hint :rules='rules.profile' required></v-select>
                                                 </v-layout>
                                             </v-card-text>
                                             <v-card-actions>
                                             <v-spacer></v-spacer>
-                                            <v-btn color="blue" @click="edit(em.id)" outline><v-icon dark class='mr-2'>edit</v-icon>Editar</v-btn>
+                                            <v-btn color="blue" @click="checklistTT(em.id)" outline><v-icon dark class='mr-2'>add_circle_outline</v-icon>Criar</v-btn>
                                             <v-btn color="red" @click="dialog = false" outline><v-icon dark class='mr-2'>close</v-icon>Fechar</v-btn>
                                             </v-card-actions>
                                         </v-card>
@@ -107,8 +119,7 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Name" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
-                            <v-select v-model="form.site" :items="sites" item-text="complete_name" item-value="id"
-                                label="Site" persistent-hint required></v-select>
+                            <v-text-field v-model="form.site" :rules="rules.site" label="Site" required></v-text-field>
                             <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
                                 label="CPF" required></v-text-field>
                             <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="form.fone"
@@ -134,19 +145,13 @@
         data() {
             return {
                 dialog: false,
+                dialog2:false,
                 employees: [],
                 dependencies: [],
                 profiles: [],
-                tasks:[{
-                    status: true,
-                    name: 'contrato',
-                    desc: 'descrição'
-                },
-                {
-                    status: false,
-                    name: 'adasd',
-                    desc: 'dxcvxcv'
-                },
+                checklist:[
+                ],
+                templates:[
                 ],
                 form_view: false,
                 form_texts: {
@@ -185,6 +190,7 @@
                     email: '',
                     site: '',
                     profile_id: '',
+                    checklist_template_id: '',
                 },
                 items: [{
                         text: 'Efetivado',
@@ -195,7 +201,6 @@
                         value: "2",
                     }
                 ],
-                sites: []
             }
         },
         methods: {
@@ -225,12 +230,23 @@
                             if (this.form.id == "") app.notify("Empregado adicionado",
                                 "success");
                             else app.notify("Edição salva", "success");
-                            if (this.form.id == "") app.notify(
-                                "Empregado adicionado com sucesso!", "success");
-                            else app.notify("Edição salva", "success");
+                            if(this.form.id=="")app.notify("Empregado adicionado com sucesso!","success");
+                            else app.notify("Edição salva","success");
                         }
                     });
                 }
+            },
+            checklistTT: function(id){
+                $.ajax({
+                    url: "{{route('checklist_store')}}",
+                    method: "POST",
+                    dataType: "json",
+                    headers: app.headers,
+                    data:{
+                        employee_id : id,
+                        checklist_template_id : this.form.checklist_template_id,
+                    },
+                })
             },
             list: function () {
                 $.ajax({
@@ -239,7 +255,6 @@
                     dataType: "json",
                 }).done(response => {
                     this.employees = response;
-                    //this.dependencies = response['clist'];
                 });
             },
             list_profile: function () {
@@ -251,6 +266,15 @@
                     this.profiles = response;
                 });
             },
+            list_ChecklistTemplate: function () {
+                $.ajax({
+                    url: "{{route('checklist.list')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response => {
+                    this.templates = response;
+                });
+            },
             edit: function (id) {
                 $.ajax({
                     url: "{{route('emp.edit')}}",
@@ -260,11 +284,6 @@
                         id: id
                     },
                 }).done(response => {
-                    this.form_texts.title = "Editar Perfil";
-                    this.form_texts.button = "Salvar";
-                    this.form = response;
-                    this.form_view = true;
-                    this.form.site = parseInt(this.form.site);
                         this.form_texts.title = "Editar Perfil";
                         this.form_texts.button = "Salvar";
                         this.form = response;
@@ -284,6 +303,19 @@
                         this.dialog = true;
                 });
             },
+            popup2: function (id) {
+                $.ajax({
+                    url: "{{route('checklist.list')}}",
+                    method: "GET",
+                    dataType: "json",
+                    data: {
+                        id: id
+                    },
+                }).done(response => {
+                        this.checklist = response;
+                        this.dialog2 = true;
+                });
+            },
             destroy: function (id) {
                 $.ajax({
                     url: "{{route('emp.remove')}}",
@@ -299,26 +331,12 @@
                     }
                 });
             },
-            getSiteName: function (id) {
-                for (i = 0; i < this.sites.length; i++) {
-                    if (this.sites[i].id == id) return this.sites[i].complete_name;
-                }
-            }
         },
         mounted() {
             this.list();
             this.list_profile();
-            setTimeout(() => {
-                app.screen = 1
-            }, 1);
-
-            $.ajax({
-                url: "{{route('site.list')}}",
-                method: "GET",
-                dataType: "json",
-            }).done(response => {
-                this.sites = response;
-            });
+            this.list_ChecklistTemplate();
+            setTimeout(()=>{app.screen = 1},1);
         }
     });
 </script>
