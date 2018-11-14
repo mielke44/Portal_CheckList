@@ -33,24 +33,51 @@
                     </div>
                     <v-container grid-list-xs>
                         <v-layout row wrap>
-                            <v-flex xs3>CPF:</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{em.cpf}}</v-flex>
-                            <v-flex xs3>E-mail:</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{em.email}}</v-flex>
-                            <v-flex xs3>Telefone:</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{em.fone}}</v-flex>
-                            <v-flex xs3>Data admissão</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{em.created_at}}</v-flex>
+                            <v-layout row wrap>
+                                <template v-for='t in tasks'>
+                                    <v-flex xs1>
+                                        <v-icon @click="t.status=true" v-if="!t.status" color='red'>check_box_outline_blank</v-icon>
+                                        <v-icon @click="t.status=false" v-if="t.status" color='green'>check_box</v-icon>
+                                    </v-flex>
+                                    <v-flex xs9>@{{t.name}}</v-flex>
+                                    <v-flex class='caption' xs12>@{{t.desc}}</v-flex>
+                                </template>
+                            </v-layout>
                             <v-flex xs12 class='text-xs-right'>
-                                <v-btn color="blue" outline>
-                                    <v-icon dark class='mr-2'>check</v-icon> Lista de tarefas
-                                </v-btn>
-                                <v-btn @click="edit(em.id)" color="yellow darken-2" outline>
-                                    <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                <v-btn @click="popup(em.id)" slot="activator" color="green" outline>
+                                        <v-icon dark class='mr-2'>assignment_ind</v-icon> Dados
                                 </v-btn>
                                 <v-btn @click="destroy(em.id)" color="red" outline>
-                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                </v-btn>
+                                        <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                    </v-btn>
+                                <v-dialog v-model="dialog" max-width="500"r>
+                                        <v-card>
+                                            <v-card-title >
+                                            <p style="width:100%" class="headline text-xs-center">Dados de Empregados</p>
+                                            </v-card-title>
+                                            <v-card-text>
+                                                <v-layout row wrap>
+                                                <v-flex xs6>Nome:</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{form.name}}</v-flex>
+                                                <v-flex xs6>Perfil:</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{form.profile}}</v-flex>
+                                                <v-flex xs6>CPF:</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{form.cpf}}</v-flex>
+                                                <v-flex xs6>E-mail:</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{form.email}}</v-flex>
+                                                <v-flex xs6>Telefone:</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{form.fone}}</v-flex>
+                                                <v-flex xs6>Data admissão</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{form.created_at}}</v-flex>
+                                                </v-layout>
+                                            </v-card-text>
+                                            <v-card-actions>
+                                            <v-spacer></v-spacer>
+                                            <v-btn color="blue" @click="edit(em.id)" outline><v-icon dark class='mr-2'>edit</v-icon>Editar</v-btn>
+                                            <v-btn color="red" @click="dialog = false" outline><v-icon dark class='mr-2'>close</v-icon>Fechar</v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </v-dialog>
                             </v-flex>
                         </v-layout>
                     </v-container>
@@ -83,9 +110,6 @@
             </v-card>
         </v-flex>
     </v-layout>
-</v-container>
-
-
 
 @endsection
 
@@ -97,11 +121,21 @@
         },
         data() {
             return {
-                employees: [
-
-                ],
+                dialog: false,
+                employees: [],
                 dependencies: [],
                 profiles: [],
+                tasks:[{
+                    status: true,
+                    name: 'contrato',
+                    desc: 'descrição'
+                },
+                {
+                    status: false,
+                    name: 'adasd',
+                    desc: 'dxcvxcv'
+                },
+                ],
                 form_view: false,
                 form_texts: {
                     title: "",
@@ -209,10 +243,23 @@
                         id: id
                     },
                 }).done(response => {
-                    this.form_texts.title = "Editar Perfil";
-                    this.form_texts.button = "Salvar";
-                    this.form = response;
-                    this.form_view = true;
+                        this.form_texts.title = "Editar Perfil";
+                        this.form_texts.button = "Salvar";
+                        this.form = response;
+                        this.form_view = true;
+                });
+            },
+            popup: function (id) {
+                $.ajax({
+                    url: "{{route('emp.edit')}}",
+                    method: "GET",
+                    dataType: "json",
+                    data: {
+                        id: id
+                    },
+                }).done(response => {
+                        this.form = response;
+                        this.dialog = true;
                 });
             },
             destroy: function (id) {
