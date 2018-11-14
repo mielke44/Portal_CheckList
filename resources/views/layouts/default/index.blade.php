@@ -105,7 +105,7 @@
 
 <v-content>
     <page inline-template>
-        <div>@yield('l-content')</div>
+        <div style="height:100%">@yield('l-content')</div>
     </page>
 </v-content>
 

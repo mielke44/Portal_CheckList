@@ -22,6 +22,10 @@ Route::get('employee/edit', "EmployeeController@edit")->name('emp.edit');
 Route::delete('employee/destroy', "EmployeeController@destroy")->name('emp.remove');
 Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 
+//Checklist
+Route::get('employee/checklist', "ChecklistController@index")->name('checklist_employee');
+Route::get('employee/checklist/{id}', "ChecklistController@index");
+
 //Tasks
 Route::get('task/', "TaskController@index")->name('task');
 Route::post('task/store', "TaskController@store")->name('task.store');
@@ -42,6 +46,8 @@ Route::post('profile/store', "ProfileController@store")->name('profile.store');
 Route::get('profile/list', "ProfileController@list")->name('profile.list');
 Route::get('profile/edit', "ProfileController@edit")->name('profile.edit');
 Route::delete('profile/destroy', "ProfileController@destroy")->name('profile.destroy');
+
+
 
 Auth::routes();
 Route::get('/logout','HomeController@logout')->name('logout');

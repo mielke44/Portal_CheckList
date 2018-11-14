@@ -25,9 +25,11 @@
                                 @{{em.profile}}
                             </v-flex>
                             <v-flex xs3 class='text-xs-right'>
-                                <span class='mr-2'>@{{em.checks}}/@{{em.list}}</span>
-                                <v-progress-circular rotate="-90" :value="em.checks/em.list*100" color="primary" class='mr-2'
-                                    width='7'></v-progress-circular>
+                                <a @click='location.href="{{route("checklist_employee")}}/"+em.id'>
+                                    <span class='mr-2'>@{{em.checks}}/@{{em.list}}</span>
+                                    <v-progress-circular rotate="-90" :value="em.checks/em.list*100" color="primary"
+                                        class='mr-2' width='7'></v-progress-circular>
+                                </a>
                             </v-flex>
                         </v-layout>
                     </div>
@@ -73,7 +75,7 @@
                             <v-text-field mask="+##(##)#####.####" return-masked-value="true" v-model="form.fone"
                                 :rules="rules.fone" label="Telefone" required></v-text-field>
                             <v-select v-model="form.profile_id" :items="profiles" item-text="name" item-value="id"
-                                label="Lista de tarefas" persistent-hint :rules='rules.profile' required></v-select>
+                                label="Perfil" persistent-hint :rules='rules.profile' required></v-select>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
                     </v-form>
@@ -165,8 +167,9 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
-                            if(this.form.id=="")app.notify("Empregado adicionado","success");
-                            else app.notify("Edição salva","success");
+                            if (this.form.id == "") app.notify("Empregado adicionado",
+                                "success");
+                            else app.notify("Edição salva", "success");
                         }
                     });
                 }
@@ -216,7 +219,7 @@
                     },
                     success: (response) => {
                         this.list();
-                        app.notify("Empregado removido","error");
+                        app.notify("Empregado removido", "error");
                     }
                 });
             },
