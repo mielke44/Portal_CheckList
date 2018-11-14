@@ -92,6 +92,9 @@
 @section('l-js')
 <script>
     Vue.component("page", {
+        props: {
+            screen: String
+        },
         data() {
             return {
                 tasks: [],
@@ -203,6 +206,7 @@
         },
         mounted() {
             this.list();
+            setTimeout(()=>{app.screen = 4},1);
         }
     });
 </script>

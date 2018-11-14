@@ -17,6 +17,7 @@ class CreateEmployeeTable extends Migration
             $table->string('name');
             $table->string('email');
             $table->string('cpf');
+            $table->string('site');
             $table->integer('profile_id');
             $table->string('fone');
             $table->increments('id');

@@ -6,15 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Admin extends Model
 {
-    use Notifiable;
-
+    protected $table = 'users';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'type'
+        'name', 'email', 'password', 'is_admin', 'site',
     ];
 
     /**

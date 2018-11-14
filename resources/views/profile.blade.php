@@ -74,6 +74,9 @@
 @section('l-js')
 <script>
     Vue.component("page", {
+        props: {
+            screen: String
+        },
         data() {
             return {
                 profile: [
@@ -119,7 +122,7 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
-                            if(this.form.id=="")app.notify("Perfil criado","success");
+                            if(this.form.id=="")app.notify("Perfil criado com sucesso!","success");
                             else app.notify("Edição salva","success");
                         }
                     });
@@ -168,6 +171,7 @@
         },
         mounted() {
             this.list();
+            setTimeout(()=>{app.screen = 2},1);
 
         }
     });

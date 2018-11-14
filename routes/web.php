@@ -25,6 +25,13 @@ Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 //Checklist
 Route::get('employee/checklist', "ChecklistController@index")->name('checklist_employee');
 Route::get('employee/checklist/{id}', "ChecklistController@index");
+//Admin
+Route::get('Admin/', "AdminController@index")->name('admin');
+Route::post('Admin/store', "AdminController@store")->name('admin.store');
+Route::get('Admin/edit', "AdminController@edit")->name('admin.edit');
+Route::delete('Admin/destroy', "AdminController@destroy")->name('admin.remove');
+Route::get('Admin/list', "AdminController@list")->name('admin.list');
+Route::get('Admin/profile', "AdminController@profile")->name('admin.profile');
 
 //Tasks
 Route::get('task/', "TaskController@index")->name('task');
