@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Admin;
 use App\User;
+use App\Site;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -33,7 +34,7 @@ class AdminController extends Controller
         else $admin = new Admin();
         $admin -> name = $request['name'];
         $admin -> email = $request['email'];
-        $admin -> password = $request['password'];
+        if($request['password'] != '')$admin -> password = bcrypt($request['password']);
         $admin -> site = $request['site'];
         $admin -> is_admin = '1';
         if ($admin -> save()) {

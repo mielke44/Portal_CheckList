@@ -198,7 +198,6 @@
                     method: "GET",
                     dataType: "json",
                 }).done(response => {
-                    app.notify(response);
                     this.profile = response;
                 });
             },

@@ -43,6 +43,8 @@
                             <v-flex xs3 class='font-weight-bold'>@{{em.fone}}</v-flex>
                             <v-flex xs3>Data admissão</v-flex>
                             <v-flex xs3 class='font-weight-bold'>@{{em.created_at}}</v-flex>
+                            <v-flex xs3>Site</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{getSiteName(em.site)}}</v-flex>
                             <v-flex xs12 class='text-xs-right'>
                                 <v-btn color="blue" outline>
                                     <v-icon dark class='mr-2'>check</v-icon> Lista de tarefas
@@ -70,7 +72,8 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Name" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
-                            <v-text-field v-model="form.site" :rules="rules.site" label="Site" required></v-text-field>
+                            <v-select v-model="form.site" :items="sites" item-text="complete_name" item-value="id"
+                                label="Site" persistent-hint required></v-select>
                             <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
                                 label="CPF" required></v-text-field>
                             <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="form.fone"
@@ -150,6 +153,7 @@
                         value: "2",
                     }
                 ],
+                sites: []
             }
         },
         methods: {
@@ -179,8 +183,9 @@
                             if (this.form.id == "") app.notify("Empregado adicionado",
                                 "success");
                             else app.notify("Edição salva", "success");
-                            if(this.form.id=="")app.notify("Empregado adicionado com sucesso!","success");
-                            else app.notify("Edição salva","success");
+                            if (this.form.id == "") app.notify(
+                                "Empregado adicionado com sucesso!", "success");
+                            else app.notify("Edição salva", "success");
                         }
                     });
                 }
@@ -217,6 +222,7 @@
                     this.form_texts.button = "Salvar";
                     this.form = response;
                     this.form_view = true;
+                    this.form.site = parseInt(this.form.site);
                 });
             },
             destroy: function (id) {
@@ -234,11 +240,26 @@
                     }
                 });
             },
+            getSiteName: function (id) {
+                for (i = 0; i < this.sites.length; i++) {
+                    if (this.sites[i].id == id) return this.sites[i].complete_name;
+                }
+            }
         },
         mounted() {
             this.list();
             this.list_profile();
-            setTimeout(()=>{app.screen = 1},1);
+            setTimeout(() => {
+                app.screen = 1
+            }, 1);
+
+            $.ajax({
+                url: "{{route('site.list')}}",
+                method: "GET",
+                dataType: "json",
+            }).done(response => {
+                this.sites = response;
+            });
         }
     });
 </script>

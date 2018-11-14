@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Profile;
+use App\Employee;
 use Illuminate\Http\Request;
 use App\ChecklistTemplate;
 

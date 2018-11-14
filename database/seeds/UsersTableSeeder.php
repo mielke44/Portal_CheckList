@@ -17,7 +17,7 @@ class UsersTableSeeder extends Seeder
             'email' => "dilermando.barbosa@t-systems.com.br",
             'password' => bcrypt('secret'),
             'is_admin' => true,
-            'site' => "curitiba",
+            'site' => "12",
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);
@@ -26,7 +26,7 @@ class UsersTableSeeder extends Seeder
             'name' => "Gabriel Barbosa",
             'email' => "gabriel.barbosa@t-systems.com.br",
             'password' => bcrypt('secret'),
-            'site' => "curitiba",
+            'site' => "12",
             'is_admin' => true,
             'created_at' => new DateTime()
         ]);
@@ -36,7 +36,7 @@ class UsersTableSeeder extends Seeder
             'name' => "William Cavenagli",
             'email' => "william.cavenagli@t-systems.com.br",
             'password' => bcrypt('secret'),
-            'site' => "curitiba",
+            'site' => "12",
             'is_admin' => true,
             'created_at' => new DateTime()
         ]);
@@ -45,7 +45,7 @@ class UsersTableSeeder extends Seeder
             'name' => "Christiano Oishi",
             'email' => "christiano.carvalho@t-systems.com.br",
             'password' => bcrypt('secret'),
-            'site' => "curitiba",
+            'site' => "12",
             'is_admin' => true,
             'created_at' => new DateTime()
         ]);
@@ -54,9 +54,9 @@ class UsersTableSeeder extends Seeder
             'name' => "Wilson Mielke",
             'email' => "wilson.mielke@t-systems.com.br",
             'password' => bcrypt('secret'),
-            'site' => "curitiba",
+            'site' => "12",
             'is_admin' => true,
-            'created_at' => new DateTime() 
+            'created_at' => new DateTime()
         ]);
 
 

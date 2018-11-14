@@ -114,7 +114,7 @@
 <!-- COPONENTES -->
 <v-snackbar v-model="snackbar_notify.model" multi-line timeout="3000" bottom right :color='snackbar_notify.color'>
     @{{snackbar_notify.text}}
-    <v-btn flat @click.native="value = false">
+    <v-btn flat @click.native="snackbar_notify.model = false">
         <v-icon>clear</v-icon>
     </v-btn>
 </v-snackbar>
@@ -149,7 +149,7 @@
                 }, ],
                 name: " ",
                 drawer: true,
-                mini: true,
+                mini: false,
                 search:{
                     value: "",
                     model:false
@@ -202,7 +202,7 @@
                         icon: "account_box",
                         text: "Seu Perfil",
                         link: function(){
-                            
+
                         }
                     },
                     {
