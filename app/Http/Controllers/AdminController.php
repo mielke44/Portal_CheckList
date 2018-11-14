@@ -35,6 +35,7 @@ class AdminController extends Controller
         $admin -> name = $request['name'];
         $admin -> email = $request['email'];
         if($request['password'] != '')$admin -> password = bcrypt($request['password']);
+        $admin -> password = bcrypt($request['password']);
         $admin -> site = $request['site'];
         $admin -> is_admin = '1';
         if ($admin -> save()) {

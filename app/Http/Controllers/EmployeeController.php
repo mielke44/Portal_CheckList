@@ -55,6 +55,7 @@ class EmployeeController extends Controller
     public function edit(Request $request)
     {
         $employee = Employee::findOrFail($request["id"]);
+        $employee->profile=Profile::find($employee->profile_id)->name;
         return $employee;
     }
 
