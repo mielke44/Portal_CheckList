@@ -46,6 +46,7 @@
                         </v-layout>
                     </v-container>
                 </v-expansion-panel-content>
+                <v-expansion-panel-content v-if='profile.length==0'><div slot="header">Nenhum perfil foi criado</div></v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
     </v-layout>

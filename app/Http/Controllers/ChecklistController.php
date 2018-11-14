@@ -7,6 +7,7 @@ use App\Employee;
 use Illuminate\Http\Request;
 use App\LinkerChecklist;
 use App\TaskRequiere;
+use App\Check;
 use Auth;
 
 class ChecklistController extends Controller
@@ -38,26 +39,26 @@ class ChecklistController extends Controller
         $checklist->employee_id = $request['employee_id'];
         $checklist->checklist_template_id = $request['checklist_template_id'];
         $checklist->save();
-        $CLT = LinkerChecklist::where("checklist_id",$request['id']);
+        $CLT = LinkerChecklist::where("checklist_id",$request['checklist_template_id'])->get();
         $user_id = Auth::user();
         foreach($CLT as $ct){
-            $task = new Check();
-            $task->resp = $request["resp"];
-            $task->status = false;
-            $task->comment = "";
-            $task->task_id = $taskTemp->id;
-            $task->checklist_id = $checklist->id;
-            $task->save();
-            if(Check::where("checklist_id",$checklist_id,"task_id",$ct["task_id"])->count()==0){
+            $check = new Check();
+            $check->resp = $user_id->id;
+            $check->status = false;
+            $check->comment = "";
+            $check->task_id = $ct->task_id;
+            $check->checklist_id = $checklist->id;
+            $check->save();
+            if(Check::where("checklist_id",$checklist->id)->where("task_id",$ct["task_id"])->count()==0){
                 createCheckDep($c->id,$user->id,$checklist->id);
             }
         }
-        
+
     }
 
     public function createCheckDep($task_id,$user_id,$checklist_id){
         $dep = TaskRequiere::where('task_id',$task_id);
-        
+
         foreach($dep as $d){
             $task = new Check();
             $task->resp = $user_id;
@@ -66,10 +67,10 @@ class ChecklistController extends Controller
             $task->task_id = $d["task_requiere_id"];
             $task->checklist_id = $checklist_id;
             $task->save();
-            if(Check::where("checklist_id",$checklist_id,"task_id",$d["task_requiere_id"])->count()==0){
+            if(Check::where("checklist_id",$checklist_id)->where("task_id",$d["task_requiere_id"])->count()==0){
                 createCheckDep($c->id,$user->id,$request['id']);
             }
-            
+
         }
     }
 

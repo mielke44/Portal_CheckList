@@ -59,6 +59,7 @@
                         </v-layout>
                     </v-container>
                 </v-expansion-panel-content>
+                <v-expansion-panel-content v-if='clists.length==0'><div slot="header">Nenhuma lista de tarefas foi criada</div></v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
     </v-layout>
@@ -189,7 +190,7 @@
                     method: "GET",
                     dataType: "json",
                 }).done(response => {
-                    this.clists = response['clists'];
+                    this.clists = response;
                 });
             },
             list_profile: function () {

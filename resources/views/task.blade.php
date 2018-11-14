@@ -55,6 +55,7 @@
 
                     </v-container>
                 </v-expansion-panel-content>
+                <v-expansion-panel-content v-if='tasks.length==0'><div slot="header">Nenhuma tarefa foi criada</div></v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
 
