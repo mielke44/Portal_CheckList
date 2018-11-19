@@ -23,8 +23,7 @@ Route::delete('employee/destroy', "EmployeeController@destroy")->name('emp.remov
 Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 
 //Checklist
-Route::get('employee/checklist', "ChecklistController@index")->name('checklist_employee');
-Route::get('employee/checklist/{id}', "ChecklistController@index");
+Route::get('employee/checklist', "ChecklistController@index")->name('checklist.employee');
 Route::post('employee/checklist/store', "ChecklistController@store")->name('checklist_store');
 
 //Admin

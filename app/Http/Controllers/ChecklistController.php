@@ -17,10 +17,10 @@ class ChecklistController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index($id)
+    public function index(Request $r)
     {
-        $emp = Employee::findOrFail($id);
-        return view('checklist-employee',compact('emp'));
+        $checklists = Checklist::where("employee_id",$r->id)->select("checklist_template_id")->get();
+        return json_encode($checklists);
     }
 
     /**
