@@ -9,6 +9,8 @@ use App\LinkerChecklist;
 use App\TaskRequiere;
 use App\Check;
 use Auth;
+use App\ChecklistTemplate;
+use App\Task;
 
 class ChecklistController extends Controller
 {
@@ -19,8 +21,21 @@ class ChecklistController extends Controller
      */
     public function index(Request $r)
     {
-        $checklists = Checklist::where("employee_id",$r->id)->select("checklist_template_id")->get();
-        return json_encode($checklists);
+        $a = array();
+        $b = array();
+        $checklists = Checklist::where("employee_id",$r->id)->select("checklist_template_id","id")->get();
+        foreach($checklists as $c){
+            $check = Check::where("checklist_id",$c->id)->get();
+            foreach($check as $ch){
+                $ch->name = Task::where("id",$ch->task_id)->select("name")->get();
+                $ch->description = Task::where("id",$ch->task_id)->select("description")->get();
+            }
+            array_push($b, $check);
+            $c->name = ChecklistTemplate::where("id",$c->checklist_template_id)->select("name")->get();
+        }
+        $a["checklists"] = $checklists;
+        $a["check"]=$b;
+        return json_encode($a);
     }
 
     /**

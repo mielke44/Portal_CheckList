@@ -37,26 +37,30 @@
                         <v-layout row wrap>
                             <v-layout row wrap>
                                 <v-flex xs12 v-if="checklists.hasOwnProperty(em.id)">
-                                    sdgsdgsd
+                                    <v-tabs v-model="tab" slider-color="black">
+                                        <v-tab  v-for="c in checklists[em.id]">@{{c.name[0].name}}</v-tab>
+                                            <v-tab-item>
+                                                <v-tab-items v-for='ch in check'>
+                                                        <v-flex xs1>
+                                                            <!-- O v-for não está chamando corretamente as checks.-->
+                                                            <v-icon @click="ch.status=true" v-if="!ch.status" color='red'>check_box_outline_blank</v-icon>
+                                                            <v-icon @click="ch.status=false" v-if="ch.status" color='green'>check_box</v-icon>
+                                                            <v-flex xs9>@{{ch.id}}</v-flex>
+                                                            <v-flex class='caption' xs12>@{{ch.description}}</v-flex>
+                                                        </v-flex>
+                                                </v-tab-items>
+                                            </v-tab-item>
+                                    </v-tabs>
                                 </v-flex>
-                                <template v-for='t in checklist'>
-                                    <v-flex xs1>
-                                        <v-icon @click="t.status=true" v-if="!t.status" color='red'>check_box_outline_blank</v-icon>
-                                        <v-icon @click="t.status=false" v-if="t.status" color='green'>check_box</v-icon>
-                                    </v-flex>
-                                    <v-flex xs9>@{{t.name}}</v-flex>
-                                    <v-flex class='caption' xs12>@{{t.desc}}</v-flex>
-                                </template>
-
                             </v-layout>
                             <v-flex xs12 class='text-xs-right'>
-                                <v-btn @click="popup(em.id)" slot="activator" color="green" outline>
+                                <v-btn @click="form.id=em.id; popup(em.id)" slot="activator" color="green" outline>
                                     <v-icon dark class='mr-2'>assignment_ind</v-icon> Dados
                                 </v-btn>
                                 <v-btn @click="destroy(em.id)" color="red" outline>
                                     <v-icon dark class='mr-2'>delete</v-icon> Remover
                                 </v-btn>
-                                <v-btn @click="dialog2=true" color="yellow" outline>
+                                <v-btn @click="form.id=em.id; popup2(em.id)" color="yellow" outline>
                                     <v-icon dark class='mr-2'>list</v-icon> Lista de tarefas
                                 </v-btn>
                             </v-flex>
@@ -87,7 +91,7 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="blue" @click="edit(em.id)" outline>
+                        <v-btn color="blue" @click=" edit(form.id)" outline>
                             <v-icon dark class='mr-2'>edit</v-icon>Editar
                         </v-btn>
                         <v-btn color="red" @click="dialog = false" outline>
@@ -111,10 +115,10 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="blue" @click="checklistTT(em.id)" outline>
+                        <v-btn color="blue" @click="checklistTT(form.id); dialog2 = false" outline>
                             <v-icon dark class='mr-2'>add_circle_outline</v-icon>Criar
                         </v-btn>
-                        <v-btn color="red" @click="dialog = false" outline>
+                        <v-btn color="red" @click="dialog2 = false" outline>
                             <v-icon dark class='mr-2'>close</v-icon>Fechar
                         </v-btn>
                     </v-card-actions>
@@ -123,6 +127,8 @@
         </v-flex>
     </v-layout>
 
+
+    <!-- EDIT -->
     <v-layout row wrap v-if="form_view">
         <v-flex xs12 sm6 offset-sm3>
             <v-card>
@@ -132,7 +138,8 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Name" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
-                            <v-text-field v-model="form.site" :rules="rules.site" label="Site" required></v-text-field>
+                            <v-select v-model="form.site" :items="sites" item-text="complete_name" item-value="id" 
+                                :rules="rules.site" label="Site" persistent-hint required></v-select>
                             <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
                                 label="CPF" required></v-text-field>
                             <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="form.fone"
@@ -163,10 +170,12 @@
                     employees: [],
                     dependencies: [],
                     profiles: [],
-                    checklist: [],
                     checklists: {},
+                    check: [],
                     templates: [],
+                    sites: [],
                     form_view: false,
+                    tab: null,
                     form_texts: {
                         title: "",
                         button: ""
@@ -304,8 +313,27 @@
                                 id: employee_id
                             }
                         }).done(response => {
-                            this.checklists[employee_id] = response;
+                            this.checklists[employee_id] = response['checklists'];
+                            this.check = response['check'];
+
+                            var temp = this.model_employee;
+                            this.model_employee = null;
+                            this.model_employee = temp;
                         });
+                    }
+                },
+                list_sites: function (){
+                    $.ajax({
+                        url: "{{route('site.list')}}",
+                        method: "GET",
+                        dataType: "json",
+                    }).done(response => {
+                        this.sites = response;
+                    });
+                },
+                getSiteName: function (id) {
+                    for (i = 0; i < this.sites.length; i++) {
+                        if (this.sites[i].id == id) return this.sites[i].complete_name;
                     }
                 },
                 edit: function (id) {
@@ -337,17 +365,8 @@
                     });
                 },
                 popup2: function (id) {
-                    $.ajax({
-                        url: "{{route('checklist.list')}}",
-                        method: "GET",
-                        dataType: "json",
-                        data: {
-                            id: id
-                        },
-                    }).done(response => {
-                        this.checklist = response;
-                        this.dialog2 = true;
-                    });
+                    //this.dialog2 = true;
+                    alert(JSON.stringify(this.check));
                 },
                 destroy: function (id) {
                     $.ajax({
@@ -369,6 +388,8 @@
                 this.list();
                 this.list_profile();
                 this.list_ChecklistTemplate();
+                this.list_checklist();
+                this.list_sites();
                 setTimeout(() => {
                     app.screen = 1
                 }, 1);

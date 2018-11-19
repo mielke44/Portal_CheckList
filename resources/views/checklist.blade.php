@@ -182,7 +182,7 @@
                             else app.notify("Edição salva","success");
                         }
                     });
-                }z
+                }
             },
             list: function () {
                 $.ajax({

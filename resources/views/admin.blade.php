@@ -221,6 +221,11 @@
                     this.user = response['user'];
                 });
             },
+            getSiteName: function (id) {
+                for (i = 0; i < this.sites.length; i++) {
+                    if (this.sites[i].id == id) return this.sites[i].complete_name;
+                }
+            },
             edit: function (id) {
                 $.ajax({
                     url: "{{route('admin.edit')}}",
@@ -253,11 +258,6 @@
                         app.notify("Admin removido", "error");
                     }
                 });
-            },
-            getSiteName: function (id) {
-                for (i = 0; i < this.sites.length; i++) {
-                    if (this.sites[i].id == id) return this.sites[i].complete_name;
-                }
             }
         },
         mounted() {
