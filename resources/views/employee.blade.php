@@ -26,8 +26,8 @@
                             </v-flex>
                             <v-flex xs3 class='text-xs-right'>
                                 <a @click=''>
-                                    <span class='mr-2'>@{{em.checks}}/@{{em.list}}</span>
-                                    <v-progress-circular rotate="-90" :value="em.checks/em.list*100" color="primary"
+                                    <span class='mr-2'>@{{em.check_true_size}}/@{{em.check_size}}</span>
+                                    <v-progress-circular rotate="-90" :value="em.check_true_size/em.check_size*100" color="primary"
                                         class='mr-2' width='7'></v-progress-circular>
                                 </a>
                             </v-flex>
@@ -41,13 +41,18 @@
                                         <v-tab  v-for="c in checklists[em.id]">@{{c.name[0].name}}</v-tab>
                                             <v-tab-item>
                                                 <v-tab-items v-for='ch in check'>
-                                                        <v-flex xs1>
-                                                            <!-- O v-for não está chamando corretamente as checks.-->
-                                                            <v-icon @click="ch.status=true" v-if="!ch.status" color='red'>check_box_outline_blank</v-icon>
-                                                            <v-icon @click="ch.status=false" v-if="ch.status" color='green'>check_box</v-icon>
-                                                            <v-flex xs9>@{{ch.id}}</v-flex>
-                                                            <v-flex class='caption' xs12>@{{ch.description}}</v-flex>
-                                                        </v-flex>
+                                                    <v-divider></v-divider>
+                                                        <v-layout row wrap>
+                                                            <v-flex xs1>
+                                                                <v-checkbox
+                                                                    v-model="ch.status"
+                                                                    @change="count_check(ch.id,em,ch.status)"
+                                                                    color="green"
+                                                                ></v-checkbox>
+                                                            </v-flex>
+                                                            <v-flex xs3 class="font-weight-bold">@{{ch.name[0].name}}</v-flex>
+                                                            <v-flex xs6 class='caption'>@{{ch.description[0].description}}</v-flex>
+                                                        </v-layout>
                                                 </v-tab-items>
                                             </v-tab-item>
                                     </v-tabs>
@@ -172,6 +177,7 @@
                     profiles: [],
                     checklists: {},
                     check: [],
+                    check_size:"",
                     templates: [],
                     sites: [],
                     form_view: false,
@@ -314,8 +320,7 @@
                             }
                         }).done(response => {
                             this.checklists[employee_id] = response['checklists'];
-                            this.check = response['check'];
-
+                            this.check = response['check'][0];
                             var temp = this.model_employee;
                             this.model_employee = null;
                             this.model_employee = temp;
@@ -365,8 +370,8 @@
                     });
                 },
                 popup2: function (id) {
-                    //this.dialog2 = true;
-                    alert(JSON.stringify(this.check));
+                    this.dialog2 = true;
+                    //alert(JSON.stringify(this.check));
                 },
                 destroy: function (id) {
                     $.ajax({
@@ -383,6 +388,31 @@
                         }
                     });
                 },
+                update: function(check_id,status){
+                    $.ajax({
+                        url: "{{route('check.edit')}}",
+                        method: "POST",
+                        dataType: "json",
+                        headers: app.headers,
+                        data: {
+                            check_id: check_id,
+                            status: status
+                        },
+                    }).done(response => {
+                        this.form_view = false;
+                        app.notify("Status da tarefa modificado", "success");
+                    });
+                },
+                count_check: function(check_id,em,status){
+                    if(status==1){
+                        this.update(check_id,status)
+                        em.check_true_size++;
+                    }
+                    else {
+                        em.check_true_size--;
+                        this.update(check_id,status)
+                    }
+                }
             },
             mounted() {
                 this.list();

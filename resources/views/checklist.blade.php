@@ -64,6 +64,7 @@
         </v-flex>
     </v-layout>
 
+    <!--FORM-->
     <v-layout row wrap v-if="form_view">
         <v-flex s12>
             <v-card>
@@ -164,7 +165,7 @@
                     id: "",
                     name: '',
                     profile_id: '',
-                    dependences: ''
+                    dependences: '',
                 }
             },
             store: function () {
@@ -220,6 +221,7 @@
                         id: id
                     },
                 }).done(response => {
+                    
                     this.form_texts.title = "Editar Lista";
                     this.form_texts.button = "Salvar";
                     this.form = response;

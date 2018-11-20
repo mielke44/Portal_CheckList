@@ -84,7 +84,7 @@ class ChecklistTemplateController extends Controller
             $taskdep = Task::find($cl->task_id);
             $dep[]=$taskdep->id;
         }
-        $clist->dependeces = $dep;
+        $clist->dependences = $dep;
         return $clist;
     }
 

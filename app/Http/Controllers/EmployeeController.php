@@ -6,6 +6,8 @@ use App\Employee;
 use App\Profile;
 use Illuminate\Http\Request;
 use Auth;
+use App\Check;
+use App\Checklist;
 
 class EmployeeController extends Controller
 {
@@ -76,8 +78,11 @@ class EmployeeController extends Controller
         $site = Auth::user()->site;
         $list = Employee::where("site",$site)->get();
         foreach($list as $emp){
-            $emp -> checks= 2;
-            $emp -> list = 22;
+            $a = Checklist::where("employee_id",$emp->id)->get();
+            foreach($a as $b){
+                $emp['check_true_size'] = Check::where("checklist_id",$b->id)->where("status",1)->count();
+                $emp["check_size"] = Check::where("checklist_id",$b->id)->count();;
+            }
             $emp->profile=Profile::find($emp->profile_id)->name;
         }
         return json_encode($list);

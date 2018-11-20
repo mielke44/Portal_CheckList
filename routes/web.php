@@ -26,6 +26,9 @@ Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 Route::get('employee/checklist', "ChecklistController@index")->name('checklist.employee');
 Route::post('employee/checklist/store', "ChecklistController@store")->name('checklist_store');
 
+//Check
+Route::post('employee/checkedit', "CheckController@store")->name('check.edit');
+
 //Admin
 Route::get('Admin/', "AdminController@index")->name('admin');
 Route::post('Admin/store', "AdminController@store")->name('admin.store');

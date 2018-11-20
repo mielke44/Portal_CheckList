@@ -23,9 +23,11 @@ class ChecklistController extends Controller
     {
         $a = array();
         $b = array();
+        $n = "";
         $checklists = Checklist::where("employee_id",$r->id)->select("checklist_template_id","id")->get();
         foreach($checklists as $c){
             $check = Check::where("checklist_id",$c->id)->get();
+            $n = Check::where("checklist_id",$c->id)->where("status",1)->select("id")->get();
             foreach($check as $ch){
                 $ch->name = Task::where("id",$ch->task_id)->select("name")->get();
                 $ch->description = Task::where("id",$ch->task_id)->select("description")->get();
@@ -33,6 +35,7 @@ class ChecklistController extends Controller
             array_push($b, $check);
             $c->name = ChecklistTemplate::where("id",$c->checklist_template_id)->select("name")->get();
         }
+        $a["check_size"] = count($n);
         $a["checklists"] = $checklists;
         $a["check"]=$b;
         return json_encode($a);
