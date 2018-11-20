@@ -82,6 +82,7 @@
                                 item-text="name"
                                 item-value="id"
                                 multiple
+                                @change="set_dependences()"
                             >
                                 <template
                                     slot="selection"
@@ -153,6 +154,7 @@
                     name: '',
                     profile_id:'',
                     dependences: ''
+
                 },
             }
         },
@@ -246,7 +248,29 @@
             remove (item) {
                 const index = this.friends.indexOf(item.name)
                 if (index >= 0) this.friends.splice(index, 1)
-            }
+            },
+            set_dependences: function(){
+                
+                var f=[];
+                for(i=0; i<this.form.dependences.length; i++){
+                    
+                    for(j=0; j<this.task.length; j++){
+                        
+                        if(this.form.dependences[i]==this.task[j].id){
+                            for(k=0; k<this.task[j].dependence.length; k++){
+                                for(l=0; l<this.form.dependences.length; k++){
+                                    var id = this.task[j].dependence[k].task_id;
+                                    alert(id);
+                                    if(this.form.dependences[l] != id){
+                                        f.push(id);
+                                    }else return;
+                                }
+                            }
+                        }
+                    }
+                }
+                for(i=0; i<f.length; i++)this.form.dependences.push(f[i]);
+            },
         },
         watch: {
             isUpdating (val) {
