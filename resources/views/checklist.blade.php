@@ -59,7 +59,9 @@
                         </v-layout>
                     </v-container>
                 </v-expansion-panel-content>
-                <v-expansion-panel-content v-if='clists.length==0'><div slot="header">Nenhuma lista de tarefas foi criada</div></v-expansion-panel-content>
+                <v-expansion-panel-content v-if='clists.length==0'>
+                    <div slot="header">Nenhuma lista de tarefas foi criada</div>
+                </v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
     </v-layout>
@@ -74,31 +76,15 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
                             <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil"
-                            :rules="rules.prof_id" persistent-hint required></v-select>
-                            <v-autocomplete
-                                v-model="form.dependences"
-                                :items="task"
-                                label="Tarefas"
-                                item-text="name"
-                                item-value="id"
-                                multiple
-                                @change="set_dependences()"
-                            >
-                                <template
-                                    slot="selection"
-                                    slot-scope="data"
-                                >
-                                    <v-chip
-                                        :selected="data.selected"
-                                        close class="chip--select-multi"
-                                        @input="remove(data.item)">@{{data.item.name}}</v-chip>
+                                :rules="rules.prof_id" persistent-hint required></v-select>
+                            <v-autocomplete v-model="form.dependences" :items="task" label="Tarefas" item-text="name"
+                                item-value="id" multiple>
+                                <template slot="selection" slot-scope="data">
+                                    <v-chip :selected="data.selected" close class="chip--select-multi" @input="remove(data.item)">@{{data.item.name}}</v-chip>
                                 </template>
-                                <template
-                                    slot="item"
-                                    slot-scope="data"
-                                >
+                                <template slot="item" slot-scope="data">
                                     <template>
-                                        <v-list-tile-content>
+                                        <v-list-tile-content @click='add_all_dependences(data.item.id)'>
                                             <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
                                             <v-list-tile-sub-title v-html="data.item.description"></v-list-tile-sub-title>
                                         </v-list-tile-content>
@@ -126,12 +112,9 @@
         },
         data() {
             return {
-                clists: [
-                ],
-                profile:[
-                ],
-                task:[
-                ],
+                clists: [],
+                profile: [],
+                task: [],
                 form_view: false,
                 form_texts: {
                     title: "",
@@ -152,8 +135,8 @@
                 form: {
                     id: "",
                     name: '',
-                    profile_id:'',
-                    dependences: ''
+                    profile_id: '',
+                    dependences: []
 
                 },
             }
@@ -167,7 +150,7 @@
                     id: "",
                     name: '',
                     profile_id: '',
-                    dependences: '',
+                    dependences: [],
                 }
             },
             store: function () {
@@ -181,8 +164,9 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
-                            if(this.form.id=="")app.notify("Lista de tarefa criada com sucesso!","success");
-                            else app.notify("Edição salva","success");
+                            if (this.form.id == "") app.notify(
+                                "Lista de tarefa criada com sucesso!", "success");
+                            else app.notify("Edição salva", "success");
                         }
                     });
                 }
@@ -223,7 +207,7 @@
                         id: id
                     },
                 }).done(response => {
-                    
+
                     this.form_texts.title = "Editar Lista";
                     this.form_texts.button = "Salvar";
                     this.form = response;
@@ -241,39 +225,47 @@
                     },
                     success: (response) => {
                         this.list();
-                        app.notify("Lista de tarefa removida","error");
+                        app.notify("Lista de tarefa removida", "error");
                     }
                 });
             },
-            remove (item) {
+            remove(item) {
                 const index = this.friends.indexOf(item.name)
                 if (index >= 0) this.friends.splice(index, 1)
             },
-            set_dependences: function(){
-                
-                var f=[];
-                for(i=0; i<this.form.dependences.length; i++){
-                    
-                    for(j=0; j<this.task.length; j++){
-                        
-                        if(this.form.dependences[i]==this.task[j].id){
-                            for(k=0; k<this.task[j].dependence.length; k++){
-                                for(l=0; l<this.form.dependences.length; k++){
-                                    var id = this.task[j].dependence[k].task_id;
-                                    alert(id);
-                                    if(this.form.dependences[l] != id){
-                                        f.push(id);
-                                    }else return;
-                                }
-                            }
-                        }
+            set_dependences: function () {
+                var length = this.form.dependences.length;
+                for (i = 0; i < length; i++) {
+                    this.add_all_dependences(this.form.dependences[i])
+                }
+            },
+            add_all_dependences: function (id) {
+                var f = [];
+                var task;
+                task = this.getTask(id)
+                for (j = 0; j < task.dependence.length; j++) {
+                    if (!this.isDependenceSet(task.dependence[j].task_id)) {
+                        f.push(task.dependence[j].task_id);
                     }
                 }
-                for(i=0; i<f.length; i++)this.form.dependences.push(f[i]);
+                for (i = 0; i < f.length; i++) this.form.dependences.push(f[i]);
+                this.set_dependences();
             },
+            isDependenceSet: function (id) {
+                for (i = 0; i < this.form.dependences.length; i++) {
+                    if (id == this.form.dependences[i]) return true;
+                }
+                return false;
+            },
+            getTask: function (id) {
+                for (j = 0; j < this.task.length; j++) {
+                    if (id == this.task[j].id) return this.task[j]
+                }
+                return null;
+            }
         },
         watch: {
-            isUpdating (val) {
+            isUpdating(val) {
                 if (val) {
                     setTimeout(() => (this.isUpdating = false), 3000)
                 }
@@ -283,7 +275,9 @@
             this.list();
             this.list_task();
             this.list_profile();
-            setTimeout(()=>{app.screen = 3},1);
+            setTimeout(() => {
+                app.screen = 3
+            }, 1);
         }
     });
 </script>

@@ -12,7 +12,7 @@ class TaskController extends Controller
     {
         $this->middleware('auth');
     }
-    
+
     public function index()
     {
         return view("task");
@@ -49,6 +49,7 @@ class TaskController extends Controller
         $task->type = $request["type"];
 
         if($task->save()) {
+            TaskRequiere::where("task_id",$task->id)->delete();
             if($request->dependences != "")foreach($request->dependences as $d){
                 $tr = new TaskRequiere();
                 $tr->task_id = $task->id;

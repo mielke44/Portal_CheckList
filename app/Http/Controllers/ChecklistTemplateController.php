@@ -65,7 +65,7 @@ class ChecklistTemplateController extends Controller
                 $clinker->save();
             }
             return json_encode(array('success'=>"true"));
-        } 
+        }
         else return json_encode(array('error'=>"true"));
     }
 
