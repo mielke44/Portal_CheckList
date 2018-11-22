@@ -34,6 +34,38 @@ class TaskController extends Controller
         return json_encode($tasks);
     }
 
+    public function tree(){
+        $tasks = Task::all();
+        $tree = array();
+        foreach($tasks as $t){
+            if(TaskRequiere::where("task_requiere_id",$t->id)->count()==0){
+                $aux = array();
+                $aux["id"] = $t->id;
+                $aux["name"] = $t->name;
+                $aux["children"] = array();
+                $deps = TaskRequiere::where("task_id",$t->id)->get();
+                foreach($deps as $d){
+                    array_push($aux["children"],$this->treeChildren($d->task_requiere_id,$d->task_id.";"));
+                }
+                array_push($tree,$aux);
+
+            }
+        }
+        return json_encode($tree);
+    }
+    private function treeChildren($id,$tasksInTree){
+        $aux = array();
+        $task = Task::find($id);
+        $deps =  TaskRequiere::where("task_id",$id)->get();
+        $aux["id"] = $id;
+        $aux["name"] = $task->name;
+        $aux["children"] = array();
+        foreach($deps as $d){
+            array_push($aux["children"],$this->treeChildren($d->task_requiere_id,$tasksInTree.$id.";"));
+        }
+        return $aux;
+    }
+
     /**
      * Store a newly created resource in storage.
      *

@@ -77,6 +77,7 @@
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
                             <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil"
                                 :rules="rules.prof_id" persistent-hint required></v-select>
+                                <!--
                             <v-autocomplete v-model="form.dependences" :items="task" label="Tarefas" item-text="name"
                                 item-value="id" multiple>
                                 <template slot="selection" slot-scope="data">
@@ -91,6 +92,8 @@
                                     </template>
                                 </template>
                             </v-autocomplete>
+                            -->
+                            <v-treeview :items='task_tree' selectable v-model='form.dependences'></v-treeview>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
                     </v-form>
@@ -115,6 +118,7 @@
                 clists: [],
                 profile: [],
                 task: [],
+                task_tree: [],
                 form_view: false,
                 form_texts: {
                     title: "",
@@ -198,6 +202,15 @@
                     this.task = response;
                 });
             },
+            get_task_tree: function () {
+                $.ajax({
+                    url: "{{route('task.tree')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response => {
+                    this.task_tree = response;
+                });
+            },
             edit: function (id) {
                 $.ajax({
                     url: "{{route('checklist.edit')}}",
@@ -274,6 +287,7 @@
         mounted() {
             this.list();
             this.list_task();
+            this.get_task_tree();
             this.list_profile();
             setTimeout(() => {
                 app.screen = 3

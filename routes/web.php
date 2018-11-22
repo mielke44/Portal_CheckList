@@ -43,6 +43,7 @@ Route::post('task/store', "TaskController@store")->name('task.store');
 Route::get('task/list', "TaskController@list")->name('task.list');
 Route::get('task/edit', "TaskController@edit")->name('task.edit');
 Route::delete('task/destroy', "TaskController@destroy")->name('task.destroy');
+Route::get('task/tree', "TaskController@tree")->name('task.tree');
 
 //checklistsTemplates
 Route::get('checklist/', "ChecklistTemplateController@index")->name('checklist');
