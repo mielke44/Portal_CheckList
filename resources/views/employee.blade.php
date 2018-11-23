@@ -52,6 +52,7 @@
                                                             </v-flex>
                                                             <v-flex xs3 class="font-weight-bold">@{{ch.name[0].name}}</v-flex>
                                                             <v-flex xs6 class='caption'>@{{ch.description[0].description}}</v-flex>
+                                                            <v-btn small fab color="blue" @click="form.id = ch.id;popup3(ch.id)"><v-icon>edit</v-icon></v-btn>
                                                         </v-layout>
                                                 </v-tab-items>
                                             </v-tab-item>
@@ -73,6 +74,8 @@
                     </v-container>
                 </v-expansion-panel-content>
             </v-expansion-panel>
+
+
             <v-dialog v-model="dialog" max-width="500" r>
                 <v-card>
                     <v-card-title>
@@ -105,6 +108,8 @@
                     </v-card-actions>
                 </v-card>
             </v-dialog>
+
+
             <v-dialog v-model="dialog2" max-width="700" r>
                 <v-card>
                     <v-card-title>
@@ -124,6 +129,73 @@
                             <v-icon dark class='mr-2'>add_circle_outline</v-icon>Criar
                         </v-btn>
                         <v-btn color="red" @click="dialog2 = false" outline>
+                            <v-icon dark class='mr-2'>close</v-icon>Fechar
+                        </v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+
+            <v-dialog v-model="dialog3" max-width="600" r>
+                <v-card>
+                    <v-card-title>
+                        <p style="width:100%" class="headline text-xs-center font-weight-bold">Menu de Tarefa</p>
+                    </v-card-title>
+                    <v-card-text>
+                        <v-layout row wrap>
+                            <v-autocomplete
+                                v-model="form.resp"
+                                :items="resp"
+                                color="black"
+                                hide-no-data
+                                hide-selected
+                                item-text="name"
+                                item-value="id"
+                                label="Responsável"
+                                prepend-icon="mdi-database-search"
+                                return-object
+                            ></v-autocomplete>
+                            <v-btn color="red" @click="update(form.id,'','resp')" outline>Salvar</v-btn>
+                        </v-layout>
+                        <v-layout row wrap>
+                            <v-flex xs12>
+                                <v-textarea  height=100 v-model="form.comment" :rules="rules.comment" label="Comentário" required counter='300'></v-textarea>
+                                <v-btn color="blue" @click="add_comment(form.id,'')" outline>
+                                    <v-icon dark class='mr-2'>add_comment</v-icon>Comentar
+                                </v-btn>
+                            </v-flex>
+                        </v-layout>
+                        <v-layout row wrap>
+                            <v-flex xs12>
+                                <v-flex xs3>Comentários:</v-flex>
+                            <v-list two-line dense>
+                            <template v-for='c in comments'>
+                                <v-divider></v-divider>
+                                <v-list-tile ripple>
+                                <v-list-tile-content>
+                                    <v-flex xs9>
+                                        <v-list-tile-title>@{{c.writer_name}}</v-list-tile-title>
+                                        <v-list-tile-sub-title>@{{c.comment}}</v-list-tile-sub-title>
+                                    </v-flex>
+                                </v-list-tile-content>
+                                <v-list-tile-action>
+                                    <v-flex xs12>
+                                        <v-btn small fab color="blue" @click="add_comment(form.id,c.id)">
+                                            <v-icon dark>edit</v-icon>
+                                        </v-btn>
+                                        <v-btn small fab color="red" @click="destroy_comment(c.id)">
+                                            <v-icon dark>delete</v-icon>
+                                        </v-btn>
+                                    </v-flex>
+                                </v-list-tile-action>
+                            </template>
+                            </v-list>
+                            </v-flex>
+                        </v-layout>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="red" @click="dialog3 = false" outline>
                             <v-icon dark class='mr-2'>close</v-icon>Fechar
                         </v-btn>
                     </v-card-actions>
@@ -172,6 +244,7 @@
                     model_employee: null,
                     dialog: false,
                     dialog2: false,
+                    dialog3: false,
                     employees: [],
                     dependencies: [],
                     profiles: [],
@@ -182,6 +255,8 @@
                     sites: [],
                     form_view: false,
                     tab: null,
+                    resp: {},
+                    comments: [],
                     form_texts: {
                         title: "",
                         button: ""
@@ -219,6 +294,8 @@
                         site: '',
                         profile_id: '',
                         checklist_template_id: '',
+                        comment: '',
+                        resp: '',
                     },
                     items: [{
                             text: 'Efetivado',
@@ -291,6 +368,15 @@
                         this.employees = response;
                     });
                 },
+                list_admin: function(){
+                    $.ajax({
+                        url: "{{route('admin.list')}}",
+                        method: "GET",
+                        dataType: "json",
+                    }).done(response => {
+                        this.resp = response['list'];
+                    });
+                },
                 list_profile: function () {
                     $.ajax({
                         url: "{{route('profile.list')}}",
@@ -321,6 +407,10 @@
                         }).done(response => {
                             this.checklists[employee_id] = response['checklists'];
                             this.check = response['check'][0];
+                            for (i = 0; i < response['check'][0][0]; i++) {
+                                this.comments.push(response['check'][0][0]['comment']);
+                            }
+                            //alert(JSON.stringify(response['check'][0][0]));
                             var temp = this.model_employee;
                             this.model_employee = null;
                             this.model_employee = temp;
@@ -335,6 +425,38 @@
                     }).done(response => {
                         this.sites = response;
                     });
+                },
+                list_comment: function(id){
+                    $.ajax({
+                        url: "{{route('comment.list')}}",
+                        method: "GET",
+                        dataType: "json",
+                        data: {
+                            check_id: id,
+                        }
+                    }).done(response => {
+                        this.comments = response['comment'];
+                    });
+                },
+                add_comment: function(id,id2){
+                    $.ajax({
+                            url: "{{route('comment.store')}}",
+                            method: "POST",
+                            dataType: "json",
+                            headers: app.headers,
+                            data:{ 
+                                form: this.form,
+                                check_id: id,
+                                comment_id: id2
+                                },
+                                
+                            success: (response) => {
+                                this.list_comment();
+                                if (response['st']=='add') app.notify("Comentário adicionado","success");
+                                else if(response['st']=='edit')app.notify("comentário editado com sucesso!", "success");
+
+                            }
+                        });
                 },
                 getSiteName: function (id) {
                     for (i = 0; i < this.sites.length; i++) {
@@ -371,7 +493,10 @@
                 },
                 popup2: function (id) {
                     this.dialog2 = true;
-                    //alert(JSON.stringify(this.check));
+                },
+                popup3: function (id) {
+                    this.dialog3 = true;
+                    this.list_comment(id);
                 },
                 destroy: function (id) {
                     $.ajax({
@@ -388,38 +513,60 @@
                         }
                     });
                 },
-                update: function(check_id,status){
+                destroy_comment: function (id) {
+                    $.ajax({
+                        url: "{{route('comment.remove')}}",
+                        method: "DELETE",
+                        dataType: "json",
+                        headers: app.headers,
+                        data: {
+                            id: id
+                        },
+                        success: (response) => {
+                            this.list_comment();
+                            app.notify("Comentário removido", "error");
+                        }
+                    });
+                },
+                update: function(check_id,status,change_type){
                     $.ajax({
                         url: "{{route('check.edit')}}",
                         method: "POST",
                         dataType: "json",
                         headers: app.headers,
-                        data: {
+                        data:{
+                            form: this.form,
                             check_id: check_id,
-                            status: status
+                            status: status,
+                            change_type: change_type,
+                            
                         },
                     }).done(response => {
                         this.form_view = false;
-                        app.notify("Status da tarefa modificado", "success");
+                        app.notify("Tarefa modificada!", "success");
                     });
                 },
                 count_check: function(check_id,em,status){
                     if(status==1){
-                        this.update(check_id,status)
+                        this.update(check_id,status,'status')
                         em.check_true_size++;
                     }
                     else {
                         em.check_true_size--;
-                        this.update(check_id,status)
+                        this.update(check_id,status,'status')
                     }
-                }
+                },
+                remove (item) {
+                const index = this.friends.indexOf(item.name)
+                if (index >= 0) this.friends.splice(index, 1)
+                },
             },
             mounted() {
                 this.list();
                 this.list_profile();
                 this.list_ChecklistTemplate();
-                this.list_checklist();
                 this.list_sites();
+                this.list_admin();
                 setTimeout(() => {
                     app.screen = 1
                 }, 1);

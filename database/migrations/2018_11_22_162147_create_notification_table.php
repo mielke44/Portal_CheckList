@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCheckTable extends Migration
+class CreateNotificationTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,13 @@ class CreateCheckTable extends Migration
      */
     public function up()
     {
-        Schema::create('check', function (Blueprint $table) {
+        Schema::create('notification', function (Blueprint $table) {
             $table->increments('id');
-            $table->boolean('status');
-            $table->string('resp');
-            $table->string('task_id');
-            $table->string('checklist_id');
+            $table->string('text');
+            $table->string('name');
+            $table->string('admin_id');
+            $table->string('employee_id');
+            $table->string('type');
             $table->timestamps();
         });
     }
@@ -30,6 +31,6 @@ class CreateCheckTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('check');
+        Schema::dropIfExists('notification');
     }
 }

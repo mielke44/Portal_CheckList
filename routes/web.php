@@ -29,6 +29,11 @@ Route::post('employee/checklist/store', "ChecklistController@store")->name('chec
 //Check
 Route::post('employee/checkedit', "CheckController@store")->name('check.edit');
 
+//Comment
+Route::post('comment/store', "CommentController@store")->name('comment.store');
+Route::get('comment/list', "CommentController@list")->name('comment.list');
+Route::delete('comment/delete', "CommentController@destroy")->name('comment.remove');
+
 //Admin
 Route::get('Admin/', "AdminController@index")->name('admin');
 Route::post('Admin/store', "AdminController@store")->name('admin.store');
@@ -67,3 +72,4 @@ Route::get('site/list', "SiteController@list")->name('site.list');
 Auth::routes();
 Route::get('/logout','HomeController@logout')->name('logout');
 Route::get('/getname','HomeController@getName')->name('getname');
+Route::get('/getnotifications','HomeController@getNotifications')->name('getnoti');

@@ -74,11 +74,11 @@
             <v-list>
                 <v-list-tile @click="" v-for='n in notifications'>
                     <v-list-tile-avatar>
-                        <v-icon>@{{n.icon}}</v-icon>
+                        <v-icon>list_alt</v-icon>
                     </v-list-tile-avatar>
                     <v-list-tile-content class='body-1'>
-                        <v-list-tile-title>@{{n.title}}</v-list-tile-title>
-                        <v-list-tile-sub-title>@{{n.text}}</v-list-tile-sub-title>
+                        <v-list-tile-title>@{{n.name}}</v-list-tile-title>
+                        <v-list-tile-sub-title xs3>@{{n.text}}</v-list-tile-sub-title>
 
                     </v-list-tile-content>
                 </v-list-tile>
@@ -138,15 +138,7 @@
                 },
                 screen: "0",
                 app_name: "Portal Checklist",
-                notifications: [{
-                    icon: "list_alt",
-                    title: "Christiano Oishi",
-                    text: "Atualizou a tarefa"
-                }, {
-                    icon: "list_alt",
-                    title: "Christiano Oishi",
-                    text: "Removeu a tarefa"
-                }, ],
+                notifications:[],
                 name: " ",
                 drawer: true,
                 mini: false,
@@ -247,9 +239,19 @@
             },
             searching: function(){
                 alert(this.search.value);
+            },
+            list_notifications: function(){
+                $.ajax({
+                    url: "{{route('getnoti')}}",
+                    method: 'GET',
+                    dataType: "json",
+                }).done(response => {
+                    this.notifications = response;
+                });
             }
         },
         mounted() {
+            this.list_notifications();
             this.more[0].link = ()=>{
                 location.href="{{route('admin.profile')}}";
             };

@@ -79,8 +79,9 @@ class AdminController extends Controller
 
     public function list(){
         $user = Auth::user();
-        $list = Admin::all();
+        $list = User::all();
         $f = array('list'=>$list,'user'=>$user);
         return json_encode($f);
     }
+
 }

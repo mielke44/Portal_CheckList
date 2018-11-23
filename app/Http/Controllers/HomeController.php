@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Auth;
 use Session;
+use App\Notification;
 
 class HomeController extends Controller
 {
@@ -34,10 +35,16 @@ class HomeController extends Controller
         return redirect("/login");
 
     }
-    public function getName()
+    public static function getName()
     {
         $name = explode(" ",Auth::user()->name);
         return ucfirst($name[0]);
 
+    }
+
+    public function getNotifications(){
+        $session_id = Auth::user()->id; 
+        $notifications = Notification::where('admin_id',$session_id)->select('name','text')->get();
+        return json_encode($notifications);
     }
 }

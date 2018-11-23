@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCheckTable extends Migration
+class CreateCommentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,11 @@ class CreateCheckTable extends Migration
      */
     public function up()
     {
-        Schema::create('check', function (Blueprint $table) {
+        Schema::create('comment', function (Blueprint $table) {
             $table->increments('id');
-            $table->boolean('status');
-            $table->string('resp');
-            $table->string('task_id');
-            $table->string('checklist_id');
+            $table->string('comment');
+            $table->string('writer_name');
+            $table->string('check_id');
             $table->timestamps();
         });
     }
@@ -30,6 +29,6 @@ class CreateCheckTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('check');
+        Schema::dropIfExists('comment');
     }
 }

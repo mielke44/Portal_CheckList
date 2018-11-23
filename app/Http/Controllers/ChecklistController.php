@@ -63,7 +63,6 @@ class ChecklistController extends Controller
             $check = new Check();
             $check->resp = $user_id->id;
             $check->status = false;
-            $check->comment = "";
             $check->task_id = $ct->task_id;
             $check->checklist_id = $checklist->id;
             $check->save();
@@ -81,7 +80,6 @@ class ChecklistController extends Controller
             $task = new Check();
             $task->resp = $user_id;
             $task->status = false;
-            $task->comment = "";
             $task->task_id = $d["task_requiere_id"];
             $task->checklist_id = $checklist_id;
             $task->save();
