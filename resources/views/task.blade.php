@@ -43,7 +43,7 @@
                                 </v-flex>
                                 <v-flex xs9>
                                     <v-layout row wrap>
-                                        <v-flex xs12 v-for="d in t.dependence">@{{d.name}},</v-flex>
+                                        <v-flex xs12 v-for="d in t.dependence">@{{d.name}}</v-flex>
                                     </v-layout>
                                 </v-flex>
                             </template>
@@ -53,7 +53,7 @@
                                 </v-flex>
                                 <v-flex xs9>
                                     <v-layout row wrap>
-                                        <v-flex xs12 v-for="d in t.dependence2">@{{getTreeAsc(d.task_id)}},</v-flex>
+                                        <v-flex xs12 v-for="d in t.dependence2">@{{getTreeAsc(d.task_id)}}</v-flex>
                                     </v-layout>
                                 </v-flex>
                             </template>
