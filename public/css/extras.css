@@ -22,3 +22,7 @@
 .extra-error .error--text{
     color: white !important;
 }
+
+.extra-treeview > .v-treeview-node__root{
+    color: #FF1744;
+}

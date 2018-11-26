@@ -37,12 +37,26 @@
                             <v-flex xs9>
                                 @{{t.description}}
                             </v-flex>
-                            <v-flex xs3 class='font-weight-bold' v-if="t.dependence.length>0">
-                                Dependencias:
-                            </v-flex>
-                            <v-flex xs9>
-                                <template v-for="d in t.dependence">@{{d.name}},</template>
-                            </v-flex>
+                            <template v-if="t.dependence.length>0">
+                                <v-flex xs3 class='font-weight-bold' >
+                                    Dependentes:
+                                </v-flex>
+                                <v-flex xs9>
+                                    <v-layout row wrap>
+                                        <v-flex xs12 v-for="d in t.dependence">@{{d.name}},</v-flex>
+                                    </v-layout>
+                                </v-flex>
+                            </template>
+                            <template v-if="t.dependence2.length>0">
+                                <v-flex xs3 class='font-weight-bold' >
+                                    Dependências:
+                                </v-flex>
+                                <v-flex xs9>
+                                    <v-layout row wrap>
+                                        <v-flex xs12 v-for="d in t.dependence2">@{{getTreeAsc(d.task_id)}},</v-flex>
+                                    </v-layout>
+                                </v-flex>
+                            </template>
                             <v-flex xs12 class='text-xs-right'>
                                 <v-btn @click="edit(t.id)" color="yellow darken-2" outline>
                                     <v-icon dark class='mr-2'>edit</v-icon> Editar
@@ -55,7 +69,9 @@
 
                     </v-container>
                 </v-expansion-panel-content>
-                <v-expansion-panel-content v-if='tasks.length==0'><div slot="header">Nenhuma tarefa foi criada</div></v-expansion-panel-content>
+                <v-expansion-panel-content v-if='tasks.length==0'>
+                    <div slot="header">Nenhuma tarefa foi criada</div>
+                </v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
 
@@ -73,8 +89,26 @@
                                 required counter='300'></v-textarea>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
-                            <v-select v-model="form.dependences" :items="tasks" item-text="name" item-value="id" label="Dependencias"
+                            <v-select v-model="form.dependences2" :items="tasks" item-text="name" item-value="id" label="Dependencias"
                                 persistent-hint multiple required></v-select>
+                            <div class='headline mb-2 mt-2'>Dependências</div>
+                            <v-layout row wrap>
+                                <v-flex xs6>
+                                    <v-treeview :open='task_tree_opened' :items='task_tree' :active.sync='task_tree_active'
+                                        activatable active-class='extra-treeview'>
+                                        <template slot='prepend' slot-scope="{ item, open, leaf }">
+                                            <div>
+                                                <v-checkbox color='primary' v-model='form.dependences2' :value='item.id'
+                                                    @change='set_dependence_tree(item.id,2)'></v-checkbox>
+                                            </div>
+                                        </template>
+                                    </v-treeview>
+                                </v-flex>
+                                <v-flex xs6>
+                                    <div class='headline mb-2 mt-2'>@{{task_tree_selected.name}}</div>
+                                    @{{task_tree_selected.description}}
+                                </v-flex>
+                            </v-layout>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
 
@@ -99,6 +133,8 @@
         data() {
             return {
                 tasks: [],
+                task_tree: [],
+                task_tree_active: [],
                 form_view: false,
                 form_texts: {
                     title: "",
@@ -122,7 +158,7 @@
                     name: '',
                     description: '',
                     type: '',
-                    dependences: ''
+                    dependences2: []
                 },
                 types: [{
                         text: "Solicitação",
@@ -135,6 +171,29 @@
                 ],
             }
         },
+        watch: {
+            "form.dependences2": function () {
+                if (this.isDependenceSet(this.form.id)) {
+                    this.set_dependence(this.form.id, false);
+                    app.notify("A Tarefa não pode depender dela mesma", "red");
+                }
+
+            }
+        },
+        computed: {
+            task_tree_selected: function () {
+                if (this.task_tree_active.length == 0) return 0;
+                return this.getTask(this.task_tree_active[0]);
+            },
+            task_tree_opened: function () {
+                open = []
+                for (d of this.form.dependences2) {
+                    open.push(d);
+                    open = open.concat(this.open_tree(d));
+                }
+                return open;
+            }
+        },
         methods: {
             add: function () {
                 this.form_view = true;
@@ -145,7 +204,7 @@
                     name: '',
                     description: '',
                     type: '',
-                    dependences: ''
+                    dependences2: []
                 }
             },
             store: function () {
@@ -159,8 +218,8 @@
                         success: (response) => {
                             this.list();
                             this.form_view = false;
-                            if(this.form.id=="")app.notify("Tarefa criada","success");
-                            else app.notify("Edição salva","success");
+                            if (this.form.id == "") app.notify("Tarefa criada", "success");
+                            else app.notify("Edição salva", "success");
                         }
                     });
                 }
@@ -172,6 +231,7 @@
                     dataType: "json",
                 }).done(response => {
                     this.tasks = response;
+                    this.get_task_tree();
                 });
             },
             edit: function (task_id) {
@@ -200,14 +260,84 @@
                     },
                     success: (response) => {
                         this.list();
-                        app.notify("Tarefa removida","error");
+                        app.notify("Tarefa removida", "error");
                     }
                 });
             },
+            get_task_tree: function () {
+                $.ajax({
+                    url: "{{route('task.tree')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response => {
+                    this.task_tree = response;
+                });
+            },
+            getTask: function (id) {
+                for (j = 0; j < this.tasks.length; j++) {
+                    if (id == this.tasks[j].id) return this.tasks[j]
+                }
+                return null;
+            },
+            open_tree: function (task_id) {
+                open = [];
+                t = this.getTask(task_id);
+                for (dd of t.dependence2) {
+                    open.push(dd.task_id);
+                    open = open.concat(this.open_tree(dd.task_id));
+
+                }
+                return open;
+            },
+            set_dependence(id, set) {
+                position = this.positionDependenceSet(id);
+                if (!set & position > -1) this.form.dependences2.splice(position, 1);
+                else if (set & position == -1) {
+                    this.form.dependences2.push(parseInt(id));
+                }
+            },
+            positionDependenceSet: function (id) {
+                for (i = 0; i < this.form.dependences2.length; i++) {
+                    if (id == this.form.dependences2[i]) return i;
+                }
+                return -1;
+            },
+            set_dependence_tree(id, dir) {
+                var t = this.getTask(id);
+                if (dir == 1 || dir == 2)
+                    for (db of t.dependence) {
+                        this.set_dependence(db.task_id, false);
+                        this.set_dependence_tree(db.task_id, 1)
+
+                    }
+
+
+                if (dir == 0 || dir == 2)
+                    for (dt of t.dependence2) {
+                        //alert(dt.task_id);
+                        this.set_dependence(dt.task_id, false);
+                        this.set_dependence_tree(dt.task_id, 0)
+                    }
+            },
+            isDependenceSet: function (id) {
+                for (i = 0; i < this.form.dependences2.length; i++) {
+                    if (id == this.form.dependences2[i]) return true;
+                }
+                return false;
+            },
+            getTreeAsc(id) {
+                var t = this.getTask(id);
+                if (t.dependence2.length > 0) {
+                    return this.getTreeAsc(t.dependence2[0].task_id) + " > " + t.name;
+                } else return t.name;
+
+            }
         },
         mounted() {
             this.list();
-            setTimeout(()=>{app.screen = 4},1);
+            setTimeout(() => {
+                app.screen = 4
+            }, 1);
         }
     });
 </script>

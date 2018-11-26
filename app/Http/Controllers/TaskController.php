@@ -21,14 +21,22 @@ class TaskController extends Controller
     public function list()
     {
         $tasks = Task::all();
+
         foreach($tasks as  $t){
             $dep = array();
             $trs = TaskRequiere::where("task_id",$t->id)->get();
+            $trs2 = TaskRequiere::where("task_requiere_id",$t->id)->get();
             foreach($trs as $tr){
                 $tt = Task::find($tr->task_requiere_id);
                 $dep[]= array('task_id'=>$tr->task_requiere_id,"name"=>$tt->name);
             }
             $t->dependence = $dep;
+            $dep = array();
+            foreach($trs2 as $tr){
+                $tt = Task::find($tr->task_id);
+                $dep[]= array('task_id'=>$tr->task_id,"name"=>$tt->name);
+            }
+            $t->dependence2 = $dep;
 
         }
         return json_encode($tasks);
@@ -42,6 +50,7 @@ class TaskController extends Controller
                 $aux = array();
                 $aux["id"] = $t->id;
                 $aux["name"] = $t->name;
+                $aux["tree"] = "";
                 $aux["children"] = array();
                 $deps = TaskRequiere::where("task_id",$t->id)->get();
                 foreach($deps as $d){
@@ -55,10 +64,12 @@ class TaskController extends Controller
     }
     private function treeChildren($id,$tasksInTree){
         $aux = array();
+
         $task = Task::find($id);
         $deps =  TaskRequiere::where("task_id",$id)->get();
         $aux["id"] = $id;
         $aux["name"] = $task->name;
+        $aux["tree"] = $tasksInTree;
         $aux["children"] = array();
         foreach($deps as $d){
             array_push($aux["children"],$this->treeChildren($d->task_requiere_id,$tasksInTree.$id.";"));
@@ -81,11 +92,11 @@ class TaskController extends Controller
         $task->type = $request["type"];
 
         if($task->save()) {
-            TaskRequiere::where("task_id",$task->id)->delete();
-            if($request->dependences != "")foreach($request->dependences as $d){
+            TaskRequiere::where("task_requiere_id",$task->id)->delete();
+            if($request->dependences2 != "")foreach($request->dependences2 as $d){
                 $tr = new TaskRequiere();
-                $tr->task_id = $task->id;
-                $tr->task_requiere_id = $d;
+                $tr->task_id = $d;
+                $tr->task_requiere_id = $task->id;
                 $tr->save();
             }
             return json_encode(array('success'=>"true"));
@@ -104,11 +115,16 @@ class TaskController extends Controller
         $task = Task::findOrFail($request["id"]);
         $dep = array();
         $trs = TaskRequiere::where("task_id",$task->id)->get();
+        $trs2 = TaskRequiere::where("task_requiere_id",$task->id)->get();
         foreach($trs as $tr){
-            $tt = Task::find($tr->task_requiere_id);
-            $dep[]=$tt->id;
+            $dep[]=$tr->task_requiere_id;
         }
         $task->dependences = $dep;
+        $dep=array();
+        foreach($trs2 as $tr){
+            $dep[]= $tr->task_id;
+        }
+        $task->dependences2 = $dep;
         return $task;
     }
 
