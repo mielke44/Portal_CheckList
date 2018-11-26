@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Auth;
 use Session;
 use App\Notification;
+use App\Flag;
 
 class HomeController extends Controller
 {
@@ -44,7 +45,20 @@ class HomeController extends Controller
 
     public function getNotifications(){
         $session_id = Auth::user()->id; 
-        $notifications = Notification::where('admin_id',$session_id)->select('name','text')->get();
+        $notifications = Notification::where('admin_id',$session_id)->orderBy('created_at','desc')->select('id','name','text', 'type', 'created_at')->get();
+        $date = array(); 
+        foreach($notifications as $n){
+            $data = explode(" ",$n['created_at']);
+            $n['data'] = $data;
+        }
         return json_encode($notifications);
+    }
+    public function getFlagNot(){
+        $coll = Flag::where('type','notification')->get();
+        if(sizeof($coll)!=0){
+            Flag::where('type','notification')->delete();
+            return 'true';
+        }
+        return 'false';
     }
 }

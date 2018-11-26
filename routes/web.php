@@ -28,6 +28,7 @@ Route::post('employee/checklist/store', "ChecklistController@store")->name('chec
 
 //Check
 Route::post('employee/checkedit', "CheckController@store")->name('check.edit');
+Route::get('employee/check', "CheckController@list")->name('check.list');
 
 //Comment
 Route::post('comment/store', "CommentController@store")->name('comment.store');
@@ -70,6 +71,7 @@ Route::get('site/list', "SiteController@list")->name('site.list');
 
 
 Auth::routes();
+ROute::get('/getflag','HomeController@getFlagNot')->name('getflagnoti');
 Route::get('/logout','HomeController@logout')->name('logout');
 Route::get('/getname','HomeController@getName')->name('getname');
 Route::get('/getnotifications','HomeController@getNotifications')->name('getnoti');

@@ -9,11 +9,9 @@ use Auth;
 use App\Task;
 use App\Events\CheckUpdateEvent;
 use App\Admin;
+use App\Notification;
 class CheckController extends Controller
 {
-    public function list(){
-
-    }
 
     /**
      * Store a newly created resource in storage.
@@ -31,23 +29,24 @@ class CheckController extends Controller
 
             if($request['change_type']=='status'){
 
-                    if($request['status']==0)$Check->status = 1;
-                    else $Check->status = 0;
+                    if($request['status']==0 || $request['status']==false)$Check->status = "true";
+                    if($request['status']==1 || $request['status']==true)$Check->status = "false";
                     $text = 'Alterou o estado da tarefa: '.$task->name;
                     $name = Auth::user()->name;
+                    $type = 0;
 
             }else if($request['change_type']=='resp'){
 
                     $Check->resp = $request['form']['resp']['id'];
                     $text = 'foi selecionado como responsável da tarefa: '.$task->name;
                     $name = $request['form']['resp']['name'];
-
+                    $type = 2;
             }
 
             if ($Check->save()) {
-                event(new CheckUpdateEvent($Check, $text, $name));
+                event(new CheckUpdateEvent($Check, $text, $name, $type));
                 return json_encode(array('error' => false,
-                    'message' => $Check->id));
+                    'message' => $Check->id."__status:".$Check->status));
             } else {
                 return json_encode(array('error' => true,
                     'message' => 'Ocorreu um erro, tente novamente!'));
@@ -61,5 +60,11 @@ class CheckController extends Controller
             $Check->save();
             
         }
+    }
+
+    public function list(Request $r){
+        $notification = Notification::findOrFail($r['not_id']);
+        $check = Check::findOrFail($notification->check_id);
+        return route('employee',$check);
     }
 }

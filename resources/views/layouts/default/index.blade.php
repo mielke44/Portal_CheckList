@@ -64,7 +64,7 @@
             <v-icon>search</v-icon>
         </v-btn>
 
-        <v-menu offset-y left>
+        <v-menu offset-y left transition="slide-y-transition">
             <v-btn icon slot='activator'>
                 <v-badge right color='primary'>
                     <span slot="badge" v-if='notifications.length>0'>@{{notifications.length}}</span>
@@ -72,17 +72,27 @@
                 </v-badge>
             </v-btn>
             <v-list>
-                <v-list-tile @click="" v-for='n in notifications'>
-                    <v-list-tile-avatar>
-                        <v-icon>list_alt</v-icon>
-                    </v-list-tile-avatar>
-                    <v-list-tile-content class='body-1'>
-                        <v-list-tile-title>@{{n.name}}</v-list-tile-title>
-                        <v-list-tile-sub-title xs3>@{{n.text}}</v-list-tile-sub-title>
-
-                    </v-list-tile-content>
-                </v-list-tile>
+                <template v-for='n in notifyLimit'>
+                    <v-list-tile @click="get_check(n.id)">
+                        <v-list-tile-avatar>
+                            <v-icon color="primary"  v-if='n.type==0'>check_box</v-icon>
+                            <v-icon color="primary" v-if='n.type==1'>add_comment</v-icon>
+                            <v-icon color="primary" v-if='n.type==2'>assignment_ind</v-icon>
+                        </v-list-tile-avatar>
+                        <v-list-tile-content class='body-1'>
+                            <v-list-tile-title>@{{n.name}}</v-list-tile-title>
+                            <v-list-tile-sub-title xs3>@{{n.text}}</v-list-tile-sub-title>
+                        </v-list-tile-content>
+                        <v-list-tile-action>
+                            <v-list-tile-action-text>@{{n.data[0]}}</v-list-tile-action-text>
+                            <v-list-tile-action-text>@{{n.data[1]}}</v-list-tile-action-text>
+                        </v-list-tile-action>
+                    </v-list-tile>
+                    <v-divider></v-divider>
+                </template>
             </v-list>
+            <v-btn v-if="tam==3" depressed block @click='tam=notifications.length'>Mostrar todas as notificações</v-btn>
+            <v-btn v-if="tam!=3" depressed block @click='tam=3'>Mostrar 3 notificações</v-btn>
         </v-menu>
 
         <v-menu offset-y left>
@@ -133,6 +143,7 @@
         },
         data() {
             return {
+                tam:3,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
@@ -221,6 +232,15 @@
             letter: function () {
                 return this.name[0];
             },
+            notifyLimit: function(){
+                var array = []
+                for(i =0 ; i<this.tam; i++){
+                    if(this.notifications.length>=i+1)
+                    array.push(this.notifications[i])
+                    else break;
+                }
+                return array;
+            }
         },
         methods: {
             notify: function (text, color) {
@@ -248,6 +268,25 @@
                 }).done(response => {
                     this.notifications = response;
                 });
+            },
+            get_check: function(id){
+                $.ajax({
+                    url: "{{route('check.list')}}",
+                    method: 'GET',
+                    dataType: "json",
+                    data: {not_id: id},
+                }).done(response => {
+                });
+            },
+            update: function(){
+                $.ajax({
+                    url: "{{route('getflagnoti')}}",
+                    method: 'GET',
+                    dataType: "json",
+                }).done(response => {
+                    if(JSON.stringify(response) == "true"){this.list_notifications()};
+                    
+                });
             }
         },
         mounted() {
@@ -256,6 +295,7 @@
                 location.href="{{route('admin.profile')}}";
             };
             this.getName();
+            setInterval(()=>this.update(),15000);
         }
     });
 </script>

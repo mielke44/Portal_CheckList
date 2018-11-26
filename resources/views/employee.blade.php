@@ -52,7 +52,7 @@
                                                             </v-flex>
                                                             <v-flex xs3 class="font-weight-bold">@{{ch.name[0].name}}</v-flex>
                                                             <v-flex xs6 class='caption'>@{{ch.description[0].description}}</v-flex>
-                                                            <v-btn small fab color="blue" @click="form.id = ch.id;popup3(ch.id)"><v-icon>edit</v-icon></v-btn>
+                                                            <v-btn small fab color="blue" @click="form.id = ch.id;popup3(ch.id)" dark><v-icon>edit</v-icon></v-btn>
                                                         </v-layout>
                                                 </v-tab-items>
                                             </v-tab-item>
@@ -99,11 +99,11 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="blue" @click=" edit(form.id)" outline>
-                            <v-icon dark class='mr-2'>edit</v-icon>Editar
+                        <v-btn color="blue" @click=" edit(form.id)" outline dark>
+                            <v-icon class='mr-2'>edit</v-icon>Editar
                         </v-btn>
-                        <v-btn color="red" @click="dialog = false" outline>
-                            <v-icon dark class='mr-2'>close</v-icon>Fechar
+                        <v-btn color="red" @click="dialog = false" outline dark>
+                            <v-icon class='mr-2'>close</v-icon>Fechar
                         </v-btn>
                     </v-card-actions>
                 </v-card>
@@ -169,22 +169,31 @@
                             <v-flex xs12>
                                 <v-flex xs3>Comentários:</v-flex>
                             <v-list two-line dense>
-                            <template v-for='c in comments'>
+                            <template v-for='(c,i) in comments'>
                                 <v-divider></v-divider>
                                 <v-list-tile ripple>
                                 <v-list-tile-content>
                                     <v-flex xs9>
                                         <v-list-tile-title>@{{c.writer_name}}</v-list-tile-title>
-                                        <v-list-tile-sub-title>@{{c.comment}}</v-list-tile-sub-title>
+                                        <v-list-tile-sub-title v-if="commentedit==i">
+                                            <v-text-field  small v-model="form.commentedit" :label="c.comment" clearable></v-text-field> 
+                                        </v-list-tile-sub-title>
+                                        <v-list-tile-sub-title v-if="commentedit!=i">@{{c.comment}}</v-list-tile-sub-title>
                                     </v-flex>
                                 </v-list-tile-content>
                                 <v-list-tile-action>
                                     <v-flex xs12>
-                                        <v-btn small fab color="blue" @click="add_comment(form.id,c.id)">
-                                            <v-icon dark>edit</v-icon>
+                                        <v-btn v-if="commentedit!=i" small fab color="blue" @click="commentedit=i" dark>
+                                            <v-icon>edit</v-icon>
                                         </v-btn>
-                                        <v-btn small fab color="red" @click="destroy_comment(c.id)">
-                                            <v-icon dark>delete</v-icon>
+                                        <v-btn v-if="commentedit==i" small fab color="green" @click="add_comment(form.id,c.id)" dark>
+                                            <v-icon >done</v-icon>
+                                        </v-btn>
+                                        <v-btn v-if="commentedit!=i" small fab color="red" @click="destroy_comment(c.id)" dark>
+                                            <v-icon >delete</v-icon>
+                                        </v-btn>
+                                        <v-btn v-if="commentedit==i" small fab color="red" @click="commentedit=false" dark>
+                                            <v-icon >cancel</v-icon>
                                         </v-btn>
                                     </v-flex>
                                 </v-list-tile-action>
@@ -220,7 +229,7 @@
                             <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
                                 label="CPF" required></v-text-field>
                             <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="form.fone"
-                                :rules="rules.fone" label="Telefone" required></v-text-field>
+                                :rules="rules.fone" label="Telefone Celular" required></v-text-field>
                             <v-select v-model="form.profile_id" :items="profiles" item-text="name" item-value="id"
                                 label="Perfil" persistent-hint :rules='rules.profile' required></v-select>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
@@ -241,6 +250,7 @@
             },
             data() {
                 return {
+                    commentedit:-1,
                     model_employee: null,
                     dialog: false,
                     dialog2: false,
@@ -271,11 +281,11 @@
                             v => /.+@.+/.test(v) || 'E-mail deve ser válido!'
                         ],
                         fone: [
-                            v => (v && v.length < 18) || 'Máximo 11 caracteres'
+                            v => (v && v.length == 17) || 'Obrigatório 11 caracteres'
                         ],
                         cpf: [
                             v => !!v || 'CPF é obrigatório!',
-                            v => (v && v.length < 15) || 'Máximo 11 caracteres'
+                            v => (v && v.length == 14) || 'Obrigatório 11 caracteres'
                         ],
                         profile: [
                             v => !!v || 'Campo obrigtório'
@@ -295,6 +305,7 @@
                         profile_id: '',
                         checklist_template_id: '',
                         comment: '',
+                        commentedit:'',
                         resp: '',
                     },
                     items: [{
@@ -357,6 +368,8 @@
                             employee_id: id,
                             checklist_template_id: this.form.checklist_template_id,
                         },
+                    }).done(response =>{
+                        this.list_checklist(this.employees[val].id);
                     })
                 },
                 list: function () {
@@ -451,9 +464,11 @@
                                 },
                                 
                             success: (response) => {
-                                this.list_comment();
+                                this.commentedit=-1;
                                 if (response['st']=='add') app.notify("Comentário adicionado","success");
                                 else if(response['st']=='edit')app.notify("comentário editado com sucesso!", "success");
+                                this.list_comment(id);
+                                
 
                             }
                         });
@@ -547,11 +562,13 @@
                     });
                 },
                 count_check: function(check_id,em,status){
-                    if(status==1){
+                    if(status==1 || status=='true'){
+                        alert(status);
                         this.update(check_id,status,'status')
                         em.check_true_size++;
                     }
-                    else {
+                    else if(status==0 || status=='false'){
+                        alert(status);
                         em.check_true_size--;
                         this.update(check_id,status,'status')
                     }
