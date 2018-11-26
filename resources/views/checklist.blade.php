@@ -77,7 +77,7 @@
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
                             <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil"
                                 :rules="rules.prof_id" persistent-hint required></v-select>
-                                <!--
+                            <!--
                             <v-autocomplete v-model="form.dependences" :items="task" label="Tarefas" item-text="name"
                                 item-value="id" multiple>
                                 <template slot="selection" slot-scope="data">
@@ -92,8 +92,24 @@
                                     </template>
                                 </template>
                             </v-autocomplete>
-                            -->
-                            <v-treeview :items='task_tree' selectable v-model='form.dependences'></v-treeview>
+                             -->
+                            <div class='headline mb-2 mt-2'>Dependências</div>
+                            <v-layout row wrap>
+                                <v-flex xs6>
+                                    <v-treeview :open='form.dependences' :items='task_tree' :active.sync='task_tree_active' activatable active-class='extra-treeview'>
+                                        <template slot='prepend' slot-scope="{ item, open, leaf }">
+                                            <div>
+                                                <v-checkbox color='primary' v-model='form.dependences' :value='item.id' @change='set_dependence_tree(item.id,item.tree)'></v-checkbox>
+                                            </div>
+                                        </template>
+                                    </v-treeview>
+                                </v-flex>
+                                <v-flex xs6>
+                                        <div class='headline mb-2 mt-2'>@{{task_tree_selected.name}}</div>
+                                    @{{task_tree_selected.description}}
+                                </v-flex>
+                            </v-layout>
+
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
                     </v-form>
@@ -115,10 +131,13 @@
         },
         data() {
             return {
+                teste: true,
                 clists: [],
                 profile: [],
                 task: [],
                 task_tree: [],
+                task_tree_active: [],
+                tree_test: [],
                 form_view: false,
                 form_texts: {
                     title: "",
@@ -143,6 +162,13 @@
                     dependences: []
 
                 },
+            }
+        },
+        computed: {
+            task_tree_selected: function () {
+                if (this.task_tree_active.length==0) return 0;
+
+                return this.getTask(this.task_tree_active[0]);
             }
         },
         methods: {
@@ -202,6 +228,31 @@
                     this.task = response;
                 });
             },
+            set_dependence(id, set) {
+                position = this.positionDependenceSet(id);
+
+                if (!set & position > -1) this.form.dependences.splice(position, 1);
+                else if (set & position == -1) {
+                    this.form.dependences.push(parseInt(id));
+                }
+            },
+            set_dependence_tree(id, tree) {
+                set = this.positionDependenceSet(id) > -1 ? true : false;
+                if (set) {
+                    ids = tree.split(';')
+                    for (id of ids) {
+                        if (id != '') this.set_dependence(id, set);
+                    }
+                } else {
+                    task = this.getTask(id);
+                    for (d of task.dependence) {
+                        this.set_dependence(d.task_id, set);
+                        this.set_dependence_tree(d.task_id, "");
+                    }
+
+                }
+            },
+
             get_task_tree: function () {
                 $.ajax({
                     url: "{{route('task.tree')}}",
@@ -246,23 +297,11 @@
                 const index = this.friends.indexOf(item.name)
                 if (index >= 0) this.friends.splice(index, 1)
             },
-            set_dependences: function () {
-                var length = this.form.dependences.length;
-                for (i = 0; i < length; i++) {
-                    this.add_all_dependences(this.form.dependences[i])
+            positionDependenceSet: function (id) {
+                for (i = 0; i < this.form.dependences.length; i++) {
+                    if (id == this.form.dependences[i]) return i;
                 }
-            },
-            add_all_dependences: function (id) {
-                var f = [];
-                var task;
-                task = this.getTask(id)
-                for (j = 0; j < task.dependence.length; j++) {
-                    if (!this.isDependenceSet(task.dependence[j].task_id)) {
-                        f.push(task.dependence[j].task_id);
-                    }
-                }
-                for (i = 0; i < f.length; i++) this.form.dependences.push(f[i]);
-                this.set_dependences();
+                return -1;
             },
             isDependenceSet: function (id) {
                 for (i = 0; i < this.form.dependences.length; i++) {
@@ -275,14 +314,14 @@
                     if (id == this.task[j].id) return this.task[j]
                 }
                 return null;
-            }
+            },
         },
         watch: {
             isUpdating(val) {
                 if (val) {
                     setTimeout(() => (this.isUpdating = false), 3000)
                 }
-            }
+            },
         },
         mounted() {
             this.list();

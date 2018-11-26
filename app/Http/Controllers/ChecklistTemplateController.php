@@ -58,6 +58,7 @@ class ChecklistTemplateController extends Controller
         $clist->profile_id = $request["profile_id"];
 
         if($clist->save()){
+            $clinker = LinkerChecklist::where("checklist_id",$clist->id)->delete();
             if($request->dependences != "")foreach($request->dependences as $d){
                 $clinker = new LinkerChecklist();
                 $clinker->checklist_id = $clist->id;
