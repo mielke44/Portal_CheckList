@@ -26,14 +26,22 @@ class CheckController extends Controller
             $task = Task::find($Check->task_id);
             $text = '';
             $name = '';
-
             if($request['change_type']=='status'){
 
-                    if($request['status']==0 || $request['status']==false)$Check->status = "true";
-                    if($request['status']==1 || $request['status']==true)$Check->status = "false";
+                    if($request['status']) $Check->status=1;
+                    else if(!$request['status'])$Check->status=0;
                     $text = 'Alterou o estado da tarefa: '.$task->name;
                     $name = Auth::user()->name;
                     $type = 0;
+
+                    if ($Check->save()) {
+                        event(new CheckUpdateEvent($Check, $text, $name, $type));
+                        return json_encode(array('error' => false,
+                            'message' => $Check->id."__status:".$Check->status));
+                    } else {
+                        return json_encode(array('error' => true,
+                            'message' => 'Ocorreu um erro, tente novamente!'));
+                    }
 
             }else if($request['change_type']=='resp'){
 
@@ -41,16 +49,17 @@ class CheckController extends Controller
                     $text = 'foi selecionado como responsável da tarefa: '.$task->name;
                     $name = $request['form']['resp']['name'];
                     $type = 2;
+                    if ($Check->save()) {
+                        event(new CheckUpdateEvent($Check, $text, $name, $type));
+                        return json_encode(array('error' => false,
+                            'message' => $Check->id."__status:".$Check->status));
+                    } else {
+                        return json_encode(array('error' => true,
+                            'message' => 'Ocorreu um erro, tente novamente!'));
+                    }
             }
 
-            if ($Check->save()) {
-                event(new CheckUpdateEvent($Check, $text, $name, $type));
-                return json_encode(array('error' => false,
-                    'message' => $Check->id."__status:".$Check->status));
-            } else {
-                return json_encode(array('error' => true,
-                    'message' => 'Ocorreu um erro, tente novamente!'));
-            }
+
 
         }else{
             

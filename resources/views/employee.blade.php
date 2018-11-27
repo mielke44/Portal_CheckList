@@ -40,21 +40,24 @@
                                     <v-tabs v-model="tab" slider-color="black">
                                         <v-tab  v-for="c in checklists[em.id]">@{{c.name[0].name}}</v-tab>
                                             <v-tab-item>
-                                                <v-tab-items v-for='ch in check'>
-                                                    <v-divider></v-divider>
-                                                        <v-layout row wrap>
-                                                            <v-flex xs1>
-                                                                <v-checkbox
-                                                                    v-model="ch.status"
-                                                                    @change="count_check(ch.id,em,ch.status)"
-                                                                    color="green"
-                                                                ></v-checkbox>
-                                                            </v-flex>
-                                                            <v-flex xs3 class="font-weight-bold">@{{ch.name[0].name}}</v-flex>
-                                                            <v-flex xs6 class='caption'>@{{ch.description[0].description}}</v-flex>
-                                                            <v-btn small fab color="blue" @click="form.id = ch.id;popup3(ch.id)" dark><v-icon>edit</v-icon></v-btn>
-                                                        </v-layout>
-                                                </v-tab-items>
+                                                <v-list>
+                                                    <v-subheader xs1 height="10">Tarefas</v-subheader>
+                                                    <template v-for='ch in check'>
+                                                        <v-divider></v-divider>
+                                                        <v-list-tile>
+                                                            <v-list-tile-action>
+                                                                <v-checkbox color="green" v-model="ch.status" @change="count_check(ch.id,em,ch.status)"></v-checkbox>
+                                                            </v-list-tile-action>
+                                                            <v-list-tile-content>
+                                                                <v-list-tile-title class="font-weight-bold">@{{ch.name[0].name}}</v-list-tile-title>
+                                                                <v-list-tile-subtitle xs6 class='caption'>@{{ch.description[0].description}}</v-list-tile-subtitle>
+                                                            </v-list-tile-content>
+                                                            <v-list-tile-content-action>
+                                                                <v-btn small fab color="blue" @click="form.id = ch.id;popup3(ch.id)" dark><v-icon>edit</v-icon></v-btn>
+                                                            </v-list-tile-content-action>
+                                                        </v-list-tile>
+                                                    </template>
+                                                </v-list>
                                             </v-tab-item>
                                     </v-tabs>
                                 </v-flex>
@@ -75,7 +78,7 @@
                 </v-expansion-panel-content>
             </v-expansion-panel>
 
-
+            <!--POPUP 1 EMPLOYEE DATA-->
             <v-dialog v-model="dialog" max-width="500" r>
                 <v-card>
                     <v-card-title>
@@ -109,19 +112,17 @@
                 </v-card>
             </v-dialog>
 
-
+            <!--POPUP 2 CHECKLIST DETAILS-->
             <v-dialog v-model="dialog2" max-width="700" r>
                 <v-card>
                     <v-card-title>
                         <p style="width:100%" class="headline text-xs-center">Checklist</p>
                     </v-card-title>
                     <v-card-text>
-                        <v-layout row wrap>
                             <v-flex xs6>Lista de tarefas:</v-flex>
                             <v-select v-model="form.checklist_template_id" :items="templates" item-text="name"
                                 item-value="id" label="Lista de tarefas" persistent-hint :rules='rules.profile'
                                 required></v-select>
-                        </v-layout>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -135,7 +136,7 @@
                 </v-card>
             </v-dialog>
 
-
+            <!--POPUP 3 CHECK MENU-->
             <v-dialog v-model="dialog3" max-width="600" r>
                 <v-card>
                     <v-card-title>
@@ -251,6 +252,7 @@
             data() {
                 return {
                     commentedit:-1,
+                    checkbox:[],
                     model_employee: null,
                     dialog: false,
                     dialog2: false,
@@ -420,10 +422,16 @@
                         }).done(response => {
                             this.checklists[employee_id] = response['checklists'];
                             this.check = response['check'][0];
-                            for (i = 0; i < response['check'][0][0]; i++) {
-                                this.comments.push(response['check'][0][0]['comment']);
+                            for (i = 0; i < response['check'][0].length; i++) {
+                                this.checkbox.push(response['check'][0][i]['status']);
+                                if(!response['check'][0][i]['comment']){
+                                    return;
+                                }
+                                this.comments.push(response['check'][0][i]['comment']);
+                                
+                                alert(JSON.stringify(this.checkbox));
                             }
-                            //alert(JSON.stringify(response['check'][0][0]));
+                            alert(JSON.stringify(this.checkbox));
                             var temp = this.model_employee;
                             this.model_employee = null;
                             this.model_employee = temp;
@@ -562,15 +570,15 @@
                     });
                 },
                 count_check: function(check_id,em,status){
-                    if(status==1 || status=='true'){
+                    if(status){
                         alert(status);
-                        this.update(check_id,status,'status')
+                        this.update(check_id,1,'status')
                         em.check_true_size++;
                     }
-                    else if(status==0 || status=='false'){
+                    else if(!status){
                         alert(status);
                         em.check_true_size--;
-                        this.update(check_id,status,'status')
+                        this.update(check_id,0,'status')
                     }
                 },
                 remove (item) {

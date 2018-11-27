@@ -15,7 +15,7 @@ class CreateCheckTable extends Migration
     {
         Schema::create('check', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('status');
+            $table->boolean('status');
             $table->string('resp');
             $table->string('task_id');
             $table->string('checklist_id');
