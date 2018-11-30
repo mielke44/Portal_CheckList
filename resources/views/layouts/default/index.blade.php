@@ -33,7 +33,7 @@
         <v-list class="pt-0" dense>
             <v-divider></v-divider>
 
-            <v-list-tile v-for="(item,i) in menu" :key="item.title" @click="item.link">
+            <v-list-tile v-if="is_admin" v-for="(item,i) in menu" :key="item.title" @click="item.link">
                 <v-list-tile-action>
                     <v-icon :color="(i==screen) ? 'black': 'white'">@{{ item.icon }}</v-icon>
                 </v-list-tile-action>
@@ -146,6 +146,7 @@
         },
         data() {
             return {
+                is_admin:'',
                 tam:3,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -197,7 +198,7 @@
                     },
                     {
                         icon: "supervisor_account",
-                        text: "Gestores",
+                        text: "Gestores e Responsáveis",
                         link: function () {
                             window.location = '/Admin'
                         }
@@ -208,13 +209,7 @@
                         icon: "account_box",
                         text: "Seu Perfil",
                         link: function(){
-
                         }
-                    },
-                    {
-                        icon: "settings",
-                        text: "Configurações",
-                        link: function () {}
                     },
                     {
                         icon: "exit_to_app",
@@ -258,6 +253,14 @@
                     method: 'GET',
                 }).done(response => {
                     this.name = response;
+                });
+            },
+            getPerm: function () {
+                $.ajax({
+                    url: "{{route('getperm')}}",
+                    method: 'GET',
+                }).done(response => {
+                    this.is_admin = response;
                 });
             },
             searching: function(){
@@ -312,6 +315,7 @@
                 location.href="{{route('admin.profile')}}";
             };
             this.getName();
+            this.getPerm();
             setInterval(()=>this.update(),15000);
         }
     });

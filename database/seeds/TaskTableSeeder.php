@@ -25,7 +25,7 @@ class TaskTableSeeder extends Seeder
             'name' => "CPF",
             'description' => "Entregar CPF",
             'type' => "Documento",
-            'resp' => 0,
+            'resp' => 5,
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);
@@ -34,7 +34,7 @@ class TaskTableSeeder extends Seeder
             'name' => "Criar E-Mail",
             'description' => "Criar E-Mail interno da empresa para o empregado",
             'type' => "Solicitação",
-            'resp' => 0,
+            'resp' => 6,
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);

@@ -11,8 +11,8 @@
     <v-layout row wrap fill-height>
         <v-flex xs4>
             <v-card height="100%" color='orange' dark>
-                <v-container grid-list-xs fill-height>
-                    <v-layout row wrap fill-height>
+                <v-container @click="reroute" grid-list-xs fill-height>
+                    <v-layout  row wrap fill-height>
                         <v-flex xs12 class='headline text-xs-center'>
                             Empregados
                         </v-flex>
@@ -32,7 +32,7 @@
         </v-flex>
         <v-flex xs4>
             <v-card height="100%" color='blue' dark>
-                <v-container grid-list-xs fill-height>
+                <v-container @click="reroute" grid-list-xs fill-height>
                     <v-layout row wrap fill-height>
                         <v-flex xs12 class='headline text-xs-center'>
                             Lista de tarefas
@@ -50,7 +50,7 @@
         </v-flex>
         <v-flex xs4>
             <v-card height="100%" color='purple' dark>
-                <v-container grid-list-xs fill-height>
+                <v-container @click="reroute" grid-list-xs fill-height>
                     <v-layout row wrap fill-height>
                         <v-flex xs12 class='headline text-xs-center'>
                             Tarefas
@@ -81,6 +81,16 @@
         data() {
             return {
                 test: "chris"
+            }
+        },
+        methods:{
+            reroute: function(){
+                $.ajax({
+                    url: "{{route('employee')}}",
+                    method: "GET",
+                }).done(response => {
+                    window.location = '/employee'
+                });
             }
         },
         mounted() {

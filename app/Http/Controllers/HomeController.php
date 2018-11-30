@@ -43,6 +43,10 @@ class HomeController extends Controller
 
     }
 
+    public static function getPerm(){
+        return Auth::user()->is_admin;
+    }
+
     public function getNotifications(){
         $session_id = Auth::user()->id; 
         $notifications = Notification::where('admin_id',$session_id)->where('status','pending')->orderBy('created_at','desc')->select('id','name','text', 'type', 'created_at')->get();

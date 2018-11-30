@@ -62,5 +62,15 @@ class UsersTableSeeder extends Seeder
             'is_admin' => true,
             'created_at' => new DateTime()
         ]);
+
+        DB::table('users')->insert([
+            'name' => "RH padrão",
+            'email' => "RH@t-systems.com.br",
+            'password' => bcrypt('secret'),
+            'site' => "12",
+            'token' => bcrypt("id"."RH padrão"),
+            'is_admin' => false,
+            'created_at' => new DateTime()
+        ]);
     }
 }
