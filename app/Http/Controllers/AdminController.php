@@ -30,14 +30,19 @@ class AdminController extends Controller
     {
         //print_r($request->all());
         //return;
-        if($request["id"] != "") $admin = Admin::find($request["id"]);
+        if($request['form']["id"] != "") $admin = Admin::find($request['form']["id"]);
         else $admin = new Admin();
-        $admin -> name = $request['name'];
-        $admin -> email = $request['email'];
-        if($request['password'] != '')$admin -> password = bcrypt($request['password']);
-        $admin -> password = bcrypt($request['password']);
-        $admin -> site = $request['site'];
-        $admin -> is_admin = '1';
+        $admin->name = $request['form']['name'];
+        $admin->email = $request['form']['email'];
+        $admin->site = $request['form']['site'];
+        $admin->token = bcrypt($request['form']['id'].$request['form']['name']);
+
+        if($request['is_admin']){
+            if($request['form']['password']!='')$admin->password=bcrypt($request['form']['password']);
+            $admin->is_admin = '1';
+        }
+        if(!$request['is_admin'])$admin->password = bcrypt($request['form']['id'].$request['form']['name']);
+        
         if ($admin -> save()) {
             return json_encode(array('error' => false,
                 'message' => $admin -> id));
@@ -79,8 +84,10 @@ class AdminController extends Controller
 
     public function list(){
         $user = Auth::user();
-        $list = User::all();
-        $f = array('list'=>$list,'user'=>$user);
+        $admin_list = User::where('is_admin',1)->get();
+        $resp_list = User::where('is_admin',0)->get();
+        $default = array('id'=>0,'name'=>'Contratado');
+        $f = array('admin_list'=>$admin_list,'resp_list'=>$resp_list,'user'=>$user, 'default'=>$default);
         return json_encode($f);
     }
 

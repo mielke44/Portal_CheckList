@@ -8,6 +8,6 @@ class Checklist extends Model
 {
     protected $table = 'checklist';
     protected $fillable = [
-        'employee_id', 'checklist_template_id'
+        'employee_id', 'checklist_template_id', 'gestor'
     ];
 }

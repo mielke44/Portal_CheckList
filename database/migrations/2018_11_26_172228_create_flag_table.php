@@ -16,6 +16,7 @@ class CreateFlagTable extends Migration
         Schema::create('flag', function (Blueprint $table) {
             $table->increments('id');
             $table->string('type');
+            $table->string('receiver');
             $table->timestamps();
         });
     }

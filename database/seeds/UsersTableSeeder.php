@@ -18,6 +18,7 @@ class UsersTableSeeder extends Seeder
             'password' => bcrypt('secret'),
             'is_admin' => true,
             'site' => "12",
+            'token' => "",
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);
@@ -27,16 +28,17 @@ class UsersTableSeeder extends Seeder
             'email' => "gabriel.barbosa@t-systems.com.br",
             'password' => bcrypt('secret'),
             'site' => "12",
+            'token' => "",
             'is_admin' => true,
             'created_at' => new DateTime()
         ]);
-
 
         DB::table('users')->insert([
             'name' => "William Cavenagli",
             'email' => "william.cavenagli@t-systems.com.br",
             'password' => bcrypt('secret'),
             'site' => "12",
+            'token' => "",
             'is_admin' => true,
             'created_at' => new DateTime()
         ]);
@@ -46,6 +48,7 @@ class UsersTableSeeder extends Seeder
             'email' => "christiano.carvalho@t-systems.com.br",
             'password' => bcrypt('secret'),
             'site' => "12",
+            'token' => "",
             'is_admin' => true,
             'created_at' => new DateTime()
         ]);
@@ -55,11 +58,19 @@ class UsersTableSeeder extends Seeder
             'email' => "wilson.mielke@t-systems.com.br",
             'password' => bcrypt('secret'),
             'site' => "12",
+            'token' => "",
             'is_admin' => true,
             'created_at' => new DateTime()
         ]);
 
-
-
+        DB::table('users')->insert([
+            'name' => "RH padrão",
+            'email' => "RH@t-systems.com.br",
+            'password' => bcrypt('secret'),
+            'site' => "12",
+            'token' => bcrypt("id"."RH padrão"),
+            'is_admin' => false,
+            'created_at' => new DateTime()
+        ]);
     }
 }

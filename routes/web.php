@@ -24,6 +24,7 @@ Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 
 //Checklist
 Route::get('employee/checklist', "ChecklistController@index")->name('checklist.employee');
+Route::get('employee/checklist/complete/{id}', "ChecklistController@completeCheckList")->name('checklist.complete');
 Route::post('employee/checklist/store', "ChecklistController@store")->name('checklist_store');
 
 //Check
@@ -68,10 +69,10 @@ Route::delete('profile/destroy', "ProfileController@destroy")->name('profile.des
 //Sites
 Route::get('site/list', "SiteController@list")->name('site.list');
 
-
-
+//Auth
 Auth::routes();
 ROute::get('/getflag','HomeController@getFlagNot')->name('getflagnoti');
 Route::get('/logout','HomeController@logout')->name('logout');
 Route::get('/getname','HomeController@getName')->name('getname');
+Route::get('/getperm','HomeController@getPerm')->name('getperm');
 Route::get('/getnotifications','HomeController@getNotifications')->name('getnoti');

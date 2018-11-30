@@ -16,7 +16,8 @@ return [
     |
     */
 
-    'driver' => env('MAIL_DRIVER', 'smtp'),
+    'driver' => env('MAIL_DRIVER', 'smtp'),  //(USED WHEN NOT TESTING)
+    //'driver' => env('log', 'smtp'),  //(USED FOR TESTING ONLY->CHECK storage/logs/laravel.log FOR SENT MAILS!)
 
     /*
     |--------------------------------------------------------------------------
