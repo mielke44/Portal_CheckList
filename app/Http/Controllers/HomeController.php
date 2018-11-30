@@ -45,7 +45,7 @@ class HomeController extends Controller
 
     public function getNotifications(){
         $session_id = Auth::user()->id; 
-        $notifications = Notification::where('admin_id',$session_id)->orderBy('created_at','desc')->select('id','name','text', 'type', 'created_at')->get();
+        $notifications = Notification::where('admin_id',$session_id)->where('status','pending')->orderBy('created_at','desc')->select('id','name','text', 'type', 'created_at')->get();
         $date = array(); 
         foreach($notifications as $n){
             $data = explode(" ",$n['created_at']);
@@ -53,10 +53,12 @@ class HomeController extends Controller
         }
         return json_encode($notifications);
     }
+
+    
     public function getFlagNot(){
-        $coll = Flag::where('type','notification')->get();
+        $coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();
         if(sizeof($coll)!=0){
-            Flag::where('type','notification')->delete();
+            Flag::where('type','notification')->where('receiver',Auth::user()->id)->delete();
             return 'true';
         }
         return 'false';

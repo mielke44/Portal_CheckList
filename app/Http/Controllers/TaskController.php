@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Task;
 use App\TaskRequiere;
 use Illuminate\Http\Request;
+use App\Admin;
 
 class TaskController extends Controller
 {
@@ -23,6 +24,8 @@ class TaskController extends Controller
         $tasks = Task::all();
 
         foreach($tasks as  $t){
+            if($t->resp=='0')$t->resp_name='Contratado';
+            else $t->resp_name = Admin::findOrFail($t->resp)->name;
             $dep = array();
             $trs = TaskRequiere::where("task_id",$t->id)->get();
             $trs2 = TaskRequiere::where("task_requiere_id",$t->id)->get();
@@ -90,6 +93,7 @@ class TaskController extends Controller
         $task->name = $request["name"];
         $task->description = $request["description"];
         $task->type = $request["type"];
+        $task->resp = $request["resp"]['id'];
 
         if($task->save()) {
             TaskRequiere::where("task_requiere_id",$task->id)->delete();
@@ -116,6 +120,7 @@ class TaskController extends Controller
         $dep = array();
         $trs = TaskRequiere::where("task_id",$task->id)->get();
         $trs2 = TaskRequiere::where("task_requiere_id",$task->id)->get();
+        $task->resp = $request["resp"];
         foreach($trs as $tr){
             $dep[]=$tr->task_requiere_id;
         }

@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Events;
-use App\Check;
+use App\Checklist;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -10,39 +10,35 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class CheckUpdateEvent
+class ChecklistUpdateEvent
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $check;
+    public $checklist;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct(Check $check, $text, $name, $type, $receiver)
+    public function __construct(Checklist $checklist, $text, $receiver, $name)
     {
-        $this->check = $check;
+        $this->checklist = $checklist;
         $this->text = $text;
-        $this->name = $name;
-        $this->type = $type;
         $this->receiver = $receiver;
+        $this->name = $name;
     } 
 
-    public function getCheck(){
-        return $this->check;
-    }
-    public function getName(){
-        return $this->name;
+    public function getChecklist(){
+        return $this->checklist;
     }
     public function getText(){
         return $this->text;
     }
-    public function getType(){
-        return $this->type;
-    }
     public function getReceiver(){
         return $this->receiver;
+    }
+    public function getName(){
+        return $this->name;
     }
 }

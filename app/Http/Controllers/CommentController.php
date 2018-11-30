@@ -17,6 +17,9 @@ class CommentController extends Controller
     public function store(Request $r){
         $Check = Check::findOrFail($r['check_id']);
         $task = Task::find($Check->task_id);
+        $receiver = array ( 'gestor'=> Checklist::where('id',$Check->checklist_id)->select('gestor')->get(),
+        'employee'=> Checklist::where('id',$Check->checklist_id)->select('employee_id')->get(),
+        'resp'=> $request['resp']);
 
         if($r['comment_id']==''){
             $comment = new Comment();
@@ -32,7 +35,7 @@ class CommentController extends Controller
             $name = Auth::user()->name;
             $type = 1;
             if($comment->save()){
-                event(new CheckUpdateEvent($Check, $text,$name, $type));
+                event(new CheckUpdateEvent($Check, $text,$name, $type, $receiver));
                 return json_encode(array(
                                         'st' => $status,
                                         'error' => false,

@@ -64,20 +64,21 @@
             <v-icon>search</v-icon>
         </v-btn>
 
-        <v-menu offset-y left transition="slide-y-transition">
+        <v-menu :close-on-content-click="false" offset-y left transition="slide-y-transition">
             <v-btn icon slot='activator'>
                 <v-badge right color='primary'>
                     <span slot="badge" v-if='notifications.length>0'>@{{notifications.length}}</span>
                     <v-icon>notifications</v-icon>
                 </v-badge>
             </v-btn>
-            <v-list>
+            <v-list class="ma-0 pa-0">
                 <template v-for='n in notifyLimit'>
-                    <v-list-tile @click="get_check(n.id)">
+                    <v-list-tile @click="get_check(n.id,n.type)">
                         <v-list-tile-avatar>
                             <v-icon color="primary"  v-if='n.type==0'>check_box</v-icon>
                             <v-icon color="primary" v-if='n.type==1'>add_comment</v-icon>
                             <v-icon color="primary" v-if='n.type==2'>assignment_ind</v-icon>
+                            <v-icon color="primary" v-if='n.type==3'>playlist_add_check</v-icon>
                         </v-list-tile-avatar>
                         <v-list-tile-content class='body-1'>
                             <v-list-tile-title>@{{n.name}}</v-list-tile-title>
@@ -90,9 +91,11 @@
                     </v-list-tile>
                     <v-divider></v-divider>
                 </template>
+                <v-list-tile class="pa-0">
+                        <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=notifications.length'>Mostrar todas as notificações</v-btn>
+                        <v-btn class="pa-0 ma-0" color="white" v-if="tam!=3" depressed block @click='tam=3'>Mostrar 3 notificações</v-btn>
+                </v-list-tile>
             </v-list>
-            <v-btn v-if="tam==3" depressed block @click='tam=notifications.length'>Mostrar todas as notificações</v-btn>
-            <v-btn v-if="tam!=3" depressed block @click='tam=3'>Mostrar 3 notificações</v-btn>
         </v-menu>
 
         <v-menu offset-y left>
@@ -269,14 +272,28 @@
                     this.notifications = response;
                 });
             },
-            get_check: function(id){
+            get_check: function(id,type){
+                if(type=3){
+                    $.ajax({
+                    url: "{{route('checklist.list')}}",
+                    method: 'GET',
+                    dataType: "json",
+                    data: {not_id: id},
+                }).done(response => {
+                    this.list_notifications();
+                    window.location = '/employee';
+                });
+                }else{
                 $.ajax({
                     url: "{{route('check.list')}}",
                     method: 'GET',
                     dataType: "json",
                     data: {not_id: id},
                 }).done(response => {
+                    this.list_notifications();
+                    window.location = '/employee';
                 });
+            }
             },
             update: function(){
                 $.ajax({

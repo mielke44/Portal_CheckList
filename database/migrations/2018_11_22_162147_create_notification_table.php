@@ -21,6 +21,7 @@ class CreateNotificationTable extends Migration
             $table->string('employee_id');
             $table->string('type');
             $table->string('check_id');
+            $table->string('status');
             $table->timestamps();
         });
     }

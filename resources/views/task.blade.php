@@ -31,11 +31,17 @@
                     </div>
                     <v-container grid-list-xs>
                         <v-layout row wrap>
-                            <v-flex xs3 class='font-weight-bold'>
+                            <v-flex xs6 class='font-weight-bold'>
                                 Descrição:
                             </v-flex>
-                            <v-flex xs9>
+                            <v-flex xs6>
                                 @{{t.description}}
+                            </v-flex>
+                            <v-flex xs6 class='font-weight-bold'>
+                                Responsável Padrão:
+                            </v-flex>
+                            <v-flex xs6>
+                                @{{t.resp_name}}
                             </v-flex>
                             <template v-if="t.dependence.length>0">
                                 <v-flex xs3 class='font-weight-bold' >
@@ -66,7 +72,6 @@
                                 </v-btn>
                             </v-flex>
                         </v-layout>
-
                     </v-container>
                 </v-expansion-panel-content>
                 <v-expansion-panel-content v-if='tasks.length==0'>
@@ -77,6 +82,7 @@
 
     </v-layout>
 
+    <!-- FORM VIEW-->
     <v-layout row wrap v-if="form_view">
         <v-flex s12>
             <v-card>
@@ -89,8 +95,10 @@
                                 required counter='300'></v-textarea>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
-                            <v-select v-model="form.dependences2" :items="tasks" item-text="name" item-value="id" label="Dependencias"
-                                persistent-hint multiple required></v-select>
+                            <v-autocomplete
+                                v-model="form.resp" :items="resp" color="black" item-text="name" item-value="id" 
+                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected return-object
+                            ></v-autocomplete>
                             <div class='headline mb-2 mt-2'>Dependências</div>
                             <v-layout row wrap>
                                 <v-flex xs6>
@@ -111,10 +119,8 @@
                             </v-layout>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
-
                     </v-form>
                 </v-container>
-
             </v-card>
         </v-flex>
     </v-layout>
@@ -133,6 +139,7 @@
         data() {
             return {
                 tasks: [],
+                resp: [],
                 task_tree: [],
                 task_tree_active: [],
                 form_view: false,
@@ -158,7 +165,9 @@
                     name: '',
                     description: '',
                     type: '',
-                    dependences2: []
+                    resp: '',
+                    dependences2: [],
+
                 },
                 types: [{
                         text: "Solicitação",
@@ -233,6 +242,20 @@
                     this.tasks = response;
                     this.get_task_tree();
                 });
+            },
+            admin_list(){
+                $.ajax({
+                    url: "{{route('admin.list')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response =>{
+                    this.resp=response['resp_list'];
+                    for(i = 0;i<response['admin_list'].length;i++){
+                        this.resp.push(response['admin_list'][i]);
+                    }
+                    this.resp.push(response['default']);
+                    alert(JSON.stringify(this.resp));
+                })
             },
             edit: function (task_id) {
                 $.ajax({
@@ -334,6 +357,7 @@
             }
         },
         mounted() {
+            this.admin_list();
             this.list();
             setTimeout(() => {
                 app.screen = 4

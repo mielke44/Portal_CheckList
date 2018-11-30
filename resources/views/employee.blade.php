@@ -153,7 +153,6 @@
                                 item-text="name"
                                 item-value="id"
                                 label="Responsável"
-                                prepend-icon="mdi-database-search"
                                 return-object
                             ></v-autocomplete>
                             <v-btn color="red" @click="update(form.id,'','resp')" outline>Salvar</v-btn>
@@ -571,12 +570,10 @@
                 },
                 count_check: function(check_id,em,status){
                     if(status){
-                        alert(status);
                         this.update(check_id,1,'status')
                         em.check_true_size++;
                     }
                     else if(!status){
-                        alert(status);
                         em.check_true_size--;
                         this.update(check_id,0,'status')
                     }

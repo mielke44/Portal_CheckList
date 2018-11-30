@@ -11,6 +11,7 @@ use App\Check;
 use Auth;
 use App\ChecklistTemplate;
 use App\Task;
+use App\Events\ChecklistUpdateEvent;
 
 class ChecklistController extends Controller
 {
@@ -41,19 +42,10 @@ class ChecklistController extends Controller
         return json_encode($a);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
     public function store(Request $request)
     {
         $checklist = new Checklist();
+        $checklist->gestor = Auth::user()->id;
         $checklist->employee_id = $request['employee_id'];
         $checklist->checklist_template_id = $request['checklist_template_id'];
         $checklist->save();
@@ -86,41 +78,40 @@ class ChecklistController extends Controller
             if(Check::where("checklist_id",$checklist_id)->where("task_id",$d["task_requiere_id"])->count()==0){
                 createCheckDep($c->id,$user->id,$request['id']);
             }
-
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Checklist  $checklist
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Checklist $checklist)
+    public function destroy($id)
     {
-        //
+        $Check = Checklist::find($id);
+        if(Checklist::find($id)->delete()){
+            Check::where('checklist_id',$id)->delete();
+            return json_encode(array('error'=>false,
+                                    'message'=> 'lista de tarefas concluída!'));
+        }
     }
+    public function completeCheckList($id){
+        $checklist = Checklist::findOrFail($id);
+        $checks = Check::where('checklist_id',$checklist->id)->get();
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Checklist  $checklist
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, Checklist $checklist)
-    {
-        //
-    }
+        $i = 0;
+        foreach($checks as $c){
+            if($c['status'])$i++;
+            else return 'false';
+        }
+        if($i = $checks->count()){
+            $text = 'Esta lista de tarefas está completa!';
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Checklist  $checklist
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Checklist $checklist)
-    {
-        //
+            $receiver = array ( 0=> $checklist->gestor,
+                                1=> $checklist->employee_id);
+                                //0 = gestor, 1 = employee;
+
+            $name = ChecklistTemplate::findOrFail($checklist->checklist_template_id)->name;
+
+            event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name));
+            return 'true';
+        }
+        //dd(Check::where('checklist_id',Checklist::findOrFail($id)->id)->get()[0]['status']);
+
     }
 }

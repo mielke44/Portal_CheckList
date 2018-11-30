@@ -10,6 +10,8 @@ use App\Task;
 use App\Events\CheckUpdateEvent;
 use App\Admin;
 use App\Notification;
+use App\Checklist;
+
 class CheckController extends Controller
 {
 
@@ -26,6 +28,12 @@ class CheckController extends Controller
             $task = Task::find($Check->task_id);
             $text = '';
             $name = '';
+
+            $receiver = array ( 0=> Checklist::find($Check->checklist_id)->gestor,
+                                1=> Checklist::find($Check->checklist_id)->employee_id,
+                                2=> $request['form']['resp']['id']);
+                                //0 = gestor, 1 = employee, 2 = resp;
+
             if($request['change_type']=='status'){
 
                     if($request['status']) $Check->status=1;
@@ -34,8 +42,10 @@ class CheckController extends Controller
                     $name = Auth::user()->name;
                     $type = 0;
 
+
+
                     if ($Check->save()) {
-                        event(new CheckUpdateEvent($Check, $text, $name, $type));
+                        event(new CheckUpdateEvent($Check, $text, $name, $type, $receiver));
                         return json_encode(array('error' => false,
                             'message' => $Check->id."__status:".$Check->status));
                     } else {
@@ -50,7 +60,7 @@ class CheckController extends Controller
                     $name = $request['form']['resp']['name'];
                     $type = 2;
                     if ($Check->save()) {
-                        event(new CheckUpdateEvent($Check, $text, $name, $type));
+                        event(new CheckUpdateEvent($Check, $text, $name, $type, $receiver));
                         return json_encode(array('error' => false,
                             'message' => $Check->id."__status:".$Check->status));
                     } else {
@@ -73,7 +83,9 @@ class CheckController extends Controller
 
     public function list(Request $r){
         $notification = Notification::findOrFail($r['not_id']);
+        $notification->status = 'seen';
+        $notification->save();
         $check = Check::findOrFail($notification->check_id);
-        return route('employee',$check);
+        return json_encode($check);
     }
 }

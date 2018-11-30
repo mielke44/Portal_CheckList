@@ -17,6 +17,7 @@ class CreateChecklistTable extends Migration
             $table->increments('id');
             $table->integer('employee_id');
             $table->integer('checklist_template_id');
+            $table->integer('gestor');
             $table->timestamps();
         });
     }

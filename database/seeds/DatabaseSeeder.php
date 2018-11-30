@@ -13,5 +13,10 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(UsersTableSeeder::class);
         $this->call(SitesTableSeeder::class);
+        $this->call(TaskTableSeeder::class);
+        $this->call(Checklist_templateTableSeeder::class);
+        $this->call(ProfileTableSeeder::class);
+        $this->call(EmployeeTableSeeder::class);
+        $this->call(linker_checklistTableSeeder::class);
     }
 }
