@@ -42,7 +42,7 @@ class TaskController extends Controller
         return json_encode($tasks);
     }
 
-    public function tree(){
+    public static function tree(){
         $tasks = Task::all();
         $tree = array();
         foreach($tasks as $t){
@@ -54,7 +54,7 @@ class TaskController extends Controller
                 $aux["children"] = array();
                 $deps = TaskRequiere::where("task_id",$t->id)->get();
                 foreach($deps as $d){
-                    array_push($aux["children"],$this->treeChildren($d->task_requiere_id,$d->task_id.";"));
+                    array_push($aux["children"],TaskController::treeChildren($d->task_requiere_id,$d->task_id.";"));
                 }
                 array_push($tree,$aux);
 
@@ -62,7 +62,7 @@ class TaskController extends Controller
         }
         return json_encode($tree);
     }
-    private function treeChildren($id,$tasksInTree){
+    private static function treeChildren($id,$tasksInTree){
         $aux = array();
 
         $task = Task::find($id);
@@ -72,7 +72,7 @@ class TaskController extends Controller
         $aux["tree"] = $tasksInTree;
         $aux["children"] = array();
         foreach($deps as $d){
-            array_push($aux["children"],$this->treeChildren($d->task_requiere_id,$tasksInTree.$id.";"));
+            array_push($aux["children"],TaskController::treeChildren($d->task_requiere_id,$tasksInTree.$id.";"));
         }
         return $aux;
     }

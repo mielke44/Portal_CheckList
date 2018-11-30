@@ -26,8 +26,7 @@ class CheckController extends Controller
             $task = Task::find($Check->task_id);
             $text = '';
             $name = '';
-            if($request['change_type']=='status'){
-
+            if($request['status']!=''){
                     if($request['status']) $Check->status=1;
                     else if(!$request['status'])$Check->status=0;
                     $text = 'Alterou o estado da tarefa: '.$task->name;
@@ -43,7 +42,7 @@ class CheckController extends Controller
                             'message' => 'Ocorreu um erro, tente novamente!'));
                     }
 
-            }else if($request['change_type']=='resp'){
+            }else if($request['resp']!=''){
 
                     $Check->resp = $request['form']['resp']['id'];
                     $text = 'foi selecionado como responsável da tarefa: '.$task->name;
@@ -62,12 +61,12 @@ class CheckController extends Controller
 
 
         }else{
-            
+
         $Check = Check::where("checklist_id",$request['id'],"task_id",$request['id'])->get();
             $Check->resp = $request["resp"];
             $Check->status = false;
             $Check->save();
-            
+
         }
     }
 

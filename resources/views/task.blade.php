@@ -89,8 +89,6 @@
                                 required counter='300'></v-textarea>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
-                            <v-select v-model="form.dependences2" :items="tasks" item-text="name" item-value="id" label="Dependencias"
-                                persistent-hint multiple required></v-select>
                             <div class='headline mb-2 mt-2'>Dependências</div>
                             <v-layout row wrap>
                                 <v-flex xs6>

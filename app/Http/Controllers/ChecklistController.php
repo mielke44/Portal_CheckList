@@ -11,6 +11,7 @@ use App\Check;
 use Auth;
 use App\ChecklistTemplate;
 use App\Task;
+use App\Http\Controllers\TaskController;
 
 class ChecklistController extends Controller
 {
@@ -21,24 +22,13 @@ class ChecklistController extends Controller
      */
     public function index(Request $r)
     {
-        $a = array();
-        $b = array();
-        $n = "";
         $checklists = Checklist::where("employee_id",$r->id)->select("checklist_template_id","id")->get();
         foreach($checklists as $c){
-            $check = Check::where("checklist_id",$c->id)->get();
-            $n = Check::where("checklist_id",$c->id)->where("status",1)->select("id")->get();
-            foreach($check as $ch){
-                $ch->name = Task::where("id",$ch->task_id)->select("name")->get();
-                $ch->description = Task::where("id",$ch->task_id)->select("description")->get();
-            }
-            array_push($b, $check);
-            $c->name = ChecklistTemplate::where("id",$c->checklist_template_id)->select("name")->get();
+            $c->checks = Check::where("checklist_id",$c->id)->get();
+            $c->tree = $this->tree($c->id);
         }
-        $a["check_size"] = count($n);
-        $a["checklists"] = $checklists;
-        $a["check"]=$b;
-        return json_encode($a);
+
+        return json_encode($checklists);
     }
 
     /**
@@ -61,7 +51,7 @@ class ChecklistController extends Controller
         $user_id = Auth::user();
         foreach($CLT as $ct){
             $check = new Check();
-            $check->resp = $user_id->id;
+            $check->resp = $checklist->employee_id;
             $check->status = false;
             $check->task_id = $ct->task_id;
             $check->checklist_id = $checklist->id;
@@ -70,7 +60,7 @@ class ChecklistController extends Controller
                 createCheckDep($c->id,$user->id,$checklist->id);
             }
         }
-
+        return json_encode(array('success'=>"true"));
     }
 
     public function createCheckDep($task_id,$user_id,$checklist_id){
@@ -88,6 +78,27 @@ class ChecklistController extends Controller
             }
 
         }
+    }
+
+    public function tree($id){
+        $checks = Check::where("checklist_id",$id)->get();
+
+        $tree = json_decode(TaskController::tree());
+        return $this->treeChild($tree,$checks);
+    }
+    public function treeChild($tree,$checks){
+        $aux = array();
+        foreach($tree as $t){
+            foreach($checks as $c){
+                if($c->task_id == $t->id){
+                    $t->children = $this->treeChild($t->children,$checks);
+                    $t->check_id = $c->id;
+                    $t->status = $c->status;
+                    $aux[] = $t;
+                }
+            }
+        }
+        return $aux;
     }
 
     /**

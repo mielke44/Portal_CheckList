@@ -27,8 +27,8 @@
                             <v-flex xs3 class='text-xs-right'>
                                 <a @click=''>
                                     <span class='mr-2'>@{{em.check_true_size}}/@{{em.check_size}}</span>
-                                    <v-progress-circular rotate="-90" :value="em.check_true_size/em.check_size*100" color="primary"
-                                        class='mr-2' width='7'></v-progress-circular>
+                                    <v-progress-circular rotate="-90" :value="em.check_true_size/em.check_size*100"
+                                        color="primary" class='mr-2' width='7'></v-progress-circular>
                                 </a>
                             </v-flex>
                         </v-layout>
@@ -37,28 +37,121 @@
                         <v-layout row wrap>
                             <v-layout row wrap>
                                 <v-flex xs12 v-if="checklists.hasOwnProperty(em.id)">
-                                    <v-tabs v-model="tab" slider-color="black">
-                                        <v-tab  v-for="c in checklists[em.id]">@{{c.name[0].name}}</v-tab>
-                                            <v-tab-item>
-                                                <v-list>
-                                                    <v-subheader xs1 height="10">Tarefas</v-subheader>
-                                                    <template v-for='ch in check'>
-                                                        <v-divider></v-divider>
-                                                        <v-list-tile>
-                                                            <v-list-tile-action>
-                                                                <v-checkbox color="green" v-model="ch.status" @change="count_check(ch.id,em,ch.status)"></v-checkbox>
-                                                            </v-list-tile-action>
-                                                            <v-list-tile-content>
-                                                                <v-list-tile-title class="font-weight-bold">@{{ch.name[0].name}}</v-list-tile-title>
-                                                                <v-list-tile-subtitle xs6 class='caption'>@{{ch.description[0].description}}</v-list-tile-subtitle>
-                                                            </v-list-tile-content>
-                                                            <v-list-tile-content-action>
-                                                                <v-btn small fab color="blue" @click="form.id = ch.id;popup3(ch.id)" dark><v-icon>edit</v-icon></v-btn>
-                                                            </v-list-tile-content-action>
-                                                        </v-list-tile>
-                                                    </template>
-                                                </v-list>
+                                    <v-tabs v-model="model_tab_checklist" slider-color="black">
+                                        <template>
+                                            <v-tab v-for="c in checklists[em.id]">@{{getTemplate(c.checklist_template_id).name}}</v-tab>
+                                            <v-tab-item v-for="c in checklists[em.id]">
+                                                <v-container grid-list-xs>
+                                                    <v-layout row wrap>
+                                                        <v-flex xs6>
+                                                            <v-treeview :items="c.tree" open-all :active.sync='task_tree_active'
+                                                                activatable active-class='extra-treeview'>
+                                                                <template slot='prepend' slot-scope="{item}">
+                                                                    <div>
+                                                                        <v-checkbox color="green" v-model="item.status"
+                                                                            @change="count_check(item.check_id,item.status)"></v-checkbox>
+                                                                    </div>
+                                                                </template>
+                                                            </v-treeview>
+                                                        </v-flex>
+                                                        <template v-if='task_tree_selected!=0'>
+                                                            <v-flex xs6>
+                                                                <v-layout row wrap>
+                                                                    <v-flex xs12 class='headline'>
+                                                                        @{{task_tree_selected.name}}
+                                                                    </v-flex>
+                                                                    <v-flex xs12>
+                                                                        <p class='body-2'>@{{task_tree_selected.description}}</p>
+                                                                        <p class='caption mt-2'>Responsavel:
+                                                                            @{{getEmployee(check_tree_selected.resp).name}}
+                                                                            <a class='ml-2' @click='dialog_responsavel=true;form.resp=parseInt(check_tree_selected.resp)'>
+                                                                                <v-icon class='body-1' color='primary'>edit</v-icon>
+                                                                            </a>
+                                                                        </p>
+                                                                        <v-divider class='mt-2'></v-divider>
+                                                                    </v-flex>
+                                                                    <v-flex xs12>
+                                                                        <v-layout v-if='comments.length>0' row wrap>
+                                                                            <template v-for='c in comments'>
+                                                                                <v-flex xs2>
+                                                                                    <v-avatar color="grey darken-4"
+                                                                                        size='40'>
+                                                                                        <span class="white--text headline">
+                                                                                            @{{c.writer_name[0]}}</span>
+                                                                                    </v-avatar>
+                                                                                </v-flex>
+                                                                                <v-flex xs10>
+                                                                                    <v-layout row wrap>
+                                                                                        <v-flex class='font-weight-bold'
+                                                                                            xs12>
+                                                                                            @{{c.writer_name}}
+                                                                                        </v-flex>
+                                                                                        <v-flex xs12 class='caption'
+                                                                                            v-html="c.comment" style="white-space: pre-line;">
+                                                                                        </v-flex>
+                                                                                        <v-flex xs12 class='caption grey--text'>@{{c.created_at}}
+                                                                                            -
+                                                                                            <a class='ml-2' @click='dialog_comment=true;form.comment=c.comment;form.comment_id=c.id'>
+                                                                                                <v-icon class='body-1'
+                                                                                                    color='primary'>edit</v-icon>
+                                                                                            </a>
+                                                                                            <a class='ml-2' @click='destroy_comment(c.id)'>
+                                                                                                <v-icon class='body-1'
+                                                                                                    color='primary'>delete</v-icon>
+                                                                                            </a>
+                                                                                        </v-flex>
+                                                                                    </v-layout>
+                                                                                    <v-divider></v-divider>
+                                                                                </v-flex>
+                                                                            </template>
+                                                                        </v-layout>
+                                                                        <template v-else>
+                                                                            Nenhum comentário para essa tarefa.
+                                                                        </template>
+                                                                        <v-divider class='mt-2 mb-2'></v-divider>
+                                                                    </v-flex>
+                                                                    <v-flex xs12 class='text-xs-center'>
+                                                                        <v-btn outline color="blue" dark @click='dialog_comment=true;form.comment="";form.comment_id=""'>+
+                                                                            Adicionar
+                                                                            comentário</v-btn>
+                                                                    </v-flex>
+                                                                </v-layout>
+
+                                                            </v-flex>
+                                                        </template>
+
+                                                    </v-layout>
+                                                </v-container>
+
+
                                             </v-tab-item>
+                                        </template>
+
+                                        <v-tab-item v-for="c in checklists[em.id]">
+
+                                            <v-list>
+                                                <v-subheader xs1 height="10">Tarefas</v-subheader>
+
+                                                <template v-for='ch in c.checks'>
+                                                    <v-divider></v-divider>
+                                                    <v-list-tile>
+                                                        <v-list-tile-action>
+
+                                                        </v-list-tile-action>
+                                                        <v-list-tile-content>
+                                                            <v-list-tile-title class="font-weight-bold">@{{ch.name}}</v-list-tile-title>
+                                                            <v-list-tile-subtitle xs6 class='caption'>@{{ch.description}}</v-list-tile-subtitle>
+                                                        </v-list-tile-content>
+                                                        <v-list-tile-content-action>
+                                                            <v-btn small fab color="blue" @click="form.id = ch.id;popup3(ch.id)"
+                                                                dark>
+                                                                <v-icon>edit</v-icon>
+                                                            </v-btn>
+                                                        </v-list-tile-content-action>
+                                                    </v-list-tile>
+                                                </template>
+                                            </v-list>
+                                        </v-tab-item>
                                     </v-tabs>
                                 </v-flex>
                             </v-layout>
@@ -119,10 +212,9 @@
                         <p style="width:100%" class="headline text-xs-center">Checklist</p>
                     </v-card-title>
                     <v-card-text>
-                            <v-flex xs6>Lista de tarefas:</v-flex>
-                            <v-select v-model="form.checklist_template_id" :items="templates" item-text="name"
-                                item-value="id" label="Lista de tarefas" persistent-hint :rules='rules.profile'
-                                required></v-select>
+                        <v-flex xs6>Lista de tarefas:</v-flex>
+                        <v-select v-model="form.checklist_template_id" :items="templates" item-text="name" item-value="id"
+                            label="Lista de tarefas" persistent-hint :rules='rules.profile' required></v-select>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
@@ -136,77 +228,46 @@
                 </v-card>
             </v-dialog>
 
+
+            <v-dialog v-model="dialog_responsavel" max-width="600" v-if='task_tree_selected!=0'>
+                <v-card>
+                    <v-card-text>
+                        <v-autocomplete v-model="form.resp" :items="resp" color="black" hide-no-data hide-selected
+                            item-text="name" item-value="id" label="Responsável" prepend-icon="assignment_ind"
+                            return-object></v-autocomplete>
+                        <v-divider></v-divider>
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="red" @click="setResp()" outline>Salvar</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
             <!--POPUP 3 CHECK MENU-->
-            <v-dialog v-model="dialog3" max-width="600" r>
+            <v-dialog v-model="dialog_comment" max-width="600" r>
                 <v-card>
                     <v-card-title>
-                        <p style="width:100%" class="headline text-xs-center font-weight-bold">Menu de Tarefa</p>
+                        <p style="width:100%" class="headline text-xs-center font-weight-bold">Comentario</p>
                     </v-card-title>
                     <v-card-text>
                         <v-layout row wrap>
-                            <v-autocomplete
-                                v-model="form.resp"
-                                :items="resp"
-                                color="black"
-                                hide-no-data
-                                hide-selected
-                                item-text="name"
-                                item-value="id"
-                                label="Responsável"
-                                prepend-icon="mdi-database-search"
-                                return-object
-                            ></v-autocomplete>
-                            <v-btn color="red" @click="update(form.id,'','resp')" outline>Salvar</v-btn>
-                        </v-layout>
-                        <v-layout row wrap>
                             <v-flex xs12>
-                                <v-textarea  height=100 v-model="form.comment" :rules="rules.comment" label="Comentário" required counter='300'></v-textarea>
-                                <v-btn color="blue" @click="add_comment(form.id,'')" outline>
-                                    <v-icon dark class='mr-2'>add_comment</v-icon>Comentar
-                                </v-btn>
+                                <v-textarea height=100 v-model="form.comment" :rules="rules.comment" label="Comentário"
+                                    required counter='300'></v-textarea>
                             </v-flex>
                         </v-layout>
                         <v-layout row wrap>
-                            <v-flex xs12>
-                                <v-flex xs3>Comentários:</v-flex>
-                            <v-list two-line dense>
-                            <template v-for='(c,i) in comments'>
-                                <v-divider></v-divider>
-                                <v-list-tile ripple>
-                                <v-list-tile-content>
-                                    <v-flex xs9>
-                                        <v-list-tile-title>@{{c.writer_name}}</v-list-tile-title>
-                                        <v-list-tile-sub-title v-if="commentedit==i">
-                                            <v-text-field  small v-model="form.commentedit" :label="c.comment" clearable></v-text-field> 
-                                        </v-list-tile-sub-title>
-                                        <v-list-tile-sub-title v-if="commentedit!=i">@{{c.comment}}</v-list-tile-sub-title>
-                                    </v-flex>
-                                </v-list-tile-content>
-                                <v-list-tile-action>
-                                    <v-flex xs12>
-                                        <v-btn v-if="commentedit!=i" small fab color="blue" @click="commentedit=i" dark>
-                                            <v-icon>edit</v-icon>
-                                        </v-btn>
-                                        <v-btn v-if="commentedit==i" small fab color="green" @click="add_comment(form.id,c.id)" dark>
-                                            <v-icon >done</v-icon>
-                                        </v-btn>
-                                        <v-btn v-if="commentedit!=i" small fab color="red" @click="destroy_comment(c.id)" dark>
-                                            <v-icon >delete</v-icon>
-                                        </v-btn>
-                                        <v-btn v-if="commentedit==i" small fab color="red" @click="commentedit=false" dark>
-                                            <v-icon >cancel</v-icon>
-                                        </v-btn>
-                                    </v-flex>
-                                </v-list-tile-action>
-                            </template>
-                            </v-list>
-                            </v-flex>
                         </v-layout>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="red" @click="dialog3 = false" outline>
+
+                        <v-btn color="red" @click="dialog_comment = false" outline>
                             <v-icon dark class='mr-2'>close</v-icon>Fechar
+                        </v-btn>
+                        <v-btn color="blue" @click="store_comment()" outline>
+                            <v-icon dark class='mr-2'>add_comment</v-icon>Comentar
                         </v-btn>
                     </v-card-actions>
                 </v-card>
@@ -225,7 +286,7 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Name" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
-                            <v-select v-model="form.site" :items="sites" item-text="complete_name" item-value="id" 
+                            <v-select v-model="form.site" :items="sites" item-text="complete_name" item-value="id"
                                 :rules="rules.site" label="Site" persistent-hint required></v-select>
                             <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
                                 label="CPF" required></v-text-field>
@@ -251,22 +312,25 @@
             },
             data() {
                 return {
-                    commentedit:-1,
-                    checkbox:[],
+                    commentedit: -1,
+                    task_tree_active: [],
+                    checkbox: [],
                     model_employee: null,
                     dialog: false,
                     dialog2: false,
-                    dialog3: false,
+                    dialog_comment: false,
+                    dialog_responsavel: false,
                     employees: [],
                     dependencies: [],
                     profiles: [],
                     checklists: {},
+                    tasks: {},
                     check: [],
-                    check_size:"",
+                    check_size: "",
                     templates: [],
                     sites: [],
                     form_view: false,
-                    tab: null,
+                    model_tab_checklist: 1,
                     resp: {},
                     comments: [],
                     form_texts: {
@@ -307,7 +371,7 @@
                         profile_id: '',
                         checklist_template_id: '',
                         comment: '',
-                        commentedit:'',
+                        comment_id: '',
                         resp: '',
                     },
                     items: [{
@@ -321,10 +385,34 @@
                     ],
                 }
             },
+            computed: {
+                task_tree_selected: function () {
+                    if (this.task_tree_active.length == 0) return 0;
+                    this.list_comment(this.getCheckByTask(this.task_tree_active[0]).id);
+                    return this.getTask(this.task_tree_active[0]);
+                },
+                employee_selected: function () {
+                    if (this.model_employee == null) return 0;
+                    return this.employees[this.model_employee];
+                },
+                checklist_selected: function () {
+                    return this.checklists[this.employee_selected.id][this.model_tab_checklist];
+                },
+                check_tree_selected: function () {
+                    return this.getCheckByTask(this.task_tree_selected.id);
+                },
+
+
+            },
             watch: {
                 model_employee: function (val) {
-                    if (val != null) this.list_checklist(this.employees[val].id);
-                }
+                    if (val != null) {
+                        if (!this.checklists.hasOwnProperty(this.employees[val].id)) {
+                            this.list_checklist(this.employees[val].id);
+                        }
+                    }
+                },
+
             },
             methods: {
                 add: function () {
@@ -370,9 +458,10 @@
                             employee_id: id,
                             checklist_template_id: this.form.checklist_template_id,
                         },
-                    }).done(response =>{
-                        this.list_checklist(this.employees[val].id);
-                    })
+                        success: (response) => {
+                            this.list_checklist(id);
+                        }
+                    });
                 },
                 list: function () {
                     $.ajax({
@@ -383,7 +472,7 @@
                         this.employees = response;
                     });
                 },
-                list_admin: function(){
+                list_admin: function () {
                     $.ajax({
                         url: "{{route('admin.list')}}",
                         method: "GET",
@@ -411,34 +500,19 @@
                     });
                 },
                 list_checklist: function (employee_id) {
-                    if (!this.checklists.hasOwnProperty(employee_id)) {
-                        $.ajax({
-                            url: "{{route('checklist.employee')}}",
-                            method: "GET",
-                            dataType: "json",
-                            data: {
-                                id: employee_id
-                            }
-                        }).done(response => {
-                            this.checklists[employee_id] = response['checklists'];
-                            this.check = response['check'][0];
-                            for (i = 0; i < response['check'][0].length; i++) {
-                                this.checkbox.push(response['check'][0][i]['status']);
-                                if(!response['check'][0][i]['comment']){
-                                    return;
-                                }
-                                this.comments.push(response['check'][0][i]['comment']);
-                                
-                                alert(JSON.stringify(this.checkbox));
-                            }
-                            alert(JSON.stringify(this.checkbox));
-                            var temp = this.model_employee;
-                            this.model_employee = null;
-                            this.model_employee = temp;
-                        });
-                    }
+                    $.ajax({
+                        url: "{{route('checklist.employee')}}",
+                        method: "GET",
+                        dataType: "json",
+                        data: {
+                            id: employee_id
+                        }
+                    }).done(response => {
+                        this.checklists[employee_id] = response
+                        this.$forceUpdate();
+                    });
                 },
-                list_sites: function (){
+                list_sites: function () {
                     $.ajax({
                         url: "{{route('site.list')}}",
                         method: "GET",
@@ -447,7 +521,7 @@
                         this.sites = response;
                     });
                 },
-                list_comment: function(id){
+                list_comment: function (id) {
                     $.ajax({
                         url: "{{route('comment.list')}}",
                         method: "GET",
@@ -456,30 +530,40 @@
                             check_id: id,
                         }
                     }).done(response => {
-                        this.comments = response['comment'];
+                        this.comments = response;
                     });
                 },
-                add_comment: function(id,id2){
+                list_tasks: function () {
                     $.ajax({
-                            url: "{{route('comment.store')}}",
-                            method: "POST",
-                            dataType: "json",
-                            headers: app.headers,
-                            data:{ 
-                                form: this.form,
-                                check_id: id,
-                                comment_id: id2
-                                },
-                                
-                            success: (response) => {
-                                this.commentedit=-1;
-                                if (response['st']=='add') app.notify("Comentário adicionado","success");
-                                else if(response['st']=='edit')app.notify("comentário editado com sucesso!", "success");
-                                this.list_comment(id);
-                                
+                        url: "{{route('task.list')}}",
+                        method: "GET",
+                        dataType: "json",
+                    }).done(response => {
+                        this.tasks = response;
+                    });
+                },
+                store_comment: function () {
+                    $.ajax({
+                        url: "{{route('comment.store')}}",
+                        method: "POST",
+                        dataType: "json",
+                        headers: app.headers,
+                        data: {
+                            comment: this.form.comment,
+                            comment_id: this.form.comment_id,
+                            check_id: this.check_tree_selected.id
+                        },
 
-                            }
-                        });
+                        success: (response) => {
+                            if (response['st'] == 'add') app.notify("Comentário adicionado",
+                                "success");
+                            else if (response['st'] == 'edit') app.notify(
+                                "comentário editado com sucesso!", "success");
+                            this.list_comment(this.check_tree_selected.id);
+                            this.dialog_comment = false;
+
+                        }
+                    });
                 },
                 getSiteName: function (id) {
                     for (i = 0; i < this.sites.length; i++) {
@@ -546,45 +630,75 @@
                             id: id
                         },
                         success: (response) => {
-                            this.list_comment();
+                            this.list_comment(this.check_tree_selected.id);
                             app.notify("Comentário removido", "error");
                         }
                     });
                 },
-                update: function(check_id,status,change_type){
+                updateCheck: function (change_type, check_id, data) {
+                    form_data = {
+                        check_id: check_id
+                    };
+                    switch (change_type) {
+                        case "RESP":
+                            form_data.resp = this.form.resp;
+                            break;
+                        case "STATUS":
+                            form_data.status = data.status;
+                            break;
+                    }
                     $.ajax({
                         url: "{{route('check.edit')}}",
                         method: "POST",
                         dataType: "json",
                         headers: app.headers,
-                        data:{
-                            form: this.form,
-                            check_id: check_id,
-                            status: status,
-                            change_type: change_type,
-                            
-                        },
+                        data: form_data
                     }).done(response => {
                         this.form_view = false;
                         app.notify("Tarefa modificada!", "success");
                     });
                 },
-                count_check: function(check_id,em,status){
-                    if(status){
-                        alert(status);
-                        this.update(check_id,1,'status')
-                        em.check_true_size++;
+                count_check: function (check_id, check_status) {
+                    if (check_status) {
+                        this.employee_selected.check_true_size++;
+                    } else if (!status) {
+                        this.employee_selected.check_true_size--;
                     }
-                    else if(!status){
-                        alert(status);
-                        em.check_true_size--;
-                        this.update(check_id,0,'status')
+                    this.updateCheck("STATUS", check_id, {
+                        status: check_status
+                    });
+
+                },
+                remove(item) {
+                    const index = this.friends.indexOf(item.name)
+                    if (index >= 0) this.friends.splice(index, 1)
+                },
+                getTemplate(id) {
+                    for (t of this.templates) {
+                        if (t.id == id) return t;
                     }
+                    return null;
                 },
-                remove (item) {
-                const index = this.friends.indexOf(item.name)
-                if (index >= 0) this.friends.splice(index, 1)
+                getTask: function (id) {
+                    for (j = 0; j < this.tasks.length; j++) {
+                        if (id == this.tasks[j].id) return this.tasks[j]
+                    }
+                    return null;
                 },
+                getEmployee: function (id) {
+                    for (j = 0; j < this.employees.length; j++) {
+                        if (id == this.employees[j].id) return this.employees[j];
+                    }
+                    return null;
+                },
+                getCheckByTask: function (id) {
+                    for (j = 0; j < this.checklist_selected.checks.length; j++) {
+                        if (id == this.checklist_selected.checks[j].task_id) return this.checklist_selected
+                            .checks[j]
+                    }
+                    return null;
+                },
+
             },
             mounted() {
                 this.list();
@@ -592,10 +706,18 @@
                 this.list_ChecklistTemplate();
                 this.list_sites();
                 this.list_admin();
+                this.list_tasks();
                 setTimeout(() => {
                     app.screen = 1
                 }, 1);
             }
         });
     </script>
+
+
+
+
+
+
+
     @endsection

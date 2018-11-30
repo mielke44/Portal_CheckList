@@ -25,9 +25,9 @@ class CommentController extends Controller
             $status = 'add';
             $type = 1;
         }else {
-            $comment = Comment::findOrFail($r['comment_id']); 
+            $comment = Comment::findOrFail($r['comment_id']);
             $status = 'edit';
-            $comment->comment = $r['form']['commentedit'];
+            $comment->comment = $r['comment'];
             $text = 'Alterou uma comentário na tarefa: '.$task->name;
             $name = Auth::user()->name;
             $type = 1;
@@ -44,7 +44,7 @@ class CommentController extends Controller
         }
         $comment->check_id = $r['check_id'];
         $comment->writer_name = Auth::user()->name;
-        $comment->comment = $r['form']['comment'];
+        $comment->comment = $r['comment'];
 
         if($comment->save()){
             event(new CheckUpdateEvent($Check, $text,$name, $type));
@@ -58,7 +58,7 @@ class CommentController extends Controller
         }
     }
     public function list(Request $r){
-            return json_encode(array('comment' => Comment::where('check_id',$r['check_id'])->get()));
+            return json_encode(Comment::where('check_id',$r["check_id"])->get());
     }
     public function destroy(Request $request)
     {
