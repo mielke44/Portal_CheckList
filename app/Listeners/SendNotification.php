@@ -30,7 +30,7 @@ class SendNotification
      */
     public function CheckUpdate(CheckUpdateEvent $event)
     {           
-        for($i = 0; $i<3;$i++){
+        for($i = 0; $i<count($event->getReceiver());$i++){
             $flag = new Flag();
             $flag->type = 'notification';
             $flag->receiver = $event->getReceiver()[$i];
@@ -63,7 +63,7 @@ class SendNotification
      */
     public function ChecklistUpdate(ChecklistUpdateEvent $event)
     {
-        for($i = 0; $i<2;$i++){
+        for($i = 0; $i<count($event->getReceiver());$i++){
             $flag = new Flag();
             $flag->type = 'notification';
             $flag->receiver = $event->getReceiver()[$i];

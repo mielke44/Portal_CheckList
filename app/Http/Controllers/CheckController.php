@@ -28,48 +28,73 @@ class CheckController extends Controller
             $task = Task::find($Check->task_id);
             $text = '';
             $name = '';
+            $checklist=Checklist::findOrFail($Check->checklist_id);
+
+
+            if($Check['resp']==$checklist->employee_id){
+                $receiver = array ('0'=> $checklist->gestor,
+                    '1'=> $checklist->employee_id);
+            }else{
+                $receiver = array ('0'=> $checklist->gestor,
+                    '1'=> $checklist->employee_id,
+                    '2'=> $Check['resp']);
+            }
+
             if($request['status']!=''){
-                    if($request['status']) $Check->status=1;
-                    else if(!$request['status'])$Check->status=0;
-                    $text = 'Alterou o estado da tarefa: '.$task->name;
-                    $name = Auth::user()->name;
-                    $type = 0;
 
+                ChecklistController::completeChecklist($checklist->id);
 
+                if($request['status']) $Check->status=1;
+                else if(!$request['status'])$Check->status=0;
 
-                    if ($Check->save()) {
-                        event(new CheckUpdateEvent($Check, $text, $receiver,$name, $type));
-                        return json_encode(array('error' => false,
-                            'message' => $Check->id."__status:".$Check->status));
-                    } else {
-                        return json_encode(array('error' => true,
-                            'message' => 'Ocorreu um erro, tente novamente!'));
-                    }
+                $text = 'Alterou o estado da tarefa: '.$task->name;
+                $name = Auth::user()->name;
+                $type = 0;
+
+                if ($Check->save()) {
+                    event(new CheckUpdateEvent($Check, $text, $name,$type,$receiver));
+                    return json_encode(array('error' => false,
+                        'message' => $Check->id."__status:".$Check->status));
+                } else {
+                    return json_encode(array('error' => true,
+                        'message' => 'Ocorreu um erro, tente novamente!'));
+                }
 
             }else if($request['resp']!=''){
 
-                    $Check->resp = $request['form']['resp']['id'];
-                    $text = 'foi selecionado como responsável da tarefa: '.$task->name;
-                    $name = $request['form']['resp']['name'];
-                    $type = 2;
-                    
-                    if ($Check->save()) {
+                $Check->resp = $request['form']['resp']['id'];
+                $text = 'foi selecionado como responsável da tarefa: '.$task->name;
+                $name = $request['form']['resp']['name'];
+                $type = 2;
 
-                        event(new CheckUpdateEvent($Check, $text, $receiver,$name,$type));
-                        return json_encode(array('error' => false,
-                            'message' => $Check->id."__status:".$Check->status));
+                if($Check['resp']==$checklist->employee_id){
+                    $receiver = array ('0'=> $checklist->gestor,
+                        '1'=> $checklist->employee_id);
+                }else{
+                    $receiver = array ('0'=> $checklist->gestor,
+                        '1'=> $checklist->employee_id,
+                        '2'=> $request['resp']);
+                }
 
-                    } else {
+                if ($Check->save()) {
 
-                        return json_encode(array('error' => true,
-                            'message' => 'Ocorreu um erro, tente novamente!'));
-                    }
+                    event(new CheckUpdateEvent($Check, $text,$name,$type, $receiver));
+
+                    return json_encode(array('error' => false,
+                        'message' => $Check->id."__status:".$Check->status));
+
+                } else {
+
+                    return json_encode(array('error' => true,
+                        'message' => 'Ocorreu um erro, tente novamente!'));
+                }
             }
 
 
 
         }else{
-            return;
+            return(json_encode(array('error'=> true,
+                                    'message'=>'Ocorreu um erro, tente novamente!')));
         }
     }
 
