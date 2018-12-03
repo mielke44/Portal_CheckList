@@ -43,7 +43,7 @@
                                     <v-tabs v-model="model_tab_checklist" slider-color="black">
                                         <template>
                                             <v-tab v-for="c in checklists[em.id]">@{{getTemplate(c.checklist_template_id).name}}
-                                                <v-icon @click='destroy_checklist(c.id)' class='body-1'>clear</v-icon>
+                                                 <v-icon @click='destroy_checklist(c.id)' class='ml-2 body-1'>clear</v-icon>
                                             </v-tab>
                                             <v-tab-item v-for="c in checklists[em.id]">
                                                 <v-container grid-list-xs>
@@ -591,19 +591,20 @@
                 destroy: function (id) {
                     app.confirm("Deletar esse empregado?",
                         "Todas as informações desse empregado serão deletadas.", "yellow darken-3", () => {
-                    $.ajax({
-                        url: "{{route('emp.remove')}}",
-                        method: "DELETE",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: {
-                            id: id
-                        },
-                        success: (response) => {
-                            this.list();
-                            app.notify("Empregado removido", "error");
-                        }
-                    });});
+                            $.ajax({
+                                url: "{{route('emp.remove')}}",
+                                method: "DELETE",
+                                dataType: "json",
+                                headers: app.headers,
+                                data: {
+                                    id: id
+                                },
+                                success: (response) => {
+                                    this.list();
+                                    app.notify("Empregado removido", "error");
+                                }
+                            });
+                        });
                 },
                 destroy_comment: function (id) {
                     app.confirm("Deletar esse comentário?",

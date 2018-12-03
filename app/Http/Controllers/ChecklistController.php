@@ -109,7 +109,6 @@ class ChecklistController extends Controller
         }
     }
 
-    public function completeCheckList($id){
     public static function completeCheckList($id){
         $checklist = Checklist::findOrFail($id);
         $checks = Check::where('checklist_id',$checklist->id)->get();
