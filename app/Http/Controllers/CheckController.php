@@ -38,7 +38,7 @@ class CheckController extends Controller
 
 
                     if ($Check->save()) {
-                        event(new CheckUpdateEvent($Check, $text, $name, $type, $receiver));
+                        event(new CheckUpdateEvent($Check, $text, $receiver,$name, $type));
                         return json_encode(array('error' => false,
                             'message' => $Check->id."__status:".$Check->status));
                     } else {
@@ -53,7 +53,7 @@ class CheckController extends Controller
                     $name = $request['form']['resp']['name'];
                     $type = 2;
                     if ($Check->save()) {
-                        event(new CheckUpdateEvent($Check, $text, $name, $type, $receiver));
+                        event(new CheckUpdateEvent($Check, $text, $receiver,$name,$type));
                         return json_encode(array('error' => false,
                             'message' => $Check->id."__status:".$Check->status));
                     } else {

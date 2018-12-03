@@ -11,15 +11,16 @@ use App\Event;
 use App\Task;
 use App\Check;
 use App\Events\CheckUpdateEvent;
+use App\Checklist;
 
 class CommentController extends Controller
 {
     public function store(Request $r){
         $Check = Check::findOrFail($r['check_id']);
         $task = Task::find($Check->task_id);
-        $receiver = array ( 'gestor'=> Checklist::where('id',$Check->checklist_id)->select('gestor')->get(),
-        'employee'=> Checklist::where('id',$Check->checklist_id)->select('employee_id')->get(),
-        'resp'=> $request['resp']);
+        $receiver = array ('0'=> Checklist::findOrFail($Check->checklist_id)->gestor,
+        '1'=> Checklist::findOrFail($Check->checklist_id)->employee_id,
+        '2'=> $Check['resp']);
 
         if($r['comment_id']==''){
             $comment = new Comment();
@@ -35,7 +36,7 @@ class CommentController extends Controller
             $name = Auth::user()->name;
             $type = 1;
             if($comment->save()){
-                event(new CheckUpdateEvent($Check, $text,$name, $type, $receiver));
+                event(new CheckUpdateEvent($Check, $text,$name, $type,$receiver));
                 return json_encode(array(
                                         'st' => $status,
                                         'error' => false,
@@ -50,7 +51,7 @@ class CommentController extends Controller
         $comment->comment = $r['comment'];
 
         if($comment->save()){
-            event(new CheckUpdateEvent($Check, $text,$name, $type));
+            event(new CheckUpdateEvent($Check, $text,$name, $type,$receiver));
             return json_encode(array(
                                     'st' => $status,
                                     'error' => false,
@@ -60,9 +61,13 @@ class CommentController extends Controller
                                     'message' => 'Ocorreu um erro, tente novamente ->',$comment->id));
         }
     }
+
+
     public function list(Request $r){
             return json_encode(Comment::where('check_id',$r["check_id"])->get());
     }
+
+
     public function destroy(Request $request)
     {
         $comment = Comment::findOrFail($request["id"]);

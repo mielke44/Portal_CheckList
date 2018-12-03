@@ -106,6 +106,7 @@ class ChecklistController extends Controller
                                     'message'=> 'lista de tarefas concluída!'));
         }
     }
+    
     public function completeCheckList($id){
         $checklist = Checklist::findOrFail($id);
         $checks = Check::where('checklist_id',$checklist->id)->get();

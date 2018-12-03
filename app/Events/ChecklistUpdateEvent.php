@@ -29,6 +29,9 @@ class ChecklistUpdateEvent
         $this->name = $name;
     } 
 
+    public function getType(){
+        return $this->type;
+    }
     public function getChecklist(){
         return $this->checklist;
     }

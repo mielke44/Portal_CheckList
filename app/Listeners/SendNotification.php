@@ -29,7 +29,7 @@ class SendNotification
      * @return void
      */
     public function CheckUpdate(CheckUpdateEvent $event)
-    {
+    {           
         for($i = 0; $i<3;$i++){
             $flag = new Flag();
             $flag->type = 'notification';
