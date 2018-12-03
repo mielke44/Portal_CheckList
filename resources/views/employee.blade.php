@@ -37,9 +37,14 @@
                         <v-layout row wrap>
                             <v-layout row wrap>
                                 <v-flex xs12 v-if="checklists.hasOwnProperty(em.id)">
+                                    <template v-if='checklists[em.id].length==0'>
+                                        Nenhuma lista de tarefas foi adicionado para esse empregado.
+                                    </template>
                                     <v-tabs v-model="model_tab_checklist" slider-color="black">
                                         <template>
-                                            <v-tab v-for="c in checklists[em.id]">@{{getTemplate(c.checklist_template_id).name}}</v-tab>
+                                            <v-tab v-for="c in checklists[em.id]">@{{getTemplate(c.checklist_template_id).name}}
+                                                <v-icon @click='destroy_checklist(c.id)' class='body-1'>clear</v-icon>
+                                            </v-tab>
                                             <v-tab-item v-for="c in checklists[em.id]">
                                                 <v-container grid-list-xs>
                                                     <v-layout row wrap>
@@ -126,33 +131,10 @@
 
                                             </v-tab-item>
                                         </template>
-
-                                        <v-tab-item v-for="c in checklists[em.id]">
-
-                                            <v-list>
-                                                <v-subheader xs1 height="10">Tarefas</v-subheader>
-
-                                                <template v-for='ch in c.checks'>
-                                                    <v-divider></v-divider>
-                                                    <v-list-tile>
-                                                        <v-list-tile-action>
-
-                                                        </v-list-tile-action>
-                                                        <v-list-tile-content>
-                                                            <v-list-tile-title class="font-weight-bold">@{{ch.name}}</v-list-tile-title>
-                                                            <v-list-tile-subtitle xs6 class='caption'>@{{ch.description}}</v-list-tile-subtitle>
-                                                        </v-list-tile-content>
-                                                        <v-list-tile-content-action>
-                                                            <v-btn small fab color="blue" @click="form.id = ch.id;popup3(ch.id)"
-                                                                dark>
-                                                                <v-icon>edit</v-icon>
-                                                            </v-btn>
-                                                        </v-list-tile-content-action>
-                                                    </v-list-tile>
-                                                </template>
-                                            </v-list>
-                                        </v-tab-item>
                                     </v-tabs>
+                                </v-flex>
+                                <v-flex xs12 v-else>
+                                    Caregando...
                                 </v-flex>
                             </v-layout>
                             <v-flex xs12 class='text-xs-right'>
@@ -330,7 +312,7 @@
                     templates: [],
                     sites: [],
                     form_view: false,
-                    model_tab_checklist: 1,
+                    model_tab_checklist: 0,
                     resp: {},
                     comments: [],
                     form_texts: {
@@ -460,6 +442,7 @@
                         },
                         success: (response) => {
                             this.list_checklist(id);
+                            this.list();
                         }
                     });
                 },
@@ -606,6 +589,8 @@
                     this.list_comment(id);
                 },
                 destroy: function (id) {
+                    app.confirm("Deletar esse empregado?",
+                        "Todas as informações desse empregado serão deletadas.", "yellow darken-3", () => {
                     $.ajax({
                         url: "{{route('emp.remove')}}",
                         method: "DELETE",
@@ -618,22 +603,47 @@
                             this.list();
                             app.notify("Empregado removido", "error");
                         }
-                    });
+                    });});
                 },
                 destroy_comment: function (id) {
-                    $.ajax({
-                        url: "{{route('comment.remove')}}",
-                        method: "DELETE",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: {
-                            id: id
-                        },
-                        success: (response) => {
-                            this.list_comment(this.check_tree_selected.id);
-                            app.notify("Comentário removido", "error");
-                        }
-                    });
+                    app.confirm("Deletar esse comentário?",
+                        "Após deletado esse cometário não poderá ser recuperado.", "yellow darken-3", () => {
+                            $.ajax({
+                                url: "{{route('comment.remove')}}",
+                                method: "DELETE",
+                                dataType: "json",
+                                headers: app.headers,
+                                data: {
+                                    id: id
+                                },
+                                success: (response) => {
+                                    this.list_comment(this.check_tree_selected.id);
+                                    app.notify("Comentário removido", "error");
+                                }
+                            });
+                        });
+
+
+                },
+                destroy_checklist: function (id) {
+                    app.confirm("Remover lista de tarefa?",
+                        "Todas as informações dessa lista serão deletadas.", "yellow darken-3", () => {
+                            $.ajax({
+                                url: "{{route('checklist.employee.remove')}}",
+                                method: "DELETE",
+                                dataType: "json",
+                                headers: app.headers,
+                                data: {
+                                    checklist_id: id
+                                },
+                                success: (response) => {
+                                    this.list_checklist(this.employee_selected.id);
+                                    this.list();
+                                    app.notify("Lista de tarefas removida", "error");
+                                }
+                            });
+                        })
+
                 },
                 updateCheck: function (change_type, check_id, data) {
                     form_data = {

@@ -26,6 +26,7 @@ Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 Route::get('employee/checklist', "ChecklistController@index")->name('checklist.employee');
 Route::get('employee/checklist/complete/{id}', "ChecklistController@completeCheckList")->name('checklist.complete');
 Route::post('employee/checklist/store', "ChecklistController@store")->name('checklist_store');
+Route::delete('employee/checklist/destroy', "ChecklistController@destroy")->name('checklist.employee.remove');
 
 //Check
 Route::post('employee/checkedit', "CheckController@store")->name('check.edit');

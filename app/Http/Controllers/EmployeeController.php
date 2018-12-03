@@ -79,9 +79,11 @@ class EmployeeController extends Controller
         $list = Employee::where("site",$site)->get();
         foreach($list as $emp){
             $a = Checklist::where("employee_id",$emp->id)->get();
+            $emp['check_true_size']=0;
+            $emp["check_size"]=0;
             foreach($a as $b){
-                $emp['check_true_size'] = Check::where("checklist_id",$b->id)->where("status",1)->count();
-                $emp["check_size"] = Check::where("checklist_id",$b->id)->count();;
+                $emp['check_true_size'] += Check::where("checklist_id",$b->id)->where("status",1)->count();
+                $emp["check_size"] += Check::where("checklist_id",$b->id)->count();;
             }
             $emp->profile=Profile::find($emp->profile_id)->name;
         }

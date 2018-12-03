@@ -107,7 +107,7 @@ class ChecklistController extends Controller
                                     'message'=> 'lista de tarefas concluída!'));
         }
     }
-    
+
     public function completeCheckList($id){
         $checklist = Checklist::findOrFail($id);
         $checks = Check::where('checklist_id',$checklist->id)->get();
@@ -134,7 +134,7 @@ class ChecklistController extends Controller
 
     public function destroy(Request $r){
         $checklist = Checklist::findOrFail($r->checklist_id);
-        $Checks = Checks::where('checklist_id',$checklist->id)->get();
+        $Checks = Check::where('checklist_id',$checklist->id)->get();
         if($checklist->delete()){
             foreach($Checks as $c){
                 $c->delete();

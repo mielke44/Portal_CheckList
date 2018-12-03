@@ -55,7 +55,8 @@
         @yield('l-title')
     </v-toolbar-title>
     <template v-if="search.model">
-        <v-text-field v-model='search.value' append-icon="search" label="Procurar" full-width solo slot='extension' @click:append='searching'></v-text-field>
+        <v-text-field v-model='search.value' append-icon="search" label="Procurar" full-width solo slot='extension'
+            @click:append='searching'></v-text-field>
     </template>
     <v-spacer></v-spacer>
     <v-toolbar-items class="hidden-sm-and-down">
@@ -75,7 +76,7 @@
                 <template v-for='n in notifyLimit'>
                     <v-list-tile @click="get_check(n.id,n.type)">
                         <v-list-tile-avatar>
-                            <v-icon color="primary"  v-if='n.type==0'>check_box</v-icon>
+                            <v-icon color="primary" v-if='n.type==0'>check_box</v-icon>
                             <v-icon color="primary" v-if='n.type==1'>add_comment</v-icon>
                             <v-icon color="primary" v-if='n.type==2'>assignment_ind</v-icon>
                             <v-icon color="primary" v-if='n.type==3'>playlist_add_check</v-icon>
@@ -92,8 +93,10 @@
                     <v-divider></v-divider>
                 </template>
                 <v-list-tile class="pa-0">
-                        <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=notifications.length'>Mostrar todas as notificações</v-btn>
-                        <v-btn class="pa-0 ma-0" color="white" v-if="tam!=3" depressed block @click='tam=3'>Mostrar 3 notificações</v-btn>
+                    <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=notifications.length'>Mostrar
+                        todas as notificações</v-btn>
+                    <v-btn class="pa-0 ma-0" color="white" v-if="tam!=3" depressed block @click='tam=3'>Mostrar 3
+                        notificações</v-btn>
                 </v-list-tile>
             </v-list>
         </v-menu>
@@ -119,9 +122,9 @@
 <v-content>
     <page inline-template>
         <div style="height:100%">@yield('l-content')</div>
-    <page inline-template screen="screen">
-        <div>@yield('l-content')</div>
-    </page>
+        <page inline-template screen="screen">
+            <div>@yield('l-content')</div>
+        </page>
 </v-content>
 
 <!-- COPONENTES -->
@@ -131,6 +134,23 @@
         <v-icon>clear</v-icon>
     </v-btn>
 </v-snackbar>
+
+<v-dialog v-model="dialog_confirm.model" persistent max-width="500px" transition="dialog-transition">
+    <v-card :color='dialog_confirm.color' dark>
+            <v-card-text class='text-xs-center display-1'>
+                    @{{dialog_confirm.title}}
+            </v-card-text>
+        <v-divider></v-divider>
+        <v-card-text class='text-xs-center'>
+                @{{dialog_confirm.text}}
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-text class='text-xs-center'>
+            <v-btn color="white" class='red--text' @click='dialog_confirm.model=false' fab small><v-icon large>close</v-icon></v-btn>
+            <v-btn color="white" class='green--text' dar @click='dialog_confirm.action();dialog_confirm.model=false' fab small><v-icon large>check</v-icon></v-btn>
+        </v-card-tex>
+    </v-card>
+</v-dialog>
 
 @endsection
 
@@ -146,20 +166,20 @@
         },
         data() {
             return {
-                is_admin:'',
-                tam:3,
+                is_admin: '',
+                tam: 3,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 screen: "0",
                 app_name: "Portal Checklist",
-                notifications:[],
+                notifications: [],
                 name: " ",
                 drawer: true,
                 mini: false,
-                search:{
+                search: {
                     value: "",
-                    model:false
+                    model: false
                 },
                 menu: [{
                         icon: "dashboard",
@@ -204,12 +224,10 @@
                         }
                     }
                 ],
-                more: [
-                    {
+                more: [{
                         icon: "account_box",
                         text: "Seu Perfil",
-                        link: function(){
-                        }
+                        link: function () {}
                     },
                     {
                         icon: "exit_to_app",
@@ -223,6 +241,13 @@
                     text: "",
                     model: false,
                     color: "",
+                },
+                dialog_confirm: {
+                    model: false,
+                    color: 'white',
+                    title: '',
+                    text: '',
+                    action: ()=>{},
                 }
             }
         },
@@ -230,11 +255,11 @@
             letter: function () {
                 return this.name[0];
             },
-            notifyLimit: function(){
+            notifyLimit: function () {
                 var array = []
-                for(i =0 ; i<this.tam; i++){
-                    if(this.notifications.length>=i+1)
-                    array.push(this.notifications[i])
+                for (i = 0; i < this.tam; i++) {
+                    if (this.notifications.length >= i + 1)
+                        array.push(this.notifications[i])
                     else break;
                 }
                 return array;
@@ -246,6 +271,13 @@
                 this.snackbar_notify.model = true;
                 if (this.snackbar_notify.color == null) this.snackbar_notify.color = "black";
                 this.snackbar_notify.color = color;
+            },
+            confirm: function (title, text, color, action) {
+                this.dialog_confirm.model = true;
+                this.dialog_confirm.title = title;
+                this.dialog_confirm.text = text;
+                this.dialog_confirm.color = color;
+                this.dialog_confirm.action = action;
             },
             getName: function () {
                 $.ajax({
@@ -263,10 +295,10 @@
                     this.is_admin = response;
                 });
             },
-            searching: function(){
+            searching: function () {
                 alert(this.search.value);
             },
-            list_notifications: function(){
+            list_notifications: function () {
                 $.ajax({
                     url: "{{route('getnoti')}}",
                     method: 'GET',
@@ -275,48 +307,54 @@
                     this.notifications = response;
                 });
             },
-            get_check: function(id,type){
-                if(type=3){
+            get_check: function (id, type) {
+                if (type = 3) {
                     $.ajax({
-                    url: "{{route('checklist.list')}}",
-                    method: 'GET',
-                    dataType: "json",
-                    data: {not_id: id},
-                }).done(response => {
-                    this.list_notifications();
-                    window.location = '/employee';
-                });
-                }else{
-                $.ajax({
-                    url: "{{route('check.list')}}",
-                    method: 'GET',
-                    dataType: "json",
-                    data: {not_id: id},
-                }).done(response => {
-                    this.list_notifications();
-                    window.location = '/employee';
-                });
-            }
+                        url: "{{route('checklist.list')}}",
+                        method: 'GET',
+                        dataType: "json",
+                        data: {
+                            not_id: id
+                        },
+                    }).done(response => {
+                        this.list_notifications();
+                        window.location = '/employee';
+                    });
+                } else {
+                    $.ajax({
+                        url: "{{route('check.list')}}",
+                        method: 'GET',
+                        dataType: "json",
+                        data: {
+                            not_id: id
+                        },
+                    }).done(response => {
+                        this.list_notifications();
+                        window.location = '/employee';
+                    });
+                }
             },
-            update: function(){
+            update: function () {
                 $.ajax({
                     url: "{{route('getflagnoti')}}",
                     method: 'GET',
                     dataType: "json",
                 }).done(response => {
-                    if(JSON.stringify(response) == "true"){this.list_notifications()};
-                    
+                    if (JSON.stringify(response) == "true") {
+                        this.list_notifications()
+                    };
+
                 });
             }
         },
         mounted() {
             this.list_notifications();
-            this.more[0].link = ()=>{
-                location.href="{{route('admin.profile')}}";
+            this.more[0].link = () => {
+                location.href = "{{route('admin.profile')}}";
             };
             this.getName();
             this.getPerm();
-            setInterval(()=>this.update(),15000);
+            setInterval(() => this.update(), 15000);
         }
     });
 </script>
