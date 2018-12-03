@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\LinkerChecklist;
 use App\TaskRequiere;
 use App\Check;
+use App\Events\ChecklistUpdateEvent;
 use Auth;
 use App\ChecklistTemplate;
 use App\Task;
@@ -109,6 +110,7 @@ class ChecklistController extends Controller
     }
 
     public function completeCheckList($id){
+    public static function completeCheckList($id){
         $checklist = Checklist::findOrFail($id);
         $checks = Check::where('checklist_id',$checklist->id)->get();
 
