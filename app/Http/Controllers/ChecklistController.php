@@ -11,11 +11,7 @@ use App\Check;
 use Auth;
 use App\ChecklistTemplate;
 use App\Task;
-<<<<<<< HEAD
 use App\Http\Controllers\TaskController;
-=======
-use App\Events\ChecklistUpdateEvent;
->>>>>>> Dev-stage-2
 
 class ChecklistController extends Controller
 {
@@ -74,7 +70,6 @@ class ChecklistController extends Controller
         }
     }
 
-<<<<<<< HEAD
     public function tree($id){
         $checks = Check::where("checklist_id",$id)->get();
 
@@ -103,9 +98,6 @@ class ChecklistController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function edit(Checklist $checklist)
-=======
-    public function destroy($id)
->>>>>>> Dev-stage-2
     {
         $Check = Checklist::find($id);
         if(Checklist::find($id)->delete()){

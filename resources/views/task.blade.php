@@ -31,11 +31,9 @@
                     </div>
                     <v-container grid-list-xs>
                         <v-layout row wrap>
-                            <v-flex xs3 class='font-weight-bold'>
                             <v-flex xs6 class='font-weight-bold'>
                                 Descrição:
                             </v-flex>
-                            <v-flex xs9>
                             <v-flex xs6>
                                 @{{t.description}}
                             </v-flex>
@@ -98,13 +96,6 @@
                                 required counter='300'></v-textarea>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
-<<<<<<< HEAD
-=======
-                            <v-autocomplete
-                                v-model="form.resp" :items="resp" color="black" item-text="name" item-value="id" 
-                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected return-object
-                            ></v-autocomplete>
->>>>>>> Dev-stage-2
                             <div class='headline mb-2 mt-2'>Dependências</div>
                             <v-layout row wrap>
                                 <v-flex xs6>
@@ -173,7 +164,7 @@
                     name: '',
                     description: '',
                     type: '',
-                    dependences2: []
+                    dependences2: [],
                     resp: '',
                     dependences2: [],
 
@@ -263,7 +254,7 @@
                         this.resp.push(response['admin_list'][i]);
                     }
                     this.resp.push(response['default']);
-                    alert(JSON.stringify(this.resp));
+                    //alert(JSON.stringify(this.resp));
                 })
             },
             edit: function (task_id) {

@@ -28,18 +28,7 @@ class CheckController extends Controller
             $task = Task::find($Check->task_id);
             $text = '';
             $name = '';
-<<<<<<< HEAD
             if($request['status']!=''){
-=======
-
-            $receiver = array ( 0=> Checklist::find($Check->checklist_id)->gestor,
-                                1=> Checklist::find($Check->checklist_id)->employee_id,
-                                2=> $request['form']['resp']['id']);
-                                //0 = gestor, 1 = employee, 2 = resp;
-
-            if($request['change_type']=='status'){
-
->>>>>>> Dev-stage-2
                     if($request['status']) $Check->status=1;
                     else if(!$request['status'])$Check->status=0;
                     $text = 'Alterou o estado da tarefa: '.$task->name;
