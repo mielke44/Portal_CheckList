@@ -31,7 +31,6 @@ class SendEmail
      */
     public function handleCheck(CheckUpdateEvent $event)
     {
-        return print_r(':D');
         /*
         $objDemo = new \stdClass();
         $objDemo->text= $event->getText();
@@ -46,7 +45,6 @@ class SendEmail
     }
     public function handleChecklist(ChecklistUpdateEvent $event)
     {
-        return print_r(':D');
         /*
         $objDemo = new \stdClass();
         $objDemo->text= $event->getText();

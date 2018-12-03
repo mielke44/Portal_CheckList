@@ -52,11 +52,15 @@ class CheckController extends Controller
                     $text = 'foi selecionado como responsável da tarefa: '.$task->name;
                     $name = $request['form']['resp']['name'];
                     $type = 2;
+                    
                     if ($Check->save()) {
+
                         event(new CheckUpdateEvent($Check, $text, $receiver,$name,$type));
                         return json_encode(array('error' => false,
                             'message' => $Check->id."__status:".$Check->status));
+
                     } else {
+
                         return json_encode(array('error' => true,
                             'message' => 'Ocorreu um erro, tente novamente!'));
                     }
@@ -65,12 +69,7 @@ class CheckController extends Controller
 
 
         }else{
-
-        $Check = Check::where("checklist_id",$request['id'],"task_id",$request['id'])->get();
-            $Check->resp = $request["resp"];
-            $Check->status = false;
-            $Check->save();
-
+            return;
         }
     }
 

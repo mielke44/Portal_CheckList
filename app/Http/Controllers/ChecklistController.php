@@ -42,7 +42,8 @@ class ChecklistController extends Controller
         $user_id = Auth::user();
         foreach($CLT as $ct){
             $check = new Check();
-            $check->resp = $checklist->employee_id;
+            $check->resp = Task::findOrFail($ct->task_id)->resp;
+            if(Task::findOrFail($ct->task_id)->resp==0)$check->resp = $request['employee_id'];
             $check->status = false;
             $check->task_id = $ct->task_id;
             $check->checklist_id = $checklist->id;
@@ -129,6 +130,20 @@ class ChecklistController extends Controller
             return 'true';
         }
         //dd(Check::where('checklist_id',Checklist::findOrFail($id)->id)->get()[0]['status']);
+    }
 
+    public function destroy(Request $r){
+        $checklist = Checklist::findOrFail($r->checklist_id);
+        $Checks = Checks::where('checklist_id',$checklist->id)->get();
+        if($checklist->delete()){
+            foreach($Checks as $c){
+                $c->delete();
+            }
+            return(json_encode(array('error'=> false,
+                                    'message'=>$checklist->id)));
+        }else{
+            return(json_encode(array('error'=> true,
+                                    'message'=>$checklist->id)));
+        }
     }
 }
