@@ -18,9 +18,16 @@ class CommentController extends Controller
     public function store(Request $r){
         $Check = Check::findOrFail($r['check_id']);
         $task = Task::find($Check->task_id);
-        $receiver = array ('0'=> Checklist::findOrFail($Check->checklist_id)->gestor,
-        '1'=> Checklist::findOrFail($Check->checklist_id)->employee_id,
-        '2'=> $Check['resp']);
+        if($Check['resp']==0){
+            $receiver = array ('0'=> Checklist::findOrFail($Check->checklist_id)->gestor,
+            '1'=> Checklist::findOrFail($Check->checklist_id)->employee_id);
+        }
+        else{
+            $receiver = array ('0'=> Checklist::findOrFail($Check->checklist_id)->gestor,
+            '1'=> Checklist::findOrFail($Check->checklist_id)->employee_id,
+            '2'=> $Check['resp']);
+        }
+
 
         if($r['comment_id']==''){
             $comment = new Comment();

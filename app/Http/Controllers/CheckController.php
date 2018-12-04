@@ -13,7 +13,6 @@ use App\Employee;
 use App\Notification;
 use App\Checklist;
 use App\User;
-use App\Employee;
 class CheckController extends Controller
 {
 
@@ -130,14 +129,18 @@ class CheckController extends Controller
     public function listYourChecks(){
         if(Auth::user()->is_admin==-1){
             $emp = Employee::where('token',Auth::user()->token)->first();
-            $checklists = Checklist::where("employee_id",$emp->id)->get();
+            $checklists= Checklist::where("employee_id",$emp->id)->get();
             $checks = array();
             foreach($checklists as $cl){
-                array_push($checks,Check::where("checklist_id",$cl->id)->where("resp",0));
+                $checks = array_merge($checks,Check::where("checklist_id",$cl->id)->where("resp",0)->get()->all());
             }
+            $editable = true;
         }
-        else $checks = Check::where("resp",Auth::user()->id)->get();
-        return json_encode($checks);
+        else {
+            $checks = Check::where("resp",Auth::user()->id)->get();
+            $editable = false;
+        }
+        return json_encode(array('checks'=>$checks,'editable'=>$editable));
     }
     public function YourChecklist(){
         return view("checklist-external");
