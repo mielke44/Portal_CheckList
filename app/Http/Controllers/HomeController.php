@@ -58,6 +58,15 @@ class HomeController extends Controller
         return json_encode($notifications);
     }
 
+    public function updateNotification(Request $r){
+        $notification = Notification::findOrFail($r['id']);
+        $notification->status = 'seen';
+        if($notification->save()){
+            return json_encode(array('error'=> false,'message'=> 'Updated!'));
+        }else{
+            return json_encode(array('error'=> true,'message'=> 'Not updated!'));
+        }
+    }
     
     public function getFlagNot(){
         $coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();

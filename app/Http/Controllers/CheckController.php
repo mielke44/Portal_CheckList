@@ -12,6 +12,7 @@ use App\Admin;
 use App\Notification;
 use App\Checklist;
 use App\User;
+use App\Employee;
 class CheckController extends Controller
 {
 
@@ -33,7 +34,7 @@ class CheckController extends Controller
             $checklist=Checklist::findOrFail($Check->checklist_id);
 
 
-            if($Check['resp']==$checklist->employee_id){
+            if($Check['resp']==0){
                 $receiver = array ('0'=> $checklist->gestor,
                     '1'=> $checklist->employee_id);
             }else{
@@ -52,7 +53,6 @@ class CheckController extends Controller
                 $text = 'Alterou o estado da tarefa: '.$task->name;
                 $name = Auth::user()->name;
                 $type = 0;
-
                 if ($Check->save()) {
                     event(new CheckUpdateEvent($Check, $text, $name,$type,$receiver));
                     return json_encode(array('error' => false,
@@ -64,26 +64,28 @@ class CheckController extends Controller
 
             }else if($request['resp']!=''){
 
-                $Check->resp = $request['resp'];
-                $admin = Admin::find($request['resp']);
-                $text = 'foi selecionado como responsável da tarefa: '.$admin->name;
-                $type = 2;
+                $Check['resp'] = $request['resp'];
+                if($Check['resp']!=0){
+                    $resp = Admin::find($request['resp']);
+                    $receiver = array ('0'=> $checklist->gestor,
+                    '1'=> $checklist->employee_id,
+                    '2'=> $request['resp']);
 
-                if($Check['resp']==$checklist->employee_id){
+                }else{
+                    $resp = Employee::findOrFail($checklist->employee_id);
                     $receiver = array ('0'=> $checklist->gestor,
                         '1'=> $checklist->employee_id);
-                }else{
-                    $receiver = array ('0'=> $checklist->gestor,
-                        '1'=> $checklist->employee_id,
-                        '2'=> $request['resp']);
                 }
+
+                $text = 'foi selecionado como responsável da tarefa: '.$task->name;
+                $type = 2;
 
                 if ($Check->save()) {
 
-                    event(new CheckUpdateEvent($Check, $text,$admin->name,$type, $receiver));
+                    event(new CheckUpdateEvent($Check, $text,$resp->name,$type, $receiver));
 
                     return json_encode(array('error' => false,
-                        'message' => $Check->id."__status:".$Check->status));
+                        'message' => $Check->id."//status:".$Check->status));
 
                 } else {
 

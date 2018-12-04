@@ -36,7 +36,6 @@ class SendEmail
         
         $gestor=Admin::findOrFail($event->getReceiver()[0]);
         $employee = Employee::findOrFail($event->getReceiver()[1]);
-
         if(count($event->getReceiver())==3)$data = array(
                                                         0=>$gestor['name'],
                                                         1=>$gestor['email'],
@@ -52,9 +51,9 @@ class SendEmail
         $objDemo->sender = 'T-Systems Portal Checklist';
         for($i=0;$i<count($data);$i+=2){
         $objDemo->receiver=$data[$i];
-        Mail::to($data[$i+1])->send(new Email($objDemo));
+        //Mail::to($data[$i+1])->send(new Email($objDemo));
         }
-        //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); TESTING
+        //Mail::subject('teste')->to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING
     }
 
     public function handleChecklist(ChecklistUpdateEvent $event)
@@ -70,9 +69,9 @@ class SendEmail
         
         for($i=0;$i<count($data);$i+=2){
             $objDemo->receiver=$data[$i];
-            Mail::to($data[$i+1])->send(new Email($objDemo));
+            //Mail::to($data[$i+1])->send(new Email($objDemo));
         }
 
-        Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo));
+        //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo));
     }
 }

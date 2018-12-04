@@ -74,7 +74,7 @@
             </v-btn>
             <v-list class="ma-0 pa-0">
                 <template v-for='n in notifyLimit'>
-                    <v-list-tile @click="get_check(n.id,n.type)">
+                    <v-list-tile @click="get_check(n.id)">
                         <v-list-tile-avatar>
                             <v-icon color="primary" v-if='n.type==0'>check_box</v-icon>
                             <v-icon color="primary" v-if='n.type==1'>add_comment</v-icon>
@@ -313,32 +313,19 @@
                     this.notifications = response;
                 });
             },
-            get_check: function (id, type) {
-                if (type = 3) {
-                    $.ajax({
-                        url: "{{route('checklist.list')}}",
-                        method: 'GET',
-                        dataType: "json",
-                        data: {
-                            not_id: id
-                        },
-                    }).done(response => {
-                        this.list_notifications();
-                        window.location = '/employee';
-                    });
-                } else {
-                    $.ajax({
-                        url: "{{route('check.list')}}",
-                        method: 'GET',
-                        dataType: "json",
-                        data: {
-                            not_id: id
-                        },
-                    }).done(response => {
-                        this.list_notifications();
-                        window.location = '/employee';
-                    });
-                }
+            get_check: function (id) {
+                $.ajax({
+                    url: "{{route('updnot')}}",
+                    method: 'POST',
+                    dataType: "json",
+                    headers: app.headers,
+                    data: {
+                    id: id
+                    },
+                }).done(response => {
+                    this.list_notifications();
+                    window.location = '/employee';
+                });
             },
             update: function () {
                 $.ajax({

@@ -466,6 +466,7 @@
                     }).done(response => {
                         this.resp = response['admin_list'];
                         this.resp = this.resp.concat(response['resp_list']);
+                        this.resp = this.resp.concat(response['default']);
                     });
                 },
                 list_profile: function () {
@@ -662,7 +663,7 @@
                             this.check_tree_selected.resp = this.form.resp;
                             break;
                         case "STATUS":
-                            form_data.status = data.status;
+                            form_data.status = data.status?1:0;
                             break;
                     }
                     $.ajax({
