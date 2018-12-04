@@ -11,16 +11,18 @@ use App\Events\CheckUpdateEvent;
 use App\Admin;
 use App\Notification;
 use App\Checklist;
-
+use App\User;
 class CheckController extends Controller
 {
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    public function __construct(Request $r){
+        if(isset($r->token)){
+            $user = User::where('token',$r->token)->first();
+            Auth::login($user);
+        }
+        $this->middleware('auth');
+    }
+
     public function store(Request $request)
     {
         if($request['check_id'] != "" ){
@@ -62,9 +64,9 @@ class CheckController extends Controller
 
             }else if($request['resp']!=''){
 
-                $Check->resp = $request['form']['resp']['id'];
-                $text = 'foi selecionado como responsável da tarefa: '.$task->name;
-                $name = $request['form']['resp']['name'];
+                $Check->resp = $request['resp'];
+                $admin = Admin::find($request['resp']);
+                $text = 'foi selecionado como responsável da tarefa: '.$admin->name;
                 $type = 2;
 
                 if($Check['resp']==$checklist->employee_id){
@@ -78,7 +80,7 @@ class CheckController extends Controller
 
                 if ($Check->save()) {
 
-                    event(new CheckUpdateEvent($Check, $text,$name,$type, $receiver));
+                    event(new CheckUpdateEvent($Check, $text,$admin->name,$type, $receiver));
 
                     return json_encode(array('error' => false,
                         'message' => $Check->id."__status:".$Check->status));
@@ -104,5 +106,13 @@ class CheckController extends Controller
         $notification->save();
         $check = Check::findOrFail($notification->check_id);
         return json_encode($check);
+    }
+
+    public function listYourChecks(){
+        $checks = Check::where("resp",Auth::user()->id)->get();
+        return json_encode($checks);
+    }
+    public function YourChecklist(){
+        return view("checklist-external");
     }
 }

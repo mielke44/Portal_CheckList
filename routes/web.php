@@ -22,11 +22,14 @@ Route::get('employee/edit', "EmployeeController@edit")->name('emp.edit');
 Route::delete('employee/destroy', "EmployeeController@destroy")->name('emp.remove');
 Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 
+
 //Checklist
 Route::get('employee/checklist', "ChecklistController@index")->name('checklist.employee');
 Route::get('employee/checklist/complete/{id}', "ChecklistController@completeCheckList")->name('checklist.complete');
 Route::post('employee/checklist/store', "ChecklistController@store")->name('checklist_store');
 Route::delete('employee/checklist/destroy', "ChecklistController@destroy")->name('checklist.employee.remove');
+Route::get('employee/yourchecklist', "CheckController@YourChecklist");
+Route::get('employee/listyourchecklist', "CheckController@listYourChecks")->name('emp.yourchecklist');
 
 //Check
 Route::post('employee/checkedit', "CheckController@store")->name('check.edit');

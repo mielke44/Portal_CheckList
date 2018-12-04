@@ -43,7 +43,7 @@
                                     <v-tabs v-model="model_tab_checklist" slider-color="black">
                                         <template>
                                             <v-tab v-for="c in checklists[em.id]">@{{getTemplate(c.checklist_template_id).name}}
-                                                 <v-icon @click='destroy_checklist(c.id)' class='ml-2 body-1'>clear</v-icon>
+                                                <v-icon @click='destroy_checklist(c.id)' class='ml-2 body-1'>clear</v-icon>
                                             </v-tab>
                                             <v-tab-item v-for="c in checklists[em.id]">
                                                 <v-container grid-list-xs>
@@ -68,7 +68,7 @@
                                                                     <v-flex xs12>
                                                                         <p class='body-2'>@{{task_tree_selected.description}}</p>
                                                                         <p class='caption mt-2'>Responsavel:
-                                                                            @{{getEmployee(check_tree_selected.resp).name}}
+                                                                            @{{resp.find(r=>r.id==check_tree_selected.resp).name}}
                                                                             <a class='ml-2' @click='dialog_responsavel=true;form.resp=parseInt(check_tree_selected.resp)'>
                                                                                 <v-icon class='body-1' color='primary'>edit</v-icon>
                                                                             </a>
@@ -95,15 +95,17 @@
                                                                                             v-html="c.comment" style="white-space: pre-line;">
                                                                                         </v-flex>
                                                                                         <v-flex xs12 class='caption grey--text'>@{{c.created_at}}
-                                                                                            -
-                                                                                            <a class='ml-2' @click='dialog_comment=true;form.comment=c.comment;form.comment_id=c.id'>
-                                                                                                <v-icon class='body-1'
-                                                                                                    color='primary'>edit</v-icon>
-                                                                                            </a>
-                                                                                            <a class='ml-2' @click='destroy_comment(c.id)'>
-                                                                                                <v-icon class='body-1'
-                                                                                                    color='primary'>delete</v-icon>
-                                                                                            </a>
+                                                                                            <template v-if='c.editable'>
+                                                                                                -
+                                                                                                <a class='ml-2' @click='dialog_comment=true;form.comment=c.comment;form.comment_id=c.id'>
+                                                                                                    <v-icon class='body-1'
+                                                                                                        color='primary'>edit</v-icon>
+                                                                                                </a>
+                                                                                                <a class='ml-2' @click='destroy_comment(c.id)'>
+                                                                                                    <v-icon class='body-1'
+                                                                                                        color='primary'>delete</v-icon>
+                                                                                                </a>
+                                                                                            </template>
                                                                                         </v-flex>
                                                                                     </v-layout>
                                                                                     <v-divider></v-divider>
@@ -215,13 +217,12 @@
                 <v-card>
                     <v-card-text>
                         <v-autocomplete v-model="form.resp" :items="resp" color="black" hide-no-data hide-selected
-                            item-text="name" item-value="id" label="Responsável" prepend-icon="assignment_ind"
-                            return-object></v-autocomplete>
+                            item-text="name" item-value="id" label="Responsável" prepend-icon="assignment_ind"></v-autocomplete>
                         <v-divider></v-divider>
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="red" @click="setResp()" outline>Salvar</v-btn>
+                        <v-btn color="red" @click="updateCheck('RESP',check_tree_selected.id,null)" outline>Salvar</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
@@ -463,7 +464,8 @@
                         method: "GET",
                         dataType: "json",
                     }).done(response => {
-                        this.resp = response['list'];
+                        this.resp = response['admin_list'];
+                        this.resp = this.resp.concat(response['resp_list']);
                     });
                 },
                 list_profile: function () {
@@ -650,12 +652,14 @@
 
                 },
                 updateCheck: function (change_type, check_id, data) {
+                    this.dialog_responsavel = false;
                     form_data = {
                         check_id: check_id
                     };
                     switch (change_type) {
                         case "RESP":
                             form_data.resp = this.form.resp;
+                            this.check_tree_selected.resp = this.form.resp;
                             break;
                         case "STATUS":
                             form_data.status = data.status;
@@ -668,7 +672,6 @@
                         headers: app.headers,
                         data: form_data
                     }).done(response => {
-                        this.form_view = false;
                         app.notify("Tarefa modificada!", "success");
                     });
                 },

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Employee;
+use App\User;
 use App\Profile;
 use Illuminate\Http\Request;
 use Auth;
@@ -11,7 +12,7 @@ use App\Checklist;
 
 class EmployeeController extends Controller
 {
-    public function __construct()
+    public function __construct(Request $r)
     {
         $this->middleware('auth');
     }
