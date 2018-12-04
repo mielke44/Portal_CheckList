@@ -33,7 +33,10 @@ class EmployeeController extends Controller
         //print_r($request->all());
         //return;
         if($request["id"] != "") $Employee = Employee::find($request["id"]);
-        else $Employee = new Employee();
+        else {
+            $Employee = new Employee();
+            $Employee ->token = bcrypt($request['name'].rand(100000,999999));
+        }
         $Employee -> name = $request['name'];
         $Employee -> email = $request['email'];
         $Employee -> profile_id = $request['profile_id'];

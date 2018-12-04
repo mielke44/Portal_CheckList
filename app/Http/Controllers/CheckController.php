@@ -9,6 +9,7 @@ use Auth;
 use App\Task;
 use App\Events\CheckUpdateEvent;
 use App\Admin;
+use App\Employee;
 use App\Notification;
 use App\Checklist;
 use App\User;
@@ -16,10 +17,26 @@ class CheckController extends Controller
 {
 
     public function __construct(Request $r){
-        if(isset($r->token)){
-            $user = User::where('token',$r->token)->first();
-            Auth::login($user);
-        }
+            if(isset($r->token)){
+                $user = User::where('token',$r->token)->first();
+                if($user==null){
+                    $emp = Employee::where('token',$r->token)->first();
+                    if($emp!=null){
+                        $user = new User();
+                        $user->id = 0;
+                        $user->password= bcrypt("secret");
+                        $user->site=$emp->site;
+                        $user->is_admin=-1;
+                        $user->name = $emp->name;
+                        $user->email = $emp->email;
+                        $user->token = $emp->token;
+                        $user->save();
+                        Auth::login($user,true);
+
+                    }
+                }
+                else Auth::login($user,true);
+            }
         $this->middleware('auth');
     }
 
@@ -109,7 +126,15 @@ class CheckController extends Controller
     }
 
     public function listYourChecks(){
-        $checks = Check::where("resp",Auth::user()->id)->get();
+        if(Auth::user()->is_admin==-1){
+            $emp = Employee::where('token',Auth::user()->token)->first();
+            $checklists = Checklist::where("employee_id",$emp->id)->get();
+            $checks = array();
+            foreach($checklists as $cl){
+                array_push($checks,Check::where("checklist_id",$cl->id)->where("resp",0));
+            }
+        }
+        else $checks = Check::where("resp",Auth::user()->id)->get();
         return json_encode($checks);
     }
     public function YourChecklist(){
