@@ -33,7 +33,7 @@
         <v-list class="pt-0" dense>
             <v-divider></v-divider>
 
-            <v-list-tile v-if="is_admin>0" v-for="(item,i) in menu" :key="item.title" @click="item.link">
+            <v-list-tile v-if="is_admin>0 || item.visible_external" v-for="(item,i) in menu" :key="item.title" @click="item.link">
                 <v-list-tile-action>
                     <v-icon :color="(i==screen) ? 'black': 'white'">@{{ item.icon }}</v-icon>
                 </v-list-tile-action>
@@ -192,9 +192,17 @@
                     {
                         icon: "face",
                         text: "Empregados",
-                        visible_external: true,
+                        visible_external: false,
                         link: function () {
                             window.location = '/employee/'
+                        }
+                    },
+                    {
+                        icon: "event_note",
+                        text: "Suas tarefas",
+                        visible_external: true,
+                        link: function () {
+                            window.location = '/employee/yourchecklist'
                         }
                     },
                     {
