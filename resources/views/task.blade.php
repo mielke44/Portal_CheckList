@@ -218,6 +218,7 @@
             },
             store: function () {
                 if (this.$refs.form.validate()) {
+                    app.confirm("Criando/Alterando Registro!", "Confirmar ação neste Registro?", "green", () => {
                     $.ajax({
                         url: "{{route('task.store')}}",
                         method: "POST",
@@ -231,6 +232,7 @@
                             else app.notify("Edição salva", "success");
                         }
                     });
+                })
                 }
             },
             list: function () {
@@ -258,6 +260,7 @@
                 })
             },
             edit: function (task_id) {
+
                 $.ajax({
                     url: "{{route('task.edit')}}",
                     method: "GET",
@@ -273,6 +276,7 @@
                 });
             },
             destroy: function (task_id) {
+                app.confirm("Remover Registro!", "Deseja remover este Registro?", "red", () => {
                 $.ajax({
                     url: "{{route('task.destroy')}}",
                     method: "DELETE",
@@ -286,6 +290,7 @@
                         app.notify("Tarefa removida", "error");
                     }
                 });
+            })
             },
             get_task_tree: function () {
                 $.ajax({

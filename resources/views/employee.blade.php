@@ -210,7 +210,7 @@
                 </v-card>
             </v-dialog>
 
-
+            <!--POPUP 3 CHECK MENU/RESP-->
             <v-dialog v-model="dialog_responsavel" max-width="600" v-if='task_tree_selected!=0'>
                 <v-card>
                     <v-card-text>
@@ -226,7 +226,7 @@
                 </v-card>
             </v-dialog>
 
-            <!--POPUP 3 CHECK MENU-->
+            <!--POPUP 3 CHECK MENU/COMMENT-->
             <v-dialog v-model="dialog_comment" max-width="600" r>
                 <v-card>
                     <v-card-title>
@@ -411,23 +411,25 @@
                 },
                 store: function () {
                     if (this.$refs.form.validate()) {
-                        $.ajax({
-                            url: "{{route('emp.store')}}",
-                            method: "POST",
-                            dataType: "json",
-                            headers: app.headers,
-                            data: this.form,
-                            success: (response) => {
-                                this.list();
-                                this.form_view = false;
-                                if (this.form.id == "") app.notify("Empregado adicionado",
-                                    "success");
-                                else app.notify("Edição salva", "success");
-                                if (this.form.id == "") app.notify(
-                                    "Empregado adicionado com sucesso!", "success");
-                                else app.notify("Edição salva", "success");
-                            }
-                        });
+                        app.confirm("Criando/Alterando Registro!", "Confirmar ação deste Registro?", "green", () => {
+                            $.ajax({
+                                url: "{{route('emp.store')}}",
+                                method: "POST",
+                                dataType: "json",
+                                headers: app.headers,
+                                data: this.form,
+                                success: (response) => {
+                                    this.list();
+                                    this.form_view = false;
+                                    if (this.form.id == "") app.notify("Empregado adicionado",
+                                        "success");
+                                    else app.notify("Edição salva", "success");
+                                    if (this.form.id == "") app.notify(
+                                        "Empregado adicionado com sucesso!", "success");
+                                    else app.notify("Edição salva", "success");
+                                }
+                            });
+                        })
                     }
                 },
                 checklistTT: function (id) {
@@ -526,27 +528,28 @@
                     });
                 },
                 store_comment: function () {
-                    $.ajax({
-                        url: "{{route('comment.store')}}",
-                        method: "POST",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: {
-                            comment: this.form.comment,
-                            comment_id: this.form.comment_id,
-                            check_id: this.check_tree_selected.id
-                        },
+                    app.confirm("Escrevendo Comentário!", "Confirmar criação deste Comentário?", "green", () => {
+                        $.ajax({
+                            url: "{{route('comment.store')}}",
+                            method: "POST",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: {
+                                comment: this.form.comment,
+                                comment_id: this.form.comment_id,
+                                check_id: this.check_tree_selected.id
+                            },
+                            success: (response) => {
+                                if (response['st'] == 'add') app.notify("Comentário adicionado",
+                                    "success");
+                                else if (response['st'] == 'edit') app.notify(
+                                    "comentário editado com sucesso!", "success");
+                                this.list_comment(this.check_tree_selected.id);
+                                this.dialog_comment = false;
 
-                        success: (response) => {
-                            if (response['st'] == 'add') app.notify("Comentário adicionado",
-                                "success");
-                            else if (response['st'] == 'edit') app.notify(
-                                "comentário editado com sucesso!", "success");
-                            this.list_comment(this.check_tree_selected.id);
-                            this.dialog_comment = false;
-
-                        }
-                    });
+                            }
+                        });
+                    })
                 },
                 getSiteName: function (id) {
                     for (i = 0; i < this.sites.length; i++) {
@@ -590,7 +593,7 @@
                 },
                 destroy: function (id) {
                     app.confirm("Deletar esse empregado?",
-                        "Todas as informações desse empregado serão deletadas.", "yellow darken-3", () => {
+                        "Todas as informações desse empregado serão deletadas.", "red", () => {
                             $.ajax({
                                 url: "{{route('emp.remove')}}",
                                 method: "DELETE",
@@ -608,7 +611,7 @@
                 },
                 destroy_comment: function (id) {
                     app.confirm("Deletar esse comentário?",
-                        "Após deletado esse cometário não poderá ser recuperado.", "yellow darken-3", () => {
+                        "Após deletado esse cometário não poderá ser recuperado.", "red", () => {
                             $.ajax({
                                 url: "{{route('comment.remove')}}",
                                 method: "DELETE",
@@ -628,7 +631,7 @@
                 },
                 destroy_checklist: function (id) {
                     app.confirm("Remover lista de tarefa?",
-                        "Todas as informações dessa lista serão deletadas.", "yellow darken-3", () => {
+                        "Todas as informações dessa lista serão deletadas.", "red", () => {
                             $.ajax({
                                 url: "{{route('checklist.employee.remove')}}",
                                 method: "DELETE",

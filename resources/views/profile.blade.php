@@ -102,6 +102,7 @@
         },
         methods: {
             add: function () {
+                
                 this.form_view = true;
                 this.form_texts.title = "Criar perfil";
                 this.form_texts.button = "Criar";
@@ -114,6 +115,7 @@
             },
             store: function () {
                 if (this.$refs.form.validate()) {
+                    app.confirm("Criando/alterando Registro!", "Confirmar ação deste Registro?", "green", () => {
                     $.ajax({
                         url: "{{route('profile.store')}}",
                         method: "POST",
@@ -127,6 +129,7 @@
                             else app.notify("Edição salva","success");
                         }
                     });
+                })
                 }
             },
             list: function () {
@@ -155,6 +158,7 @@
                 });
             },
             destroy: function (id) {
+                app.confirm("Deletar Registro!", "Deseja deletar este Registro?", "red", () => {
                 $.ajax({
                     url: "{{route('profile.destroy')}}",
                     method: "DELETE",
@@ -168,6 +172,7 @@
                         app.notify("Perfil removido","error");
                     }
                 });
+            })
             },
         },
         mounted() {
