@@ -54,47 +54,47 @@
         </v-flex>
         <!--LISTA DE RESPONSÁVEIS-->
         <v-flex class='text-xs-right'>
-                <v-btn v-if="user.is_admin==1" @click="is_admin=false;add();" color="primary">Adicionar Responsável</v-btn>
-            </v-flex>
-            <v-flex xs12>
-                <v-expansion-panel>
-                    <v-expansion-panel-content v-for='r in resp'>
-                        <div slot="header">
-                            <v-layout row wrap fill-height align-center>
-                                <v-flex xs6>
-                                    @{{r.name}}
-                                </v-flex>
-                                <!--<v-flex xs3 class='text-xs-right'>
+            <v-btn v-if="user.is_admin==1" @click="is_admin=false;add();" color="primary">Adicionar Responsável</v-btn>
+        </v-flex>
+        <v-flex xs12>
+            <v-expansion-panel>
+                <v-expansion-panel-content v-for='r in resp'>
+                    <div slot="header">
+                        <v-layout row wrap fill-height align-center>
+                            <v-flex xs6>
+                                @{{r.name}}
+                            </v-flex>
+                            <!--<v-flex xs3 class='text-xs-right'>
                                     <span class='mr-2'>@{{adm.checks}}/@{{adm.list}}</span>
                                     <v-progress-circular rotate="-90" :value="adm.checks/adm.list*100" color="primary" class='mr-2'
                                         width='7'></v-progress-circular>
                                 </v-flex>-->
-                            </v-layout>
-                        </div>
-                        <v-container grid-list-xs>
-                            <v-layout row wrap>
-                                <v-flex xs3>E-mail:</v-flex>
-                                <v-flex xs3 class='font-weight-bold'>@{{r.email}}</v-flex>
-                                <v-flex xs3>Data admissão</v-flex>
-                                <v-flex xs3 class='font-weight-bold'>@{{r.created_at}}</v-flex>
-                                <v-flex xs3>Site</v-flex>
-                                <v-flex xs3 class='font-weight-bold'>@{{getSiteName(r.site)}}</v-flex>
-                                <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
-                                    <v-btn color="blue" outline>
-                                        <v-icon dark class='mr-2'>check</v-icon> Empregados
-                                    </v-btn>
-                                    <v-btn @click="edit(r.id)" color="yellow darken-2" outline>
-                                        <v-icon dark class='mr-2'>edit</v-icon> Editar
-                                    </v-btn>
-                                    <v-btn @click="destroy(r.id)" color="red" outline>
-                                        <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                    </v-btn>
-                                </v-flex>
-                            </v-layout>
-                        </v-container>
-                    </v-expansion-panel-content>
-                </v-expansion-panel>
-            </v-flex>
+                        </v-layout>
+                    </div>
+                    <v-container grid-list-xs>
+                        <v-layout row wrap>
+                            <v-flex xs3>E-mail:</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{r.email}}</v-flex>
+                            <v-flex xs3>Data admissão</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{r.created_at}}</v-flex>
+                            <v-flex xs3>Site</v-flex>
+                            <v-flex xs3 class='font-weight-bold'>@{{getSiteName(r.site)}}</v-flex>
+                            <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
+                                <v-btn color="blue" outline>
+                                    <v-icon dark class='mr-2'>check</v-icon> Empregados
+                                </v-btn>
+                                <v-btn @click="edit(r.id)" color="yellow darken-2" outline>
+                                    <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                </v-btn>
+                                <v-btn @click="destroy(r.id)" color="red" outline>
+                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                </v-btn>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+        </v-flex>
     </v-layout>
 
 
@@ -169,7 +169,7 @@
         data() {
             return {
                 name: '',
-                is_admin:false,
+                is_admin: false,
                 show1: false,
                 admin: [],
                 resp: [],
@@ -241,23 +241,26 @@
             },
             store: function (is_admin) {
                 if (this.$refs.form.validate()) {
-                    $.ajax({
-                        url: "{{route('admin.store')}}",
-                        method: "POST",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: {
-                            form: this.form,
-                            is_admin: is_admin,
+                    app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green", () => {
+                        $.ajax({
+                            url: "{{route('admin.store')}}",
+                            method: "POST",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: {
+                                form: this.form,
+                                is_admin: is_admin,
                             },
-                        success: (response) => {
-                            this.list();
-                            this.form_view = false;
-                            if (this.form.id == "") app.notify("Admin adicionado com sucesso!",
-                                "success");
-                            else app.notify("Edição salva", "success");
-                        }
-                    });
+                            success: (response) => {
+                                this.list();
+                                this.form_view = false;
+                                if (this.form.id == "") app.notify(
+                                    "Admin adicionado com sucesso!",
+                                    "success");
+                                else app.notify("Edição salva", "success");
+                            }
+                        });
+                    })
                 }
             },
             list: function () {
@@ -277,37 +280,39 @@
                 }
             },
             edit: function (id) {
-                $.ajax({
-                    url: "{{route('admin.edit')}}",
-                    method: "GET",
-                    dataType: "json",
-                    data: {
-                        id: id
-                    },
-                }).done(response => {
-                    this.form_texts.title = "Editar Admin";
-                    this.form_texts.button = "Salvar";
-                    this.form = response;
-                    this.form_view = true;
-                    this.prof_view2 = false;
-                    this.form.site = parseInt(this.form.site);
-
-                });
+                    $.ajax({
+                        url: "{{route('admin.edit')}}",
+                        method: "GET",
+                        dataType: "json",
+                        data: {
+                            id: id
+                        },
+                    }).done(response => {
+                        this.form_texts.title = "Editar Admin";
+                        this.form_texts.button = "Salvar";
+                        this.form = response;
+                        this.form_view = true;
+                        this.prof_view2 = false;
+                        this.form.site = parseInt(this.form.site);
+                    });
             },
             destroy: function (id) {
-                $.ajax({
-                    url: "{{route('admin.remove')}}",
-                    method: "DELETE",
-                    dataType: "json",
-                    headers: app.headers,
-                    data: {
-                        id: id
-                    },
-                    success: (response) => {
-                        this.list();
-                        app.notify("Admin removido", "error");
-                    }
-                });
+                app.confirm("Remover registro?",
+                    "Todas as informações desse registro serão deletadas.", "red", () => {
+                        $.ajax({
+                            url: "{{route('admin.remove')}}",
+                            method: "DELETE",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: {
+                                id: id
+                            },
+                            success: (response) => {
+                                this.list();
+                                app.notify("Admin removido", "error");
+                            }
+                        });
+                    })
             }
         },
         mounted() {

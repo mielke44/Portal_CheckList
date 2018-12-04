@@ -75,7 +75,8 @@ Route::get('site/list', "SiteController@list")->name('site.list');
 
 //Auth
 Auth::routes();
-ROute::get('/getflag','HomeController@getFlagNot')->name('getflagnoti');
+Route::post('/updtnot','HomeController@updateNotification')->name('updnot');
+Route::get('/getflag','HomeController@getFlagNot')->name('getflagnoti');
 Route::get('/logout','HomeController@logout')->name('logout');
 Route::get('/getname','HomeController@getName')->name('getname');
 Route::get('/getperm','HomeController@getPerm')->name('getperm');

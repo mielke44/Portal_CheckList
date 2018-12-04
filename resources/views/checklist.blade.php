@@ -185,6 +185,7 @@
             },
             store: function () {
                 if (this.$refs.form.validate()) {
+                    app.confirm("Criando/Alterando Registro!", "Confirmar ação deste Registro?", "green", () => {
                     $.ajax({
                         url: "{{route('checklist.store')}}",
                         method: "POST",
@@ -199,6 +200,7 @@
                             else app.notify("Edição salva", "success");
                         }
                     });
+                })
                 }
             },
             list: function () {
@@ -279,6 +281,7 @@
                 });
             },
             destroy: function (id) {
+                app.confirm("Remover Registro!", "Deseja remover este Registro?", "red", () => {
                 $.ajax({
                     url: "{{route('checklist.destroy')}}",
                     method: "DELETE",
@@ -292,6 +295,7 @@
                         app.notify("Lista de tarefa removida", "error");
                     }
                 });
+            })
             },
             remove(item) {
                 const index = this.friends.indexOf(item.name)
