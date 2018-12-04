@@ -13,7 +13,6 @@ use App\Employee;
 use App\Notification;
 use App\Checklist;
 use App\User;
-use App\Employee;
 class CheckController extends Controller
 {
 

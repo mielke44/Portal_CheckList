@@ -44,7 +44,7 @@ class ChecklistController extends Controller
         foreach($CLT as $ct){
             $check = new Check();
             $check->resp = Task::findOrFail($ct->task_id)->resp;
-            if(Task::findOrFail($ct->task_id)->resp==0)$check->resp = $request['employee_id'];
+            if(Task::findOrFail($ct->task_id)->resp==0)$check->resp =0;
             $check->status = false;
             $check->task_id = $ct->task_id;
             $check->checklist_id = $checklist->id;

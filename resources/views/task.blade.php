@@ -94,6 +94,10 @@
                             <v-text-field v-model="form.name" label="Tarefa" required :rules="rules.name" counter='25'></v-text-field>
                             <v-textarea v-model="form.description" label="Descrição" :rules="rules.description"
                                 required counter='300'></v-textarea>
+                            <v-autocomplete
+                                v-model="form.resp" :items="resp" color="black" item-text="name" item-value="id" 
+                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected return-object
+                            ></v-autocomplete>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
                             <div class='headline mb-2 mt-2'>Dependências</div>
@@ -166,7 +170,6 @@
                     type: '',
                     dependences2: [],
                     resp: '',
-                    dependences2: [],
 
                 },
                 types: [{
@@ -251,6 +254,7 @@
                     method: "GET",
                     dataType: "json",
                 }).done(response =>{
+                    alert(JSON.stringify(response));
                     this.resp=response['resp_list'];
                     for(i = 0;i<response['admin_list'].length;i++){
                         this.resp.push(response['admin_list'][i]);
