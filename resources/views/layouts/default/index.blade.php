@@ -33,7 +33,7 @@
         <v-list class="pt-0" dense>
             <v-divider></v-divider>
 
-            <v-list-tile v-if="is_admin" v-for="(item,i) in menu" :key="item.title" @click="item.link">
+            <v-list-tile v-if="is_admin>0" v-for="(item,i) in menu" :key="item.title" @click="item.link">
                 <v-list-tile-action>
                     <v-icon :color="(i==screen) ? 'black': 'white'">@{{ item.icon }}</v-icon>
                 </v-list-tile-action>
@@ -184,6 +184,7 @@
                 menu: [{
                         icon: "dashboard",
                         text: "Dashboard",
+                        visible_external: false,
                         link: function () {
                             window.location = '/'
                         }
@@ -191,6 +192,7 @@
                     {
                         icon: "face",
                         text: "Empregados",
+                        visible_external: true,
                         link: function () {
                             window.location = '/employee/'
                         }
@@ -198,6 +200,7 @@
                     {
                         icon: "portrait",
                         text: "Perfis",
+                        visible_external: false,
                         link: function () {
                             window.location = '/profile/'
                         }
@@ -205,6 +208,7 @@
                     {
                         icon: "list_alt",
                         text: "Lista de tarefas",
+                        visible_external: false,
                         link: function () {
                             window.location = '/checklist/'
                         }
@@ -212,6 +216,7 @@
                     {
                         icon: "list",
                         text: "Tarefas",
+                        visible_external: false,
                         link: function () {
                             window.location = '/task/'
                         }
@@ -219,6 +224,7 @@
                     {
                         icon: "supervisor_account",
                         text: "Gestores e Responsáveis",
+                        visible_external: false,
                         link: function () {
                             window.location = '/Admin'
                         }

@@ -47,7 +47,7 @@ class CommentController extends Controller
             }
         }
         $comment->check_id = $r['check_id'];
-        $comment->writer_name = Auth::user()->name;
+        $comment->writer = Auth::user()->id;
         $comment->comment = $r['comment'];
 
         if($comment->save()){
@@ -64,7 +64,14 @@ class CommentController extends Controller
 
 
     public function list(Request $r){
-            return json_encode(Comment::where('check_id',$r["check_id"])->get());
+            $comments = Comment::where('check_id',$r["check_id"])->get();
+            $auth_id = Auth::user()->id;
+            foreach($comments as $c){
+                $c->writer_name = Admin::find($c->writer)->name;
+                $c->editable = $auth_id==$c->writer?true:false;
+            }
+
+            return json_encode($comments);
     }
 
 
