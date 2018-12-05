@@ -127,17 +127,25 @@ class CheckController extends Controller
             $task =Task::findOrFail($ct->task_id);
             $text = 'foi selecionado como responsável da tarefa: '.$task->name;
             $check = new Check();
+
             $check->resp = Task::findOrFail($ct->task_id)->resp;
             if($task->resp==0)$check->resp = 0;
+
             $check->status = false;
             $check->task_id = $ct->task_id;
             $check->checklist_id = $Checklist_id;
-            $receiver = $check->resp;
-            if($check->resp==0)$name=Admin::findOrFail($check->resp)['name'];
+
+            $receiver = array($check->resp);
+
+            if($check->resp!=0)$name=Admin::findOrFail($check->resp)['name'];
             else $name=Employee::findOrFail(Checklist::findOrFail($Checklist_id)['employee_id'])['name'];
-            $type==2;
+
+            $type=2;
+
             if($check->save()){
-                event(new CheckUpdateEvent($ct, $text, $name, $type, $receiver));
+
+                event(new CheckUpdateEvent($check, $text, $name, $type, $receiver));
+
                 if(Check::where("checklist_id",$Checklist_id)->where("task_id",$ct["task_id"])->count()==0){
                     createCheckDep($c->id,$user->id,$Checklist_id);
                 }
