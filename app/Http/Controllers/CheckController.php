@@ -133,7 +133,8 @@ class CheckController extends Controller
             $check->task_id = $ct->task_id;
             $check->checklist_id = $Checklist_id;
             $receiver = $check->resp;
-            $name=Admin::findOrFail($check->resp)['name'];
+            if($check->resp==0)$name=Admin::findOrFail($check->resp)['name'];
+            else $name=Employee::findOrFail(Checklist::findOrFail($Checklist_id)['employee_id'])['name'];
             $type==2;
             if($check->save()){
                 event(new CheckUpdateEvent($ct, $text, $name, $type, $receiver));
