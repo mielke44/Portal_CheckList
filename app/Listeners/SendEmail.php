@@ -34,10 +34,10 @@ class SendEmail
 
     public function handleCheck(CheckUpdateEvent $event)
     {
-        $resp = Employee::findOrFail(Checklist::findOrFail($event->getCheck()->checklist_id));
+        $resp = Employee::findOrFail(Checklist::findOrFail($event->getCheck()->checklist_id))[0];
         if(count($event->getReceiver())==1){
             
-            $data=array(0=>$resp['name'],1=>$resp['email']);
+            $data=array(0=>$resp->name,1=>$resp->email);
         
         }else{
             $gestor=Admin::findOrFail($event->getReceiver()[0]);
