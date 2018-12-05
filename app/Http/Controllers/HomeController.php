@@ -50,7 +50,17 @@ class HomeController extends Controller
 
     public function getNotifications(){
         $session_id = Auth::user()->id;
-        $notifications = Notification::where('admin_id',$session_id)->where('status','pending')->orderBy('created_at','desc')->select('id','name','text', 'type', 'created_at')->get();
+        if(Auth::user()->is_admin==-1)$notifications = Notification::where('employee_id',Employee::where('token',Auth::user()->token)->id)
+                                                        ->where('status','pending')
+                                                        ->orderBy('created_at','desc')
+                                                        ->select('id','name','text', 'type', 'created_at')
+                                                        ->get();
+
+        else $notifications = Notification::where('admin_id',$session_id)
+                                            ->where('status','pending')
+                                            ->orderBy('created_at','desc')
+                                            ->select('id','name','text', 'type', 'created_at')
+                                            ->get();
         $date = array();
         foreach($notifications as $n){
             $data = explode(" ",$n['created_at']);

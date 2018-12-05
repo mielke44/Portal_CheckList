@@ -14,7 +14,7 @@ class EmployeeTableSeeder extends Seeder
     {
         DB::table('employees')->insert([
             'name' => "Joãozinho",
-            'email' => "joão@teste.com",
+            'email' => "joao@teste.com",
             'cpf' => "123.123.123-12",
             'site' => "12",
             'profile_id' => "1",

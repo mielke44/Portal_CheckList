@@ -146,7 +146,7 @@
                                 <v-btn @click="destroy(em.id)" color="red" outline>
                                     <v-icon dark class='mr-2'>delete</v-icon> Remover
                                 </v-btn>
-                                <v-btn @click="form.id=em.id; popup2(em.id)" color="yellow" outline>
+                                <v-btn @click="form.id=em.id; popup2(em.id)" color="blue" outline>
                                     <v-icon dark class='mr-2'>list</v-icon> Lista de tarefas
                                 </v-btn>
                             </v-flex>

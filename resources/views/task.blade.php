@@ -260,7 +260,6 @@
                         this.resp.push(response['admin_list'][i]);
                     }
                     this.resp.push(response['default']);
-                    //alert(JSON.stringify(this.resp));
                 })
             },
             edit: function (task_id) {
