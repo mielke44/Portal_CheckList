@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Auth;
 use App\Check;
 use App\Checklist;
+use App\Events\NewEmployeeEvent;
 
 class EmployeeController extends Controller
 {
@@ -44,6 +45,7 @@ class EmployeeController extends Controller
         $Employee -> fone = $request['fone'];
         $Employee -> site = $request['site'];
         if ($Employee -> save()) {
+            event( new NewEmployeeEvent($Employee, Auth::user()['name']));
             return json_encode(array('error' => false,
                 'message' => $Employee -> id));
         } else {

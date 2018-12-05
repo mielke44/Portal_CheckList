@@ -21,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
             'App\Listeners\SendNotification@ChecklistUpdate',
             'App\Listeners\SendEmail@handleChecklist',
         ],
+        'App\Events\NewEmployeeEvent' =>[
+            'App\Listeners\SendEmail@handleEmployee'
+        ]
     ];
 
     /**

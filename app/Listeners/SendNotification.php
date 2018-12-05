@@ -40,7 +40,7 @@ class SendNotification
         $notification->text = $event->getText();
         $notification->name = $event->getName();
         $notification->admin_id = $event->getCheck()->resp;
-        $notification->employee_id = Checklist::where("id",$event->getCheck()->checklist_id)->select('employee_id')->get()[0]['employee_id'];
+        $notification->employee_id = Checklist::findOrFail($event->getCheck()->checklist_id)->employee_id;
         $notification->type = $event->getType();
         $notification->check_id = $event->getCheck()->id;
         $notification->status = 'pending';

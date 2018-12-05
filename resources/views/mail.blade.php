@@ -3,7 +3,7 @@
     <h1 style="color: #ffffff; text-align: left; background-color: #33cccc;">Portal CheckList</h1>
     <p style="text-align: center;"><em style="text-align: center; color: #000000;">{{$demo->receiver}}</em> <em style="text-align: center;">,</em></p>
     <p style="text-align: center; color: #000000;">&nbsp;</p>
-    <p style="text-align: center; color: #000000;"><u>Voc&ecirc; tem uma nova atualiza&ccedil;&atilde;o no Portal Checklist!</u></p>
+    <p style="text-align: center; color: #000000;"><u>{{$demo->Header}}</u></p>
     <p style="text-align: center; color: #000000;">&nbsp;</p>
     <div style="text-align: center; color: #000000;">
         <p><strong>{{$demo->name}} {{$demo->text}}</strong></p>
@@ -15,7 +15,7 @@
                 <tr>
                     <td style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; display: block;"
                         align="center" bgcolor="#d62828" width="300" height="40"><a style="font-size: 16px; font-weight: bold; font-family: sans-serif; text-decoration: none; line-height: 40px; width: 100%; display: inline-block;"
-                            href="http://www.localhost:8000"> <span style="color: #ffffff;"> Ir para o Portal CheckList
+                            href="{{$demo->link}}"> <span style="color: #ffffff;"> Ir para o Portal CheckList
                             </span> </a></td>
                 </tr>
             </tbody>

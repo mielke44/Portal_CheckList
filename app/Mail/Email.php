@@ -35,7 +35,7 @@ class Email extends Mailable
      */
     public function build()
     {
-        return $this->from('PortalChecklist@t-systems.com.br')
+        return $this->from('PortalCheckList@t-systems.com.br')
                     ->view('mail');
                     /*
                     ->attach(public_path('/images').'/demo.jpg', [
