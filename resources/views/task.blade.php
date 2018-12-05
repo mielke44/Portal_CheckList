@@ -15,7 +15,7 @@
         </v-flex>
         <v-flex xs12>
             <v-expansion-panel>
-                <v-expansion-panel-content v-for='t in tasks'>
+                <v-expansion-panel-content v-for='(t,i) in tasks' v-if='search_data[i]'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs6>
@@ -44,7 +44,7 @@
                                 @{{t.resp_name}}
                             </v-flex>
                             <template v-if="t.dependence.length>0">
-                                <v-flex xs3 class='font-weight-bold' >
+                                <v-flex xs3 class='font-weight-bold'>
                                     Dependentes:
                                 </v-flex>
                                 <v-flex xs9>
@@ -54,7 +54,7 @@
                                 </v-flex>
                             </template>
                             <template v-if="t.dependence2.length>0">
-                                <v-flex xs3 class='font-weight-bold' >
+                                <v-flex xs3 class='font-weight-bold'>
                                     Dependências:
                                 </v-flex>
                                 <v-flex xs9>
@@ -94,10 +94,9 @@
                             <v-text-field v-model="form.name" label="Tarefa" required :rules="rules.name" counter='25'></v-text-field>
                             <v-textarea v-model="form.description" label="Descrição" :rules="rules.description"
                                 required counter='300'></v-textarea>
-                            <v-autocomplete
-                                v-model="form.resp" :items="resp" color="black" item-text="name" item-value="id" 
-                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected return-object
-                            ></v-autocomplete>
+                            <v-autocomplete v-model="form.resp" :items="resp" color="black" item-text="name" item-value="id"
+                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected
+                                return-object></v-autocomplete>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
                             <div class='headline mb-2 mt-2'>Dependências</div>
@@ -181,6 +180,7 @@
                         value: "2",
                     },
                 ],
+                search: ''
             }
         },
         watch: {
@@ -204,6 +204,15 @@
                     open = open.concat(this.open_tree(d));
                 }
                 return open;
+            },
+            search_data: function () {
+                var array = [];
+                for (t of this.tasks) {
+                    if (t.name.toLowerCase().indexOf(this.search.toLowerCase()) > -1 || this.search == '') {
+                        array.push(true);
+                    } else array.push(false);
+                }
+                return array;
             }
         },
         methods: {
@@ -222,20 +231,21 @@
             store: function () {
                 if (this.$refs.form.validate()) {
                     app.confirm("Criando/Alterando Registro!", "Confirmar ação neste Registro?", "green", () => {
-                    $.ajax({
-                        url: "{{route('task.store')}}",
-                        method: "POST",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: this.form,
-                        success: (response) => {
-                            this.list();
-                            this.form_view = false;
-                            if (this.form.id == "") app.notify("Tarefa criada", "success");
-                            else app.notify("Edição salva", "success");
-                        }
-                    });
-                })
+                        $.ajax({
+                            url: "{{route('task.store')}}",
+                            method: "POST",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: this.form,
+                            success: (response) => {
+                                this.list();
+                                this.form_view = false;
+                                if (this.form.id == "") app.notify("Tarefa criada",
+                                    "success");
+                                else app.notify("Edição salva", "success");
+                            }
+                        });
+                    })
                 }
             },
             list: function () {
@@ -248,15 +258,14 @@
                     this.get_task_tree();
                 });
             },
-            admin_list(){
+            admin_list() {
                 $.ajax({
                     url: "{{route('admin.list')}}",
                     method: "GET",
                     dataType: "json",
-                }).done(response =>{
-                    alert(JSON.stringify(response));
-                    this.resp=response['resp_list'];
-                    for(i = 0;i<response['admin_list'].length;i++){
+                }).done(response => {
+                    this.resp = response['resp_list'];
+                    for (i = 0; i < response['admin_list'].length; i++) {
                         this.resp.push(response['admin_list'][i]);
                     }
                     this.resp.push(response['default']);
@@ -281,20 +290,20 @@
             },
             destroy: function (task_id) {
                 app.confirm("Remover Registro!", "Deseja remover este Registro?", "red", () => {
-                $.ajax({
-                    url: "{{route('task.destroy')}}",
-                    method: "DELETE",
-                    dataType: "json",
-                    headers: app.headers,
-                    data: {
-                        id: task_id
-                    },
-                    success: (response) => {
-                        this.list();
-                        app.notify("Tarefa removida", "error");
-                    }
-                });
-            })
+                    $.ajax({
+                        url: "{{route('task.destroy')}}",
+                        method: "DELETE",
+                        dataType: "json",
+                        headers: app.headers,
+                        data: {
+                            id: task_id
+                        },
+                        success: (response) => {
+                            this.list();
+                            app.notify("Tarefa removida", "error");
+                        }
+                    });
+                })
             },
             get_task_tree: function () {
                 $.ajax({
@@ -363,6 +372,9 @@
                     return this.getTreeAsc(t.dependence2[0].task_id) + " > " + t.name;
                 } else return t.name;
 
+            },
+            searching: function (search) {
+                this.search = search;
             }
         },
         mounted() {

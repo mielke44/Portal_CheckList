@@ -56,7 +56,7 @@
     </v-toolbar-title>
     <template v-if="search.model">
         <v-text-field v-model='search.value' append-icon="search" label="Procurar" full-width solo slot='extension'
-            @click:append='searching'></v-text-field>
+            @click:append='searching' @input='searching'></v-text-field>
     </template>
     <v-spacer></v-spacer>
     <v-toolbar-items class="hidden-sm-and-down">
@@ -120,10 +120,8 @@
 </v-toolbar>
 
 <v-content>
-    <page inline-template>
+    <page inline-template ref='page'>
         <div style="height:100%">@yield('l-content')</div>
-        <page inline-template screen="screen">
-            <div>@yield('l-content')</div>
         </page>
 </v-content>
 
@@ -147,7 +145,7 @@
         <v-divider></v-divider>
         <v-card-text class='text-xs-center'>
             <v-btn color="white" class='red--text' @click='dialog_confirm.model=false' fab small><v-icon large>close</v-icon></v-btn>
-            <v-btn color="white" class='green--text' dar @click='dialog_confirm.action();dialog_confirm.model=false' fab small><v-icon large>check</v-icon></v-btn>
+            <v-btn color="white" class='green--text' @click='dialog_confirm.action();dialog_confirm.model=false' fab small><v-icon large>check</v-icon></v-btn>
         </v-card-tex>
     </v-card>
 </v-dialog>
@@ -310,7 +308,7 @@
                 });
             },
             searching: function () {
-                alert(this.search.value);
+                this.$refs.page.searching(this.search.value);
             },
             list_notifications: function () {
                 $.ajax({
