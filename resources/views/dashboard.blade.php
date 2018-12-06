@@ -93,12 +93,10 @@
                 });
             },
             mounted: function(){
-                app.notify("sdgsdg","lala");
+                app.setMenu('dashboard');
             }
         },
-        mounted() {
-            setTimeout(()=>{app.screen = 0},1);
-        }
+
 
     });
 </script>

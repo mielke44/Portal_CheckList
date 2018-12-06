@@ -716,6 +716,9 @@
                     }
                     return null;
                 },
+                mounted: function(){
+                app.setMenu('employee');
+            }
 
             },
             mounted() {
@@ -725,9 +728,6 @@
                 this.list_sites();
                 this.list_admin();
                 this.list_tasks();
-                setTimeout(() => {
-                    app.screen = 1
-                }, 1);
             }
         });
     </script>

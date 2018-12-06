@@ -319,6 +319,9 @@
                 }
                 return null;
             },
+            mounted: function(){
+                app.setMenu('checklist');
+            }
         },
         watch: {
             isUpdating(val) {

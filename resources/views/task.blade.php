@@ -374,14 +374,14 @@
             },
             searching: function (search) {
                 this.search = search;
+            },
+            mounted: function(){
+                app.setMenu('task');
             }
         },
         mounted() {
             this.admin_list();
             this.list();
-            setTimeout(() => {
-                app.screen = 4
-            }, 1);
         }
     });
 </script>

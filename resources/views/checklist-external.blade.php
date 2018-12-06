@@ -263,6 +263,9 @@
                     app.notify("Tarefa modificada!", "success");
                 });
             },
+            mounted: function(){
+                app.setMenu('yourchecklist');
+            }
         },
         mounted() {
             this.list_tasks();

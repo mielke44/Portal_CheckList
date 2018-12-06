@@ -313,13 +313,13 @@
                             }
                         });
                     })
+            },
+            mounted: function(){
+                app.setMenu('admin');
             }
         },
         mounted() {
             this.list();
-            setTimeout(() => {
-                app.screen = 5
-            }, 1);
             this.prof_view2 = this.prof_view;
 
             $.ajax({

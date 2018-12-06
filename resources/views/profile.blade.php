@@ -102,7 +102,7 @@
         },
         methods: {
             add: function () {
-                
+
                 this.form_view = true;
                 this.form_texts.title = "Criar perfil";
                 this.form_texts.button = "Criar";
@@ -174,10 +174,12 @@
                 });
             })
             },
+            mounted: function(){
+                app.setMenu('profile');
+            }
         },
         mounted() {
             this.list();
-            setTimeout(()=>{app.screen = 2},1);
 
         }
     });
