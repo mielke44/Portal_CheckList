@@ -122,7 +122,7 @@
 <v-content>
     <page inline-template ref='page'>
         <div style="height:100%">@yield('l-content')</div>
-        </page>
+    </page>
 </v-content>
 
 <!-- COPONENTES -->
@@ -158,7 +158,6 @@
 <script>
     app = new Vue({
         el: '#app',
-
         created() {
             this.$vuetify.theme = $THEME_VUETIFY;
         },
@@ -192,7 +191,7 @@
                         text: "Empregados",
                         visible_external: false,
                         link: function () {
-                            window.location = '/employee/'
+                            window.location = 'employee/'
                         }
                     },
                     {
@@ -200,7 +199,7 @@
                         text: "Suas tarefas",
                         visible_external: true,
                         link: function () {
-                            window.location = '/employee/yourchecklist'
+                            window.location = 'employee/yourchecklist'
                         }
                     },
                     {
@@ -208,7 +207,7 @@
                         text: "Perfis",
                         visible_external: false,
                         link: function () {
-                            window.location = '/profile/'
+                            window.location = 'profile/'
                         }
                     },
                     {
@@ -216,7 +215,7 @@
                         text: "Lista de tarefas",
                         visible_external: false,
                         link: function () {
-                            window.location = '/checklist/'
+                            window.location = 'checklist/'
                         }
                     },
                     {
@@ -224,7 +223,7 @@
                         text: "Tarefas",
                         visible_external: false,
                         link: function () {
-                            window.location = '/task/'
+                            window.location = 'task/'
                         }
                     },
                     {
@@ -232,7 +231,7 @@
                         text: "Gestores e Responsáveis",
                         visible_external: false,
                         link: function () {
-                            window.location = '/Admin'
+                            window.location = 'Admin'
                         }
                     }
                 ],
@@ -245,7 +244,7 @@
                         icon: "exit_to_app",
                         text: "Sair",
                         link: function () {
-                            location.href = '/logout'
+                            location.href = 'logout'
                         }
                     },
                 ],
@@ -354,6 +353,7 @@
             this.getName();
             this.getPerm();
             setInterval(() => this.update(), 15000);
+            setTimeout(()=>{if(this.$refs.page.hasOwnProperty("mounted"))this.$refs.page.mounted()},50);
         }
     });
 </script>

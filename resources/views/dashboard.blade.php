@@ -91,6 +91,9 @@
                 }).done(response => {
                     window.location = '/employee'
                 });
+            },
+            mounted: function(){
+                app.notify("sdgsdg","lala");
             }
         },
         mounted() {
