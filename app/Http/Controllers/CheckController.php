@@ -63,10 +63,7 @@ class CheckController extends Controller
                     '1'=> $checklist->employee_id,
                     '2'=> $Check['resp']);
             }
-
             if($request['status']!=''){
-
-                ChecklistController::completeChecklist($checklist->id);
 
                 if($request['status']) $Check->status=1;
                 else if(!$request['status'])$Check->status=0;
@@ -75,6 +72,7 @@ class CheckController extends Controller
                 $name = Auth::user()->name;
                 $type = 0;
                 if ($Check->save()) {
+                    ChecklistController::completeChecklist($checklist->id);
                     event(new CheckUpdateEvent($Check, $text, $name,$type,$receiver));
                     return json_encode(array('error' => false,
                         'message' => $Check->id."__status:".$Check->status));

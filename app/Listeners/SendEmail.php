@@ -102,6 +102,6 @@ class SendEmail
 
         //Mail::to($employee['email'])->send(new Email($objDemo)); //USE THIS
 
-        Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING
+        //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING
     }
 }
