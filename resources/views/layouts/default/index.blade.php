@@ -154,7 +154,7 @@
 
 @section('js')
 @yield("l-js")
-<script src='/vuetify/theme.js'></script>
+<script src='{{asset("vuetify/theme.js")}}'></script>
 <script>
     app = new Vue({
         el: '#app',
