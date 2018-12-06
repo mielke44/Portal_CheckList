@@ -10,6 +10,10 @@
 <v-container grid-list-lg>
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view">
+        <v-flex xs3 class='text-xs-left'>
+                <v-select solo append-icon="filter_list" v-model="filtro" :items="filtros" item-text="name" item-value="name"
+                label="Filtros" persistent-hint :rules='rules.profile' @change="list(filtro)"></v-select>
+        </v-flex>
         <v-flex class='text-xs-right'>
             <v-btn @click="add()" color="primary">Adicionar empregado</v-btn>
         </v-flex>
@@ -173,6 +177,8 @@
                             <v-flex xs6 class='font-weight-bold'>@{{form.email}}</v-flex>
                             <v-flex xs6>Telefone:</v-flex>
                             <v-flex xs6 class='font-weight-bold'>@{{form.fone}}</v-flex>
+                            <v-flex xs6>Gestor</v-flex>
+                            <v-flex xs6 class='font-weight-bold'>@{{gestor_name}}</v-flex>
                             <v-flex xs6>Data admissão</v-flex>
                             <v-flex xs6 class='font-weight-bold'>@{{form.created_at}}</v-flex>
                         </v-layout>
@@ -259,7 +265,7 @@
     </v-layout>
 
 
-    <!-- EDIT -->
+    <!-- EDIT/FORM -->
     <v-layout row wrap v-if="form_view">
         <v-flex xs12 sm6 offset-sm3>
             <v-card>
@@ -273,6 +279,8 @@
                                 :rules="rules.site" label="Site" persistent-hint required></v-select>
                             <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
                                 label="CPF" required></v-text-field>
+                            <v-autocomplete v-model="form.resp" :items="resp" color="black" hide-no-data hide-selected
+                                item-text="name" item-value="id" label="Gestor" prepend-icon="assignment_ind"></v-autocomplete>
                             <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="form.fone"
                                 :rules="rules.fone" label="Telefone Celular" required></v-text-field>
                             <v-select v-model="form.profile_id" :items="profiles" item-text="name" item-value="id"
@@ -296,6 +304,8 @@
             data() {
                 return {
                     commentedit: -1,
+                    filtros: ['site','gestor','todos'],
+                    filtro: '',
                     task_tree_active: [],
                     checkbox: [],
                     model_employee: null,
@@ -316,6 +326,7 @@
                     model_tab_checklist: 0,
                     resp: {},
                     comments: [],
+                    gestor_name: [],
                     form_texts: {
                         title: "",
                         button: ""
@@ -356,6 +367,7 @@
                         comment: '',
                         comment_id: '',
                         resp: '',
+                        
                     },
                     items: [{
                             text: 'Efetivado',
@@ -449,11 +461,12 @@
                         }
                     });
                 },
-                list: function () {
+                list: function (filtro) {
                     $.ajax({
                         url: "{{route('emp.list')}}",
                         method: "GET",
                         dataType: "json",
+                        data: {filtro: filtro},
                     }).done(response => {
                         this.employees = response;
                     });
@@ -571,7 +584,9 @@
                         this.form_texts.title = "Editar Perfil";
                         this.form_texts.button = "Salvar";
                         this.form = response;
+                        this.gestor_name = response['gestor_name'];
                         this.form_view = true;
+                        this.dialog = false;
                     });
                 },
                 popup: function (id) {
@@ -584,6 +599,7 @@
                         },
                     }).done(response => {
                         this.form = response;
+                        this.gestor_name = response['gestor_name'];
                         this.dialog = true;
                     });
                 },
@@ -722,7 +738,7 @@
 
             },
             mounted() {
-                this.list();
+                this.list('todos');
                 this.list_profile();
                 this.list_ChecklistTemplate();
                 this.list_sites();

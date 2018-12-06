@@ -12,6 +12,7 @@ use App\Mail\Email;
 use App\Employee;
 use App\Checklist;
 use App\Admin;
+use Auth;
 
 class SendEmail
 {
@@ -91,16 +92,28 @@ class SendEmail
     public function handleEmployee(NewEmployeeEvent $event)
     {
         $employee = $event->getEmployee();
+        $admin = $event->getAdmin();
+        if($event->getReason()=='new'){
+            $objDemo = new \stdClass();
+            $objDemo->receiver = $employee['name'];
+            $objDemo->Header = 'Bem vindo à T-Systems do Brasil LTDA!';
+            $objDemo->text= "Adicionou você ao portal CheckList!";
+            $objDemo->name = $event->getAdmin()->name;
+            $objDemo->sender = 'T-Systems LTDA Portal Checklist';
+            $objDemo->link = 'http://localhost:8000/employee/yourchecklist?token='.$employee->token;
 
-        $objDemo = new \stdClass();
-        $objDemo->receiver = $employee['name'];
-        $objDemo->Header = 'Bem vindo à T-Systems do Brasil LTDA!';
-        $objDemo->text= "Adicionou você ao portal CheckList!";
-        $objDemo->name = $event->getName();
-        $objDemo->sender = 'T-Systems LTDA Portal Checklist';
-        $objDemo->link = 'http://localhost:8000/employee/yourchecklist?token='.$employee->token;
-
-        //Mail::to($employee['email'])->send(new Email($objDemo)); //USE THIS
+            //Mail::to($employee['email'])->send(new Email($objDemo)); //USE THIS
+        }else if($event->getReason()=='update'){
+            $objDemo = new \stdClass();
+            $objDemo->receiver = $admin['name'];
+            $objDemo->Header = 'Você tem uma atualização no Portal Checklist!';
+            $objDemo->text= " Adicionou você como gestor do empregado: ".$employee->name;
+            $objDemo->name = Auth::user()->name;
+            $objDemo->sender = 'T-Systems LTDA Portal Checklist';
+            $objDemo->link = 'http://localhost:8000';
+    
+            //Mail::to($employee['email'])->send(new Email($objDemo)); //USE THIS
+        }
 
         //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING
     }

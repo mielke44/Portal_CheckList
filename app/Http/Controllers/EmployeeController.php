@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Employee;
+use App\Admin;
 use App\User;
 use App\Profile;
 use Illuminate\Http\Request;
@@ -33,10 +34,14 @@ class EmployeeController extends Controller
         //$this -> Employee = \Auth::Employee();
         //print_r($request->all());
         //return;
-        if($request["id"] != "") $Employee = Employee::find($request["id"]);
+        if($request["id"] != ""){
+            $Employee = Employee::find($request["id"]);
+            $r = 'update';
+        } 
         else {
             $Employee = new Employee();
             $Employee ->token = bcrypt($request['name'].rand(100000,999999));
+            $r = 'novo';
         }
         $Employee -> name = $request['name'];
         $Employee -> email = $request['email'];
@@ -44,8 +49,9 @@ class EmployeeController extends Controller
         $Employee -> CPF = $request['cpf'];
         $Employee -> fone = $request['fone'];
         $Employee -> site = $request['site'];
+        $Employee -> gestor = $request['resp'];
         if ($Employee -> save()) {
-            event( new NewEmployeeEvent($Employee, Auth::user()['name']));
+            event( new NewEmployeeEvent($Employee, Auth::user(),$r));
             return json_encode(array('error' => false,
                 'message' => $Employee -> id));
         } else {
@@ -64,6 +70,7 @@ class EmployeeController extends Controller
     {
         $employee = Employee::findOrFail($request["id"]);
         $employee->profile=Profile::find($employee->profile_id)->name;
+        $employee->gestor_name = Admin::findOrFail($employee->gestor)->name;
         return $employee;
     }
 
@@ -80,9 +87,23 @@ class EmployeeController extends Controller
         else return json_encode(array('error'=>"true"));
     }
 
-    public function list(){
-        $site = Auth::user()->site;
-        $list = Employee::where("site",$site)->get();
+    public function list(Request $r){
+        switch($r['filtro']){
+            case 'site':
+                $list = Employee::where("site",Auth::user()->site)->get();
+                break;
+            case 'gestor':
+                $list = Employee::where("gestor", Auth::user()->id)->get();
+                break;
+            case 'todos':
+                $list = Employee::all();
+                break;
+            default:
+                $list = Employee::all();
+                break;
+        }
+        
+
         foreach($list as $emp){
             $a = Checklist::where("employee_id",$emp->id)->get();
             $emp['check_true_size']=0;

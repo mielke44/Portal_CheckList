@@ -21,6 +21,7 @@ class CreateEmployeeTable extends Migration
             $table->string('site');
             $table->integer('profile_id');
             $table->string('fone');
+            $table->string('gestor');
             $table->string('token');
             $table->timestamps();
         });

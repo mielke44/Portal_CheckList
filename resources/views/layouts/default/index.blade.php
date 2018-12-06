@@ -336,7 +336,7 @@
                     },
                 }).done(response => {
                     this.list_notifications();
-                    window.location = '/employee';
+                    window.location = "{{route('employee')}}";
                 });
             },
             update: function () {

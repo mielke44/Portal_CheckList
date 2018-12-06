@@ -19,6 +19,7 @@ class EmployeeTableSeeder extends Seeder
             'site' => "12",
             'profile_id' => "1",
             'fone' => "+12(31)23123-1231",
+            'gestor' => "5",
             'token' => bcrypt(rand(100000,999999)),
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
