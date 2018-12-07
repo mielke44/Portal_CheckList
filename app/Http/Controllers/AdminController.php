@@ -7,6 +7,7 @@ use App\User;
 use App\Site;
 use Illuminate\Http\Request;
 use Auth;
+use App\Group;
 
 class AdminController extends Controller
 {
@@ -20,12 +21,6 @@ class AdminController extends Controller
         return view('admin',compact('prof_view'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         //print_r($request->all());
@@ -42,7 +37,8 @@ class AdminController extends Controller
             $admin->is_admin = '1';
         }
         if(!$request['is_admin'])$admin->password = bcrypt($request['form']['id'].$request['form']['name']);
-        
+        if($request['form']['group']!='')$admin->group = $request['form']['group'];
+
         if ($admin -> save()) {
             return json_encode(array('error' => false,
                 'message' => $admin -> id));
@@ -52,12 +48,6 @@ class AdminController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Admin  $admin
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Request $request)
     {
         $admin = Admin::findOrFail($request["id"]);
@@ -69,12 +59,6 @@ class AdminController extends Controller
         return view('admin',compact('prof_view'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Admin  $admin
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Request $request)
     {
         $admin = Admin::findOrFail($request["id"]);

@@ -130,11 +130,8 @@
 
                                                             </v-flex>
                                                         </template>
-
                                                     </v-layout>
                                                 </v-container>
-
-
                                             </v-tab-item>
                                         </template>
                                     </v-tabs>
@@ -251,7 +248,6 @@
                     </v-card-text>
                     <v-card-actions>
                         <v-spacer></v-spacer>
-
                         <v-btn color="red" @click="dialog_comment = false" outline>
                             <v-icon dark class='mr-2'>close</v-icon>Fechar
                         </v-btn>

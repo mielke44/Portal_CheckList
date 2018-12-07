@@ -10,91 +10,213 @@
 <v-container grid-list-lg>
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view && !prof_view">
-        <v-flex class='text-xs-right'>
-            <v-btn v-if="user.is_admin==1" @click=" is_admin=true;add();" color="primary">Adicionar Gestor</v-btn>
+        <v-flex xs6 sm6 class="py-2">
+            <v-btn-toggle v-model="Filter" mandatory>
+                <v-btn flat>
+                    <v-icon>group</v-icon>
+                    Grupos
+                </v-btn>
+                <v-btn flat>
+                    <v-icon>person</v-icon>
+                    Posição
+                </v-btn>
+                <v-btn flat>
+                    <v-icon>domain</v-icon>
+                    Site
+                </v-btn>
+            </v-btn-toggle>
         </v-flex>
-        <v-flex xs12>
-            <v-expansion-panel>
-                <v-expansion-panel-content v-for='adm in admin'>
+        <v-flex xs6 sm6 class="text-xs-right">
+            <v-btn class="ma-0 " v-if="user.is_admin==1" @click="is_admin=true;add();" color="primary">Adicionar Gestor</v-btn>
+            <v-btn class="ma-0 " v-if="Filter==0" @click="addGroup();" color="primary">Adicionar Grupo</v-btn>
+        </v-flex>
+        <!--VIEW FILTRO GROUP-->
+        <v-flex xs12 class="pa-0 ma-0" v-if="Filter==0">
+            <v-expansion-panel v-model="model_group">
+                <v-expansion-panel-content v-for='grp in groups'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
-                            <v-flex xs6>
-                                @{{adm.name}}
+                            <v-flex class="font-weight-bold" xs6>
+                                @{{grp.name}}
                             </v-flex>
-                            <!--<v-flex xs3 class='text-xs-right'>
-                                <span class='mr-2'>@{{adm.checks}}/@{{adm.list}}</span>
-                                <v-progress-circular rotate="-90" :value="adm.checks/adm.list*100" color="primary" class='mr-2'
-                                    width='7'></v-progress-circular>
-                            </v-flex>-->
                         </v-layout>
                     </div>
-                    <v-container grid-list-xs>
-                        <v-layout row wrap>
-                            <v-flex xs3>E-mail:</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{adm.email}}</v-flex>
-                            <v-flex xs3>Data admissão</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
-                            <v-flex xs3>Site</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{getSiteName(adm.site)}}</v-flex>
-                            <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
-                                <v-btn color="blue" outline>
-                                    <v-icon dark class='mr-2'>check</v-icon> Empregados
-                                </v-btn>
-                                <v-btn @click="edit(adm.id)" color="yellow darken-2" outline>
-                                    <v-icon dark class='mr-2'>edit</v-icon> Editar
-                                </v-btn>
-                                <v-btn @click="destroy(adm.id)" color="red" outline>
-                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                </v-btn>
-                            </v-flex>
-                        </v-layout>
+                    <v-container>
+                        <v-expansion-panel>
+                                <v-expansion-panel-content v-for='adm in admin_group'>
+                                    <div slot="header">
+                                        <v-layout row wrap fill-height align-center>
+                                            <v-flex xs6>
+                                                @{{adm.name}}
+                                            </v-flex>
+                                        </v-layout>
+                                    </div>
+                                    <v-layout class="pa-2" row wrap>
+                                            <v-flex xs6>E-mail:</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{adm.email}}</v-flex>
+                                            <v-flex xs6>Data admissão</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
+                                            <v-flex xs6>Site</v-flex>
+                                            <v-flex xs6 class='font-weight-bold'>@{{getSiteName(adm.site)}}</v-flex>
+                                            <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
+                                                <v-btn @click="edit(adm.id)" color="yellow darken-2" outline>
+                                                    <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                                </v-btn>
+                                                <v-btn @click="destroy(adm.id)" color="red" outline>
+                                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                                </v-btn>
+                                            </v-flex>
+                                    </v-layout>
+                                </v-expansion-panel-content>
+                        </v-expansion-panel>
                     </v-container>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
-        <!--LISTA DE RESPONSÁVEIS-->
-        <v-flex class='text-xs-right'>
-            <v-btn v-if="user.is_admin==1" @click="is_admin=false;add();" color="primary">Adicionar Responsável</v-btn>
-        </v-flex>
-        <v-flex xs12>
-            <v-expansion-panel>
-                <v-expansion-panel-content v-for='r in resp'>
-                    <div slot="header">
-                        <v-layout row wrap fill-height align-center>
-                            <v-flex xs6>
-                                @{{r.name}}
-                            </v-flex>
-                            <!--<v-flex xs3 class='text-xs-right'>
+        <!--VIEW FILTRO POS-->
+        <v-flex xs12 class="pa-0 ma-0" v-if="Filter==1">
+            <v-flex xs12>
+                <v-expansion-panel>
+                    <v-expansion-panel-content v-for='adm in admin'>
+                        <div slot="header">
+                            <v-layout row wrap fill-height align-center>
+                                <v-flex xs6>
+                                    @{{adm.name}}
+                                </v-flex>
+                                <!--<v-flex xs3 class='text-xs-right'>
                                     <span class='mr-2'>@{{adm.checks}}/@{{adm.list}}</span>
                                     <v-progress-circular rotate="-90" :value="adm.checks/adm.list*100" color="primary" class='mr-2'
                                         width='7'></v-progress-circular>
                                 </v-flex>-->
-                        </v-layout>
-                    </div>
-                    <v-container grid-list-xs>
-                        <v-layout row wrap>
-                            <v-flex xs3>E-mail:</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{r.email}}</v-flex>
-                            <v-flex xs3>Data admissão</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{r.created_at}}</v-flex>
-                            <v-flex xs3>Site</v-flex>
-                            <v-flex xs3 class='font-weight-bold'>@{{getSiteName(r.site)}}</v-flex>
-                            <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
-                                <v-btn color="blue" outline>
-                                    <v-icon dark class='mr-2'>check</v-icon> Empregados
-                                </v-btn>
-                                <v-btn @click="edit(r.id)" color="yellow darken-2" outline>
-                                    <v-icon dark class='mr-2'>edit</v-icon> Editar
-                                </v-btn>
-                                <v-btn @click="destroy(r.id)" color="red" outline>
-                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                </v-btn>
-                            </v-flex>
-                        </v-layout>
-                    </v-container>
-                </v-expansion-panel-content>
-            </v-expansion-panel>
+                            </v-layout>
+                        </div>
+                        <v-container grid-list-xs>
+                            <v-layout row wrap>
+                                <v-flex xs3>E-mail:</v-flex>
+                                <v-flex xs3 class='font-weight-bold'>@{{adm.email}}</v-flex>
+                                <v-flex xs3>Data admissão</v-flex>
+                                <v-flex xs3 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
+                                <v-flex xs3>Site</v-flex>
+                                <v-flex xs3 class='font-weight-bold'>@{{getSiteName(adm.site)}}</v-flex>
+                                <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
+                                    <v-btn @click="edit(adm.id)" color="yellow darken-2" outline>
+                                        <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                    </v-btn>
+                                    <v-btn @click="destroy(adm.id)" color="red" outline>
+                                        <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                    </v-btn>
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-flex>
+            <v-flex xs12 sm12 class='text-xs-right'>
+                <v-btn class=" ma-0" v-if="user.is_admin==1 && Filter==1" @click="is_admin=false;add();" color="primary">Adicionar Responsável</v-btn>
+            </v-flex>
+            <v-flex xs12>
+                <v-expansion-panel>
+                    <v-expansion-panel-content v-for='r in resp'>
+                        <div slot="header">
+                            <v-layout row wrap fill-height align-center>
+                                <v-flex xs6>
+                                    @{{r.name}}
+                                </v-flex>
+                                <!--<v-flex xs3 class='text-xs-right'>
+                                        <span class='mr-2'>@{{adm.checks}}/@{{adm.list}}</span>
+                                        <v-progress-circular rotate="-90" :value="adm.checks/adm.list*100" color="primary" class='mr-2'
+                                            width='7'></v-progress-circular>
+                                    </v-flex>-->
+                            </v-layout>
+                        </div>
+                        <v-container grid-list-xs>
+                            <v-layout row wrap>
+                                <v-flex xs3>E-mail:</v-flex>
+                                <v-flex xs3 class='font-weight-bold'>@{{r.email}}</v-flex>
+                                <v-flex xs3>Data admissão</v-flex>
+                                <v-flex xs3 class='font-weight-bold'>@{{r.created_at}}</v-flex>
+                                <v-flex xs3>Site</v-flex>
+                                <v-flex xs3 class='font-weight-bold'>@{{getSiteName(r.site)}}</v-flex>
+                                <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
+                                    <v-btn color="blue" outline>
+                                        <v-icon dark class='mr-2'>check</v-icon> Empregados
+                                    </v-btn>
+                                    <v-btn @click="edit(r.id)" color="yellow darken-2" outline>
+                                        <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                    </v-btn>
+                                    <v-btn @click="destroy(r.id)" color="red" outline>
+                                        <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                    </v-btn>
+                                </v-flex>
+                            </v-layout>
+                        </v-container>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-flex>
         </v-flex>
+        <!--VIEW FILTRO SITE-->
+        <v-flex xs12 class="pa-0 ma-0" v-if="Filter==2">
+                <v-expansion-panel v-model="model_site">
+                    <v-expansion-panel-content v-for='st in sites'>
+                        <div slot="header">
+                            <v-layout row wrap fill-height align-center>
+                                <v-flex class="font-weight-bold" xs6>
+                                    @{{getSiteName(st.id)}}
+                                </v-flex>
+                            </v-layout>
+                        </div>
+                        <v-container>
+                            <v-expansion-panel>
+                                    <v-expansion-panel-content v-for='adm in admin_site'>
+                                        <div slot="header">
+                                            <v-layout row wrap fill-height align-center>
+                                                <v-flex xs6>
+                                                    @{{adm.name}}
+                                                </v-flex>
+                                            </v-layout>
+                                        </div>
+                                        <v-layout class="pa-2" row wrap>
+                                                <v-flex xs6>E-mail:</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{adm.email}}</v-flex>
+                                                <v-flex xs6>Data admissão</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
+                                                <v-flex xs6>Site</v-flex>
+                                                <v-flex xs6 class='font-weight-bold'>@{{getSiteName(adm.site)}}</v-flex>
+                                                <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
+                                                    <v-btn @click="edit(adm.id)" color="yellow darken-2" outline>
+                                                        <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                                    </v-btn>
+                                                    <v-btn @click="destroy(adm.id)" color="red" outline>
+                                                        <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                                    </v-btn>
+                                                </v-flex>
+                                        </v-layout>
+                                    </v-expansion-panel-content>
+                            </v-expansion-panel>
+                        </v-container>
+                    </v-expansion-panel-content>
+                </v-expansion-panel>
+            </v-flex>
+        <!--POPUP CREATE GROUP-->
+        <v-dialog v-model="popup_group" max-width="600" r>
+            <v-card>
+                <v-card-title>Adicionar Grupo</v-card-title>
+                <v-card-text>
+                    <v-layout row wrap>
+                    <v-flex xs12>
+                        <v-text-field v-model='form.name' :rules="rules.name" label='Nome do grupo' required></v-text-field>
+                    </v-flex>
+                    </v-layout>
+                </v-card-content>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="primary" @click="storeGroup()">
+                        <v-icon dark class='mr-2'>group_add</v-icon>Salvar
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+            
+        </v-dialog>
     </v-layout>
 
 
@@ -168,17 +290,22 @@
         },
         data() {
             return {
+                model_group: 0,
+                model_site: 0,
                 name: '',
+                popup_group: false,
                 is_admin: false,
                 show1: false,
                 admin: [],
                 resp: [],
                 user: [],
+                groups: [],
                 form_view: false,
                 form_texts: {
                     title: "",
                     button: ""
                 },
+                Filter: true,
                 rules: {
                     name: [
                         v => !!v || 'Campo obrigatório',
@@ -215,6 +342,7 @@
                     password: '',
                     passwordc: '',
                     site: '',
+                    group: '',
                 },
                 items: [],
                 sites: [],
@@ -225,13 +353,28 @@
             prof_view: function () {
                 if ("true" == "{{$prof_view}}") return true;
                 return false;
+            },
+            admin_group: function(){
+                var admin_group = [];
+                for(adm of this.admin){
+                    if(adm.group==this.groups[this.model_group].id)admin_group.push(adm);
+                }
+                return admin_group;
+            },
+            admin_site: function(){
+                var admin_site = [];
+                for(adm of this.admin){
+                    if(adm.site==this.sites[this.model_site].id){admin_site.push(adm);
+                    }
+                }
+                return admin_site;
             }
         },
         methods: {
             add: function () {
                 this.form_view = true;
-                this.form_texts.title = "Criar Admin";
-                this.form_texts.button = "Criar";
+                this.form_texts.title = "Adicionar Registro";
+                this.form_texts.button = "Salvar";
                 this.form = {
                     id: "",
                     name: '',
@@ -255,13 +398,41 @@
                                 this.list();
                                 this.form_view = false;
                                 if (this.form.id == "") app.notify(
-                                    "Admin adicionado com sucesso!",
+                                    "Registro adicionado com sucesso!",
                                     "success");
                                 else app.notify("Edição salva", "success");
                             }
                         });
                     })
                 }
+            },
+            addGroup: function () {
+                this.popup_group = true;
+                this.form = {
+                    id: "",
+                    name: '',
+                }
+            },
+            storeGroup: function () {
+                    app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green", () => {
+                        $.ajax({
+                            url: "{{route('group.store')}}",
+                            method: "POST",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: {
+                                form: this.form,
+                            },
+                            success: (response) => {
+                                this.list_group();
+                                this.popup_group = false;
+                                if (this.form.id == "") app.notify(
+                                    "Registro adicionado com sucesso!",
+                                    "success");
+                                else app.notify("Edição salva", "success");
+                            }
+                        });
+                    })
             },
             list: function () {
                 $.ajax({
@@ -272,6 +443,15 @@
                     this.admin = response['admin_list'];
                     this.user = response['user'];
                     this.resp = response['resp_list']
+                });
+            },
+            list_group: function(){
+                $.ajax({
+                    url: "{{route('group.list')}}",
+                    method: "GET",
+                    dataType: "json",
+                }).done(response => {
+                    this.groups = response;
                 });
             },
             getSiteName: function (id) {
@@ -319,6 +499,7 @@
             }
         },
         mounted() {
+            this.list_group();
             this.list();
             this.prof_view2 = this.prof_view;
 

@@ -70,6 +70,11 @@ Route::get('profile/list', "ProfileController@list")->name('profile.list');
 Route::get('profile/edit', "ProfileController@edit")->name('profile.edit');
 Route::delete('profile/destroy', "ProfileController@destroy")->name('profile.destroy');
 
+//Groups
+Route::post('Group/store', "GroupController@store")->name('group.store');
+Route::get('Group/list', "GroupController@list")->name('group.list');
+Route::post('Group/Delete', "GroupController@destroy")->name('group.delete');
+
 //Sites
 Route::get('site/list', "SiteController@list")->name('site.list');
 
