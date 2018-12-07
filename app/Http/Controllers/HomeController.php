@@ -48,6 +48,10 @@ class HomeController extends Controller
         return Auth::user()->is_admin;
     }
 
+    public static function getUser(){
+        return Auth::user();
+    }
+
     public function getNotifications(){
         $session_id = Auth::user()->id;
         if(Auth::user()->is_admin==-1)$notifications = Notification::where('employee_id',Employee::where('token',Auth::user()->token)->id)
@@ -79,7 +83,7 @@ class HomeController extends Controller
             return json_encode(array('error'=> true,'message'=> 'Not updated!'));
         }
     }
-    
+
     public function getFlagNot(){
         $coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();
         if(sizeof($coll)!=0){

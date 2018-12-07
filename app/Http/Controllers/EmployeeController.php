@@ -37,7 +37,7 @@ class EmployeeController extends Controller
         if($request["id"] != ""){
             $Employee = Employee::find($request["id"]);
             $r = 'update';
-        } 
+        }
         else {
             $Employee = new Employee();
             $Employee ->token = bcrypt($request['name'].rand(100000,999999));
@@ -88,21 +88,21 @@ class EmployeeController extends Controller
     }
 
     public function list(Request $r){
-        switch($r['filtro']){
-            case 'site':
-                $list = Employee::where("site",Auth::user()->site)->get();
+        switch($r['filtro']['type']){
+            case 'Site':
+                $list = Employee::where("site",$r['filtro']['site'])->get();
                 break;
-            case 'gestor':
+            case 'Gestor':
                 $list = Employee::where("gestor", Auth::user()->id)->get();
                 break;
-            case 'todos':
+            case 'Todos':
                 $list = Employee::all();
                 break;
             default:
                 $list = Employee::all();
                 break;
         }
-        
+
 
         foreach($list as $emp){
             $a = Checklist::where("employee_id",$emp->id)->get();

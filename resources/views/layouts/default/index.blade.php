@@ -22,7 +22,7 @@
                     </v-list-tile-avatar>
 
                     <v-list-tile-content>
-                        <v-list-tile-title>@{{name}}</v-list-tile-title>
+                        <v-list-tile-title>@{{user.name.split(" ")[0]}}</v-list-tile-title>
                     </v-list-tile-content>
 
 
@@ -33,7 +33,7 @@
         <v-list class="pt-0" dense>
             <v-divider></v-divider>
 
-            <v-list-tile v-if="is_admin>0 || item.visible_external" v-for="(item,i) in menu" :key="item.title" @click="item.link">
+            <v-list-tile v-if="user.is_admin>0 || item.visible_external" v-for="(item,i) in menu" :key="item.title" @click="item.link">
                 <v-list-tile-action>
                     <v-icon :color="(i==screen) ? 'black': 'white'">@{{ item.icon }}</v-icon>
                 </v-list-tile-action>
@@ -163,7 +163,10 @@
         },
         data() {
             return {
-                is_admin: '',
+                user: {
+                    is_admin: 0,
+                    name: ' '
+                },
                 tam: 3,
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -171,7 +174,6 @@
                 screen: "0",
                 app_name: "Portal Checklist",
                 notifications: [],
-                name: " ",
                 drawer: true,
                 mini: false,
                 search: {
@@ -271,7 +273,7 @@
         },
         computed: {
             letter: function () {
-                return this.name[0];
+                return this.user.name[0];
             },
             notifyLimit: function () {
                 var array = []
@@ -297,20 +299,13 @@
                 this.dialog_confirm.color = color;
                 this.dialog_confirm.action = action;
             },
-            getName: function () {
+            getUser: function(callback){
                 $.ajax({
-                    url: "{{route('getname')}}",
+                    url: "{{route('getuser')}}",
                     method: 'GET',
                 }).done(response => {
-                    this.name = response;
-                });
-            },
-            getPerm: function () {
-                $.ajax({
-                    url: "{{route('getperm')}}",
-                    method: 'GET',
-                }).done(response => {
-                    this.is_admin = response;
+                    this.user = response;
+                    callback();
                 });
             },
             searching: function () {
@@ -364,10 +359,11 @@
             this.more[0].link = () => {
                 location.href = "{{route('admin.profile')}}";
             };
-            this.getName();
-            this.getPerm();
+            this.getUser(()=>{
+                setTimeout(()=>{if(this.$refs.page.hasOwnProperty("mounted"))this.$refs.page.mounted()},50);
+            });
             setInterval(() => this.update(), 15000);
-            setTimeout(()=>{if(this.$refs.page.hasOwnProperty("mounted"))this.$refs.page.mounted()},50);
+
         }
     });
 </script>
