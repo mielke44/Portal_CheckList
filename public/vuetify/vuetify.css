@@ -2883,16 +2883,16 @@ p {
   margin-right: auto !important;
 }
 .mt-auto {
-  margin-top: auto;
+  margin-top: auto !important;
 }
 .mr-auto {
-  margin-right: auto;
+  margin-right: auto !important;
 }
 .mb-auto {
-  margin-bottom: auto;
+  margin-bottom: auto !important;
 }
 .ml-auto {
-  margin-left: auto;
+  margin-left: auto !important;
 }
 .ma-0 {
   margin: 0 0 !important;
@@ -3530,7 +3530,7 @@ p {
   margin-top: 24px;
 }
 .v-autocomplete:not(.v-input--is-disabled).v-select.v-text-field input {
-  pointer-events: auto;
+  pointer-events: inherit;
 }
 .v-autocomplete__content.v-menu__content {
   border-radius: 0;
@@ -3908,7 +3908,8 @@ p {
   margin-top: 22px;
   transition: 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
 }
-.v-text-field--outline.v-input--is-focused .v-input__slot {
+.v-text-field--outline.v-input--is-focused .v-input__slot,
+.v-text-field--outline.v-input--has-state .v-input__slot {
   border: 2px solid currentColor;
   transition: border 0.3s cubic-bezier(0.25, 0.8, 0.5, 1);
 }
@@ -4254,6 +4255,9 @@ p {
 .v-menu-transition-enter-active,
 .v-menu-transition-leave-active {
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+.v-menu-transition-enter.v-menu__content--auto {
+  transition: none !important;
 }
 .v-menu-transition-enter.v-menu__content--auto .v-list__tile {
   opacity: 0;
@@ -5056,12 +5060,12 @@ p {
   width: 100%;
   height: inherit;
   position: relative;
-  transition: 0.2s;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.6, 1);
   z-index: 1;
 }
 .v-progress-linear__bar__determinate {
   height: inherit;
-  transition: 0.2s;
+  transition: 0.2s cubic-bezier(0.4, 0, 0.6, 1);
 }
 .v-progress-linear__bar__indeterminate .long,
 .v-progress-linear__bar__indeterminate .short {

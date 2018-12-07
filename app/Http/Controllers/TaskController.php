@@ -120,7 +120,6 @@ class TaskController extends Controller
         $dep = array();
         $trs = TaskRequiere::where("task_id",$task->id)->get();
         $trs2 = TaskRequiere::where("task_requiere_id",$task->id)->get();
-        $task->resp = $request["resp"];
         foreach($trs as $tr){
             $dep[]=$tr->task_requiere_id;
         }

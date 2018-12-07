@@ -16,10 +16,13 @@
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs1  >
-                                <v-checkbox readonly="!editable" v-model="c.status" @change='updateCheck(c.id,c.status)'></v-checkbox>
+                                <v-checkbox :readonly="!editable" v-model="c.status" @change='updateCheck(c.id,c.status)'></v-checkbox>
                             </v-flex>
-                            <v-flex xs11 @click='model_checks=model_checks==i?-1:i'>
+                            <v-flex xs6 @click='model_checks=model_checks==i?-1:i'>
                                 @{{tasks.find(t=>t.id==c.task_id).name}}
+                            </v-flex>
+                            <v-flex xs5 @click='model_checks=model_checks==i?-1:i'>
+                                    @{{c.user}}
                             </v-flex>
                         </v-layout>
                     </div>
@@ -177,7 +180,7 @@
                     dataType: "json",
                 }).done(response => {
                     this.checks = response['checks'];
-                    this.editable = response['editable']=="true"?true:false;
+                    this.editable = response['editable'];
 
                 });
             },

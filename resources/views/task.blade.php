@@ -10,11 +10,64 @@
 <v-container grid-list-lg>
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view">
-        <v-flex class='text-xs-right'>
-            <v-btn color="primary" @click="add()">Adicionar tarefa</v-btn>
+        <v-flex>
+            <table align='right'>
+                <tr>
+                    <td>
+                        <v-btn-toggle v-model="task_view_mode">
+                            <v-btn flat>
+                                <v-icon>list</v-icon>
+                            </v-btn>
+                            <v-btn flat>
+                                <v-icon>timeline</v-icon>
+                            </v-btn>
+                        </v-btn-toggle>
+                    </td>
+                    <td>
+                        <v-btn color="primary" @click="add()" class='mr-0'>Adicionar tarefa</v-btn>
+                    </td>
+                </tr>
+            </table>
+
+
         </v-flex>
         <v-flex xs12>
-            <v-expansion-panel>
+            <template v-if='task_view_mode==1'>
+                <v-card>
+                    <v-container grid-list-xs>
+                        <v-layout row wrap>
+                            <v-flex xs6>
+                                <v-treeview open-all :items='task_tree' :active.sync='task_tree_active' activatable
+                                    active-class='extra-treeview'>
+                                </v-treeview>
+                            </v-flex>
+                            <v-flex xs6 v-if='task_tree_selected!=0'>
+                                <div class='headline mb-2 mt-2'>@{{task_tree_selected.name}}</div>
+                                <v-layout row wrap>
+                                    <v-flex xs6>Tipo:</v-flex>
+                                    <v-flex xs6>@{{task_tree_selected.type}}</v-flex>
+                                    <v-flex xs6>Responsável padrão:</v-flex>
+                                    <v-flex xs6>@{{task_tree_selected.resp_name}}</v-flex>
+                                </v-layout>
+                                <v-divider></v-divider>
+                                <p class='mt-2'>@{{task_tree_selected.description}}</p>
+                                <v-divider></v-divider>
+                                <div class='mt-2'>
+                                    <v-btn @click="edit(task_tree_selected.id)" color="yellow darken-2" outline>
+                                        <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                    </v-btn>
+                                    <v-btn @click="destroy(task_tree_selected.id)" color="red" outline>
+                                        <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                    </v-btn>
+                                </div>
+                            </v-flex>
+                        </v-layout>
+                    </v-container>
+                </v-card>
+
+            </template>
+
+            <v-expansion-panel v-if='task_view_mode==0'>
                 <v-expansion-panel-content v-for='(t,i) in tasks' v-if='search_data[i]'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
@@ -180,7 +233,8 @@
                         value: "2",
                     },
                 ],
-                search: ''
+                search: '',
+                task_view_mode: 0
             }
         },
         watch: {
@@ -299,6 +353,8 @@
                         },
                         success: (response) => {
                             this.list();
+                            this.get_task_tree();
+                            this.task_tree_active = '';
                             app.notify("Tarefa removida", "error");
                         }
                     });
@@ -374,8 +430,9 @@
             },
             searching: function (search) {
                 this.search = search;
+                this.task_view_mode = 0;
             },
-            mounted: function(){
+            mounted: function () {
                 app.setMenu('task');
             }
         },

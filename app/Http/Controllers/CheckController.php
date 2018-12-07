@@ -147,14 +147,14 @@ class CheckController extends Controller
                 if(Check::where("checklist_id",$Checklist_id)->where("task_id",$ct["task_id"])->count()==0){
                     createCheckDep($c->id,$user->id,$Checklist_id);
                 }
-            }   
+            }
         }
         if($check->save()){
             return(json_encode(array('error'=> true,
                                     'message'=>'Ocorreu um erro, tente novamente!')));
         }
     }
-    
+
 
     public static function createCheckDep($task_id,$user_id,$checklist_id){
         $dep = TaskRequiere::where('task_id',$task_id);
@@ -188,11 +188,15 @@ class CheckController extends Controller
             foreach($checklists as $cl){
                 $checks = array_merge($checks,Check::where("checklist_id",$cl->id)->where("resp",0)->get()->all());
             }
-            $editable = true;
+            $editable = false;
         }
         else {
             $checks = Check::where("resp",Auth::user()->id)->get();
-            $editable = false;
+            $editable = true;
+        }
+        foreach($checks as $c){
+            $c->user = Employee::find(Checklist::find($c->checklist_id)->employee_id)->name;
+
         }
         return json_encode(array('checks'=>$checks,'editable'=>$editable));
     }

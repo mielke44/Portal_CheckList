@@ -11,8 +11,12 @@
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view">
         <v-flex xs3 class='text-xs-left'>
-                <v-select solo append-icon="filter_list" v-model="filtro" :items="filtros" item-text="name" item-value="name"
-                label="Filtros" persistent-hint :rules='rules.profile' @change="list(filtro)"></v-select>
+            <v-select solo append-icon="filter_list" v-model="filtro.type" :items="filtros" item-text="name" item-value="name"
+                label="Filtros" persistent-hint :rules='rules.profile' @change="list()"></v-select>
+        </v-flex>
+        <v-flex>
+            <v-select v-model="filtro.site" :items="sites" item-text="complete_name" item-value="id" label="Site" solo
+                v-if='filtro.type=="Site"'  @change="list()"></v-select>
         </v-flex>
         <v-flex class='text-xs-right'>
             <v-btn @click="add()" color="primary">Adicionar empregado</v-btn>
@@ -26,7 +30,8 @@
                                 @{{em.name}}
                             </v-flex>
                             <v-flex xs3>
-                                @{{em.profile}}
+                                <p>@{{em.profile}}</p>
+                                <p class='caption'>@{{siteName(em.site)}}</p>
                             </v-flex>
                             <v-flex xs3 class='text-xs-right'>
                                 <a @click=''>
@@ -304,8 +309,11 @@
             data() {
                 return {
                     commentedit: -1,
-                    filtros: ['site','gestor','todos'],
-                    filtro: '',
+                    filtros: ['Site', 'Gestor', 'Todos'],
+                    filtro: {
+                        type: 'Gestor',
+                        site: '',
+                    },
                     task_tree_active: [],
                     checkbox: [],
                     model_employee: null,
@@ -367,7 +375,7 @@
                         comment: '',
                         comment_id: '',
                         resp: '',
-                        
+
                     },
                     items: [{
                             text: 'Efetivado',
@@ -424,25 +432,28 @@
                 },
                 store: function () {
                     if (this.$refs.form.validate()) {
-                        app.confirm("Criando/Alterando Registro!", "Confirmar ação deste Registro?", "green", () => {
-                            $.ajax({
-                                url: "{{route('emp.store')}}",
-                                method: "POST",
-                                dataType: "json",
-                                headers: app.headers,
-                                data: this.form,
-                                success: (response) => {
-                                    this.list();
-                                    this.form_view = false;
-                                    if (this.form.id == "") app.notify("Empregado adicionado",
-                                        "success");
-                                    else app.notify("Edição salva", "success");
-                                    if (this.form.id == "") app.notify(
-                                        "Empregado adicionado com sucesso!", "success");
-                                    else app.notify("Edição salva", "success");
-                                }
-                            });
-                        })
+                        app.confirm("Criando/Alterando Registro!", "Confirmar ação deste Registro?",
+                            "green", () => {
+                                $.ajax({
+                                    url: "{{route('emp.store')}}",
+                                    method: "POST",
+                                    dataType: "json",
+                                    headers: app.headers,
+                                    data: this.form,
+                                    success: (response) => {
+                                        this.list();
+                                        this.form_view = false;
+                                        if (this.form.id == "") app.notify(
+                                            "Empregado adicionado",
+                                            "success");
+                                        else app.notify("Edição salva", "success");
+                                        if (this.form.id == "") app.notify(
+                                            "Empregado adicionado com sucesso!",
+                                            "success");
+                                        else app.notify("Edição salva", "success");
+                                    }
+                                });
+                            })
                     }
                 },
                 checklistTT: function (id) {
@@ -461,12 +472,14 @@
                         }
                     });
                 },
-                list: function (filtro) {
+                list: function () {
                     $.ajax({
                         url: "{{route('emp.list')}}",
                         method: "GET",
                         dataType: "json",
-                        data: {filtro: filtro},
+                        data: {
+                            filtro: this.filtro,
+                        },
                     }).done(response => {
                         this.employees = response;
                     });
@@ -556,7 +569,8 @@
                                 check_id: this.check_tree_selected.id
                             },
                             success: (response) => {
-                                if (response['st'] == 'add') app.notify("Comentário adicionado",
+                                if (response['st'] == 'add') app.notify(
+                                    "Comentário adicionado",
                                     "success");
                                 else if (response['st'] == 'edit') app.notify(
                                     "comentário editado com sucesso!", "success");
@@ -679,7 +693,7 @@
                             this.check_tree_selected.resp = this.form.resp;
                             break;
                         case "STATUS":
-                            form_data.status = data.status?1:0;
+                            form_data.status = data.status ? 1 : 0;
                             break;
                     }
                     $.ajax({
@@ -732,9 +746,16 @@
                     }
                     return null;
                 },
-                mounted: function(){
-                app.setMenu('employee');
-            }
+                siteName: function(id){
+                    site = this.sites.find(s=>s.id==id);
+                    if(site)return site.complete_name;
+                    else return "";
+                },
+                mounted: function () {
+
+                    app.setMenu('employee');
+                    this.filtro.site = parseInt(app.user.site);
+                }
 
             },
             mounted() {
