@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateChecklistTemplateTable extends Migration
+class CreateProfileLinkerTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class CreateChecklistTemplateTable extends Migration
      */
     public function up()
     {
-        Schema::create('checklist_template', function (Blueprint $table) {
-            $table->string('name');
+        Schema::create('profile_linker', function (Blueprint $table) {
             $table->increments('id');
+            $table->integer('profile_id');
+            $table->integer('checklist_id');
             $table->timestamps();
         });
     }
@@ -27,6 +28,6 @@ class CreateChecklistTemplateTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('checklist_template');
+        Schema::dropIfExists('profile_linker');
     }
 }

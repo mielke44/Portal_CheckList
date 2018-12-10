@@ -36,11 +36,15 @@
                 <v-expansion-panel-content v-for='grp in groups'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
-                            <v-flex class="font-weight-bold" xs6>
+                            <v-flex  class="font-weight-bold" xs9>
                                 @{{grp.name}}
                             </v-flex>
                         </v-layout>
                     </div>
+                    <v-flex  xs12 class="text-xs-right font-weight-bold" xs1>
+                            <v-icon @click="editGroup(grp)">edit</v-icon>
+                            <v-icon @click="destroy_group(grp.id)">delete</v-icon>
+                    </v-flex>
                     <v-container>
                         <v-expansion-panel>
                                 <v-expansion-panel-content v-for='adm in admin_group'>
@@ -413,6 +417,13 @@
                     name: '',
                 }
             },
+            editGroup: function(grp){
+                this.popup_group = true;
+                this.form = {
+                    id: grp.id,
+                    name: grp.name,
+                }
+            },
             storeGroup: function () {
                     app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green", () => {
                         $.ajax({
@@ -490,6 +501,24 @@
                             success: (response) => {
                                 this.list();
                                 app.notify("Admin removido", "error");
+                            }
+                        });
+                    })
+            },
+            destroy_group: function (id) {
+                app.confirm("Remover grupo",
+                    "Todas as informações desse grupo serão deletadas.", "red", () => {
+                        $.ajax({
+                            url: "{{route('group.delete')}}",
+                            method: "DELETE",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: {
+                                id: id
+                            },
+                            success: (response) => {
+                                this.list_group();
+                                app.notify("Grupo removido", "success");
                             }
                         });
                     })

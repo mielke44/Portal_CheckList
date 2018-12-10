@@ -6,6 +6,7 @@ use App\Profile;
 use App\Employee;
 use Illuminate\Http\Request;
 use App\ChecklistTemplate;
+use App\ProfileLinker;
 
 class ProfileController extends Controller
 {
@@ -18,26 +19,21 @@ class ProfileController extends Controller
         return view("profile");
     }
 
-    /**
-     * Sends a JSON with all instances.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function list()
     {
         $profile = Profile::all();
         foreach($profile as $p){
-            $p->clist = ChecklistTemplate::where("profile_id",$p->id)->select("name")->get();
+            $linker= ProfileLinker::where("profile_id",$p->id)->get();
+            if(count($linker)==0)$p->clist=0;
+            foreach($linker as $l){
+                $p->clist = ChecklistTemplate::where("id",$l->checklist_id)->select("name")->get();
+                //$profile[i]->clist[i]->name
+            }
         }
+        //print_r(count($profile[0]->clist));
         return json_encode($profile);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         if($request["id"] != "") $profile = Profile::find($request["id"]);
@@ -47,32 +43,20 @@ class ProfileController extends Controller
         else return json_encode(array('error'=>"true"));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Profile  $profile
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Request $request)
     {
         $profile = Profile::findOrFail($request["id"]);
         return $profile;
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Profile  $profile
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Request $request)
     {
         $profile= Profile::findOrFail($request["id"]);
         $emp = Employee::where('profile_id',$profile->id);
-        $clist = ChecklistTemplate::where('profile_id',$profile->id);
+        $plinker = ProfileLinker::where('profile_id',$profile->id);
         if($profile->delete()){
             foreach($emp as $e)$e->profile_id = null;
-            foreach($clist as $c)$c->profile_id = null;
+            foreach($plinker as $p)$p->delete();
             return json_encode(array('success'=>"true"));
         }
         else return json_encode(array('error'=>"true"));

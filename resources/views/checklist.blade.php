@@ -28,8 +28,8 @@
                             <v-flex xs3 class='font-weight-bold'>
                                 Perfil:
                             </v-flex>
-                            <v-flex>
-                                @{{l.profile.name}}
+                            <v-flex xs12 v-for='pf in l.profile'>
+                                @{{pf.name}}
                             </v-flex>
                         </v-layout>
                         <v-layout row wrap>
@@ -77,22 +77,20 @@
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
                             <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil"
                                 :rules="rules.prof_id" persistent-hint required></v-select>
-                            <!--
-                            <v-autocomplete v-model="form.dependences" :items="task" label="Tarefas" item-text="name"
+                            <v-autocomplete v-model="form.profile_id" :items="profile" label="Perfis" item-text="name"
                                 item-value="id" multiple>
                                 <template slot="selection" slot-scope="data">
                                     <v-chip :selected="data.selected" close class="chip--select-multi" @input="remove(data.item)">@{{data.item.name}}</v-chip>
                                 </template>
                                 <template slot="item" slot-scope="data">
                                     <template>
-                                        <v-list-tile-content @click='add_all_dependences(data.item.id)'>
+                                        <v-list-tile-content>
                                             <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
                                             <v-list-tile-sub-title v-html="data.item.description"></v-list-tile-sub-title>
                                         </v-list-tile-content>
                                     </template>
                                 </template>
                             </v-autocomplete>
-                             -->
                             <div class='headline mb-2 mt-2'>Dependências</div>
                             <v-layout row wrap>
                                 <v-flex xs6>
@@ -254,7 +252,6 @@
 
                 }
             },
-
             get_task_tree: function () {
                 $.ajax({
                     url: "{{route('task.tree')}}",

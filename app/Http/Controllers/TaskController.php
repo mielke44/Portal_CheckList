@@ -93,7 +93,7 @@ class TaskController extends Controller
         $task->name = $request["name"];
         $task->description = $request["description"];
         $task->type = $request["type"];
-        $task->resp = $request["resp"]['id'];
+        $task->resp = $request["resp"];
 
         if($task->save()) {
             TaskRequiere::where("task_requiere_id",$task->id)->delete();

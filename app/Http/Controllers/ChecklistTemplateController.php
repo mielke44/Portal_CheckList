@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Profile;
 use App\Task;
 use App\LinkerChecklist;
+use App\ProfileLinker;
 class ChecklistTemplateController extends Controller
 {
     public function __construct()
@@ -31,15 +32,21 @@ class ChecklistTemplateController extends Controller
     public function list()
     {
         $clists = ChecklistTemplate::all();
+        //print_r(ProfileLinker::where("checklist_id",1)->get());//ProfileLinker::where("checklist_id",$clists[0]->id));
         foreach($clists as $c){
             $dep = array();
-            $c->profile = Profile::findOrFail($c->profile_id);
+            $plinker = ProfileLinker::where("checklist_id",$c->id)->get();
+            foreach($plinker as $pl){
+                $profile = Profile::findOrFail($pl->profile_id);
+                $prof[] = array('id'=>$profile->id, 'name'=>$profile->name);
+            }
             $clinker = LinkerChecklist::where("checklist_id",$c->id)->get();
             foreach($clinker as $cl){
                 $taskdep = Task::find($cl->task_id);
                 $dep[]=array('task_id'=>$cl->task_id,"name"=>$taskdep->name, "desc"=>$taskdep->description);
             }
             $c->dependences = $dep;
+            $c->profile = $prof;
         }
         return json_encode($clists);
     }
@@ -55,10 +62,15 @@ class ChecklistTemplateController extends Controller
         if($request["id"] != "") $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
         $clist->name = $request["name"];
-        $clist->profile_id = $request["profile_id"];
 
         if($clist->save()){
             $clinker = LinkerChecklist::where("checklist_id",$clist->id)->delete();
+
+            foreach($request['profile_id'] as $pid){
+                $linker = new ProfileLinker();
+                $linker->profile_id = $pid;
+                $linker->checklist_id = $clist->id;
+            }
             if($request->dependences != "")foreach($request->dependences as $d){
                 $clinker = new LinkerChecklist();
                 $clinker->checklist_id = $clist->id;
@@ -100,7 +112,10 @@ class ChecklistTemplateController extends Controller
     {
         $clist = ChecklistTemplate::findOrFail($request["id"]);
         LinkerChecklist::where("checklist_id",$clist->id)->delete();
-        if($clist->delete()) return json_encode(array('success'=>"true"));
+        ProfileLinker::where("checklist_id",$clist->id)->delete();
+        if($clist->delete()){
+            return json_encode(array('success'=>"true"));
+        } 
         else return json_encode(array('error'=>"true"));
     }
 }

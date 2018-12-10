@@ -7,7 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class ChecklistTemplate extends Model
 {
     protected $table = 'checklist_template';
-    protected $fillable = [
-        'name','profile_id'
-    ];
+    protected $fillable = ['name'];
 }

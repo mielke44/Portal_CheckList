@@ -14,7 +14,6 @@ class Checklist_templateTableSeeder extends Seeder
     {
         DB::table('checklist_template')->insert([
             'name' => "Curitiba NEX",
-            'profile_id' => "1",
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);
