@@ -15,7 +15,7 @@
         </v-flex>
         <v-flex xs12>
             <v-expansion-panel>
-                <v-expansion-panel-content v-for='l in clists'>
+                <v-expansion-panel-content v-for='(l,i) in clists' v-if='search_data[i]'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs6 class='font-weight-bold'>
@@ -94,16 +94,18 @@
                             <div class='headline mb-2 mt-2'>Dependências</div>
                             <v-layout row wrap>
                                 <v-flex xs6>
-                                    <v-treeview :open='form.dependences' :items='task_tree' :active.sync='task_tree_active' activatable active-class='extra-treeview'>
+                                    <v-treeview :open='form.dependences' :items='task_tree' :active.sync='task_tree_active'
+                                        activatable active-class='extra-treeview'>
                                         <template slot='prepend' slot-scope="{ item, open, leaf }">
                                             <div>
-                                                <v-checkbox color='primary' v-model='form.dependences' :value='item.id' @change='set_dependence_tree(item.id,item.tree)'></v-checkbox>
+                                                <v-checkbox color='primary' v-model='form.dependences' :value='item.id'
+                                                    @change='set_dependence_tree(item.id,item.tree)'></v-checkbox>
                                             </div>
                                         </template>
                                     </v-treeview>
                                 </v-flex>
                                 <v-flex xs6>
-                                        <div class='headline mb-2 mt-2'>@{{task_tree_selected.name}}</div>
+                                    <div class='headline mb-2 mt-2'>@{{task_tree_selected.name}}</div>
                                     @{{task_tree_selected.description}}
                                 </v-flex>
                             </v-layout>
@@ -160,13 +162,21 @@
                     dependences: []
 
                 },
+                search:''
             }
         },
         computed: {
             task_tree_selected: function () {
-                if (this.task_tree_active.length==0) return 0;
+                if (this.task_tree_active.length == 0) return 0;
 
                 return this.getTask(this.task_tree_active[0]);
+            },
+            search_data: function () {
+                var array = [];
+                for (l of this.clists) {
+                    array.push(app.search_text(this.search, l.name));
+                }
+                return array;
             }
         },
         methods: {
@@ -184,21 +194,22 @@
             store: function () {
                 if (this.$refs.form.validate()) {
                     app.confirm("Criando/Alterando Registro!", "Confirmar ação deste Registro?", "green", () => {
-                    $.ajax({
-                        url: "{{route('checklist.store')}}",
-                        method: "POST",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: this.form,
-                        success: (response) => {
-                            this.list();
-                            this.form_view = false;
-                            if (this.form.id == "") app.notify(
-                                "Lista de tarefa criada com sucesso!", "success");
-                            else app.notify("Edição salva", "success");
-                        }
-                    });
-                })
+                        $.ajax({
+                            url: "{{route('checklist.store')}}",
+                            method: "POST",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: this.form,
+                            success: (response) => {
+                                this.list();
+                                this.form_view = false;
+                                if (this.form.id == "") app.notify(
+                                    "Lista de tarefa criada com sucesso!",
+                                    "success");
+                                else app.notify("Edição salva", "success");
+                            }
+                        });
+                    })
                 }
             },
             list: function () {
@@ -279,20 +290,20 @@
             },
             destroy: function (id) {
                 app.confirm("Remover Registro!", "Deseja remover este Registro?", "red", () => {
-                $.ajax({
-                    url: "{{route('checklist.destroy')}}",
-                    method: "DELETE",
-                    dataType: "json",
-                    headers: app.headers,
-                    data: {
-                        id: id
-                    },
-                    success: (response) => {
-                        this.list();
-                        app.notify("Lista de tarefa removida", "error");
-                    }
-                });
-            })
+                    $.ajax({
+                        url: "{{route('checklist.destroy')}}",
+                        method: "DELETE",
+                        dataType: "json",
+                        headers: app.headers,
+                        data: {
+                            id: id
+                        },
+                        success: (response) => {
+                            this.list();
+                            app.notify("Lista de tarefa removida", "error");
+                        }
+                    });
+                })
             },
             remove(item) {
                 const index = this.friends.indexOf(item.name)
@@ -316,9 +327,12 @@
                 }
                 return null;
             },
-            mounted: function(){
+            mounted: function () {
                 app.setMenu('checklist');
-            }
+            },
+            searching: function (search) {
+                    this.search = search;
+                },
         },
         watch: {
             isUpdating(val) {

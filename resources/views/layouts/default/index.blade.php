@@ -33,7 +33,8 @@
         <v-list class="pt-0" dense>
             <v-divider></v-divider>
 
-            <v-list-tile v-if="user.is_admin>0 || item.visible_external" v-for="(item,i) in menu" :key="item.title" @click="item.link">
+            <v-list-tile v-if="user.is_admin>0 || item.visible_external" v-for="(item,i) in menu" :key="item.title"
+                @click="item.link">
                 <v-list-tile-action>
                     <v-icon :color="(i==screen) ? 'black': 'white'">@{{ item.icon }}</v-icon>
                 </v-list-tile-action>
@@ -55,13 +56,13 @@
         @yield('l-title')
     </v-toolbar-title>
     <template v-if="search.model">
-        <v-text-field v-model='search.value' append-icon="search" label="Procurar" full-width solo slot='extension'
+        <v-text-field ref='search_input' v-model='search.value' append-icon="search" label="Procurar" full-width solo slot='extension'
             @click:append='searching' @input='searching'></v-text-field>
     </template>
     <v-spacer></v-spacer>
     <v-toolbar-items class="hidden-sm-and-down">
 
-        <v-btn icon @click="search.model=!search.model">
+        <v-btn icon @click="search.model=!search.model;">
             <v-icon>search</v-icon>
         </v-btn>
 
@@ -135,18 +136,23 @@
 
 <v-dialog v-model="dialog_confirm.model" persistent max-width="500px" transition="dialog-transition">
     <v-card :color='dialog_confirm.color' dark>
-            <v-card-text class='text-xs-center display-1'>
-                    @{{dialog_confirm.title}}
-            </v-card-text>
-        <v-divider></v-divider>
-        <v-card-text class='text-xs-center'>
-                @{{dialog_confirm.text}}
+        <v-card-text class='text-xs-center display-1'>
+            @{{dialog_confirm.title}}
         </v-card-text>
         <v-divider></v-divider>
         <v-card-text class='text-xs-center'>
-            <v-btn color="white" class='red--text' @click='dialog_confirm.model=false' fab small><v-icon large>close</v-icon></v-btn>
-            <v-btn color="white" class='green--text' @click='dialog_confirm.action();dialog_confirm.model=false' fab small><v-icon large>check</v-icon></v-btn>
-        </v-card-tex>
+            @{{dialog_confirm.text}}
+        </v-card-text>
+        <v-divider></v-divider>
+        <v-card-text class='text-xs-center'>
+            <v-btn color="white" class='red--text' @click='dialog_confirm.model=false' fab small>
+                <v-icon large>close</v-icon>
+            </v-btn>
+            <v-btn color="white" class='green--text' @click='dialog_confirm.action();dialog_confirm.model=false' fab
+                small>
+                <v-icon large>check</v-icon>
+            </v-btn>
+            </v-card-tex>
     </v-card>
 </v-dialog>
 
@@ -181,7 +187,7 @@
                     model: false
                 },
                 menu: [{
-                        id:'dash',
+                        id: 'dash',
                         icon: "dashboard",
                         text: "Dashboard",
                         visible_external: false,
@@ -190,7 +196,7 @@
                         }
                     },
                     {
-                        id:'employee',
+                        id: 'employee',
                         icon: "face",
                         text: "Empregados",
                         visible_external: false,
@@ -199,7 +205,7 @@
                         }
                     },
                     {
-                        id:'yourchecklist',
+                        id: 'yourchecklist',
                         icon: "event_note",
                         text: "Suas tarefas",
                         visible_external: true,
@@ -208,7 +214,7 @@
                         }
                     },
                     {
-                        id:'profile',
+                        id: 'profile',
                         icon: "portrait",
                         text: "Perfis",
                         visible_external: false,
@@ -217,7 +223,7 @@
                         }
                     },
                     {
-                        id:'checklist',
+                        id: 'checklist',
                         icon: "list_alt",
                         text: "Lista de tarefas",
                         visible_external: false,
@@ -226,7 +232,7 @@
                         }
                     },
                     {
-                        id:'task',
+                        id: 'task',
                         icon: "list",
                         text: "Tarefas",
                         visible_external: false,
@@ -235,7 +241,7 @@
                         }
                     },
                     {
-                        id:'admin',
+                        id: 'admin',
                         icon: "supervisor_account",
                         text: "Gestores e Responsáveis",
                         visible_external: false,
@@ -267,7 +273,7 @@
                     color: 'white',
                     title: '',
                     text: '',
-                    action: ()=>{},
+                    action: () => {},
                 }
             }
         },
@@ -299,7 +305,7 @@
                 this.dialog_confirm.color = color;
                 this.dialog_confirm.action = action;
             },
-            getUser: function(callback){
+            getUser: function (callback) {
                 $.ajax({
                     url: "{{route('getuser')}}",
                     method: 'GET',
@@ -327,7 +333,7 @@
                     dataType: "json",
                     headers: app.headers,
                     data: {
-                    id: id
+                        id: id
                     },
                 }).done(response => {
                     this.list_notifications();
@@ -346,12 +352,17 @@
 
                 });
             },
-            setMenu: function(id){
-                for(i=0;i<this.menu.length;i++){
-                    if(this.menu[i].id == id){
+            setMenu: function (id) {
+                for (i = 0; i < this.menu.length; i++) {
+                    if (this.menu[i].id == id) {
                         this.screen = i;
                     }
                 }
+            },
+            search_text: function (search, text) {
+                if (text.toLowerCase().indexOf(search.toLowerCase()) > -1 || search =='') {
+                    return true;
+                } else return false;
             }
         },
         mounted() {
@@ -359,8 +370,10 @@
             this.more[0].link = () => {
                 location.href = "{{route('admin.profile')}}";
             };
-            this.getUser(()=>{
-                setTimeout(()=>{if(this.$refs.page.hasOwnProperty("mounted"))this.$refs.page.mounted()},50);
+            this.getUser(() => {
+                setTimeout(() => {
+                    if (this.$refs.page.hasOwnProperty("mounted")) this.$refs.page.mounted()
+                }, 50);
             });
             setInterval(() => this.update(), 15000);
 

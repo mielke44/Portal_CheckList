@@ -12,11 +12,11 @@
     <v-layout row wrap>
         <v-flex xs12>
             <v-expansion-panel v-model='model_checks' readonly>
-                <v-expansion-panel-content v-for='(c,i) in checks'>
+                <v-expansion-panel-content v-for='(c,i) in checks' v-if='search_data[i]'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs1  >
-                                <v-checkbox :readonly="!editable" v-model="c.status" @change='updateCheck(c.id,c.status)'></v-checkbox>
+                                <v-checkbox color='primary' :readonly="!editable" v-model="c.status" @change='updateCheck(c.id,c.status)'></v-checkbox>
                             </v-flex>
                             <v-flex xs6 @click='model_checks=model_checks==i?-1:i'>
                                 @{{tasks.find(t=>t.id==c.task_id).name}}
@@ -145,9 +145,19 @@
                 form: {
                     comment: '',
                     comment_id: '',
-                }
+                },
+                search:'',
 
             }
+        },
+        computed:{
+            search_data: function () {
+                    var array = [];
+                    for (c of this.checks) {
+                        array.push(app.search_text(this.search,this.tasks.find(t=>t.id==c.task_id).name));
+                    }
+                    return array;
+                }
         },
         watch: {
             model_checks: function (val) {
@@ -268,7 +278,10 @@
             },
             mounted: function(){
                 app.setMenu('yourchecklist');
-            }
+            },
+            searching: function (search) {
+                    this.search = search;
+                },
         },
         mounted() {
             this.list_tasks();

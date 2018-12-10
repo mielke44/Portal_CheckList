@@ -88,22 +88,7 @@ class EmployeeController extends Controller
     }
 
     public function list(Request $r){
-        switch($r['filtro']['type']){
-            case 'Site':
-                $list = Employee::where("site",$r['filtro']['site'])->get();
-                break;
-            case 'Gestor':
-                $list = Employee::where("gestor", Auth::user()->id)->get();
-                break;
-            case 'Todos':
-                $list = Employee::all();
-                break;
-            default:
-                $list = Employee::all();
-                break;
-        }
-
-
+        $list = Employee::all();
         foreach($list as $emp){
             $a = Checklist::where("employee_id",$emp->id)->get();
             $emp['check_true_size']=0;

@@ -15,7 +15,7 @@
         </v-flex>
         <v-flex xs12>
             <v-expansion-panel>
-                <v-expansion-panel-content v-for='p in profile'>
+                <v-expansion-panel-content v-for='(p,i) in profile' v-if='search_data[i]'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs6 class='font-weight-bold'>
@@ -97,8 +97,18 @@
                     id: "",
                     name: '',
                     checklists: ''
-                }
+                },
+                search:'',
             }
+        },
+        computed:{
+            search_data: function () {
+                    var array = [];
+                    for (p of this.profile) {
+                        array.push(app.search_text(this.search,p.name));
+                    }
+                    return array;
+                }
         },
         methods: {
             add: function () {
@@ -176,7 +186,10 @@
             },
             mounted: function(){
                 app.setMenu('profile');
-            }
+            },
+            searching: function (search) {
+                    this.search = search;
+                },
         },
         mounted() {
             this.list();

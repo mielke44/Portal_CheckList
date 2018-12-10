@@ -12,18 +12,21 @@
     <v-layout row wrap v-if="!form_view">
         <v-flex xs3 class='text-xs-left'>
             <v-select solo append-icon="filter_list" v-model="filtro.type" :items="filtros" item-text="name" item-value="name"
-                label="Filtros" persistent-hint :rules='rules.profile' @change="list()"></v-select>
+                label="Filtros" persistent-hint :rules='rules.profile' ></v-select>
         </v-flex>
         <v-flex>
             <v-select v-model="filtro.site" :items="sites" item-text="complete_name" item-value="id" label="Site" solo
-                v-if='filtro.type=="Site"'  @change="list()"></v-select>
+                v-if='filtro.type=="Site"' ></v-select>
+                <v-select v-model="filtro.profile" :items="profiles" item-text="name" item-value="id" label="Perfil" solo
+                v-if='filtro.type=="Perfil"' ></v-select>
         </v-flex>
         <v-flex class='text-xs-right'>
             <v-btn @click="add()" color="primary">Adicionar empregado</v-btn>
         </v-flex>
         <v-flex xs12>
             <v-expansion-panel v-model='model_employee'>
-                <v-expansion-panel-content v-for='em in employees'>
+                <template v-for='(em,i) in employees' >
+                <v-expansion-panel-content v-show='search_data[i]'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs6>
@@ -62,7 +65,7 @@
                                                                 activatable active-class='extra-treeview'>
                                                                 <template slot='prepend' slot-scope="{item}">
                                                                     <div>
-                                                                        <v-checkbox color="green" v-model="item.status"
+                                                                        <v-checkbox color="primary" v-model="item.status"
                                                                             @change="count_check(item.check_id,item.status)"></v-checkbox>
                                                                     </div>
                                                                 </template>
@@ -159,6 +162,7 @@
                         </v-layout>
                     </v-container>
                 </v-expansion-panel-content>
+            </template>
             </v-expansion-panel>
 
             <!--POPUP 1 EMPLOYEE DATA-->
@@ -305,10 +309,11 @@
             data() {
                 return {
                     commentedit: -1,
-                    filtros: ['Site', 'Gestor', 'Todos'],
+                    filtros: ['Site', 'Gestor', 'Perfil' ,'Todos'],
                     filtro: {
                         type: 'Gestor',
                         site: '',
+                        profile: ''
                     },
                     task_tree_active: [],
                     checkbox: [],
@@ -382,6 +387,7 @@
                             value: "2",
                         }
                     ],
+                    search: '',
                 }
             },
             computed: {
@@ -400,7 +406,36 @@
                 check_tree_selected: function () {
                     return this.getCheckByTask(this.task_tree_selected.id);
                 },
-
+                search_data: function () {
+                    var array = [];
+                    this.model_employee = null;
+                    for (e of this.employees) {
+                        switch(this.filtro.type){
+                            case 'Gestor':
+                                if(e.gestor==app.user.id){
+                                    array.push(app.search_text(this.search,e.name));
+                                }
+                                else array.push(false);
+                            break;
+                            case 'Site':
+                                if(e.site==this.filtro.site){
+                                    array.push(app.search_text(this.search,e.name));
+                                }
+                                else array.push(false);
+                            break;
+                            case 'Perfil':
+                                if(e.profile_id==this.filtro.profile){
+                                    array.push(app.search_text(this.search,e.name));
+                                }
+                                else array.push(false);
+                            break;
+                            case 'Todos':
+                                array.push(app.search_text(this.search,e.name));
+                            break;
+                        }
+                    }
+                    return array;
+                }
 
             },
             watch: {
@@ -411,7 +446,6 @@
                         }
                     }
                 },
-
             },
             methods: {
                 add: function () {
@@ -473,9 +507,6 @@
                         url: "{{route('emp.list')}}",
                         method: "GET",
                         dataType: "json",
-                        data: {
-                            filtro: this.filtro,
-                        },
                     }).done(response => {
                         this.employees = response;
                     });
@@ -518,7 +549,7 @@
                             id: employee_id
                         }
                     }).done(response => {
-                        this.checklists[employee_id] = response
+                        this.checklists[employee_id] = response;
                         this.$forceUpdate();
                     });
                 },
@@ -742,10 +773,13 @@
                     }
                     return null;
                 },
-                siteName: function(id){
-                    site = this.sites.find(s=>s.id==id);
-                    if(site)return site.complete_name;
+                siteName: function (id) {
+                    site = this.sites.find(s => s.id == id);
+                    if (site) return site.complete_name;
                     else return "";
+                },
+                searching: function (search) {
+                    this.search = search;
                 },
                 mounted: function () {
 
@@ -753,14 +787,16 @@
                     this.filtro.site = parseInt(app.user.site);
                 }
 
+
             },
             mounted() {
-                this.list('todos');
+
                 this.list_profile();
                 this.list_ChecklistTemplate();
                 this.list_sites();
                 this.list_admin();
                 this.list_tasks();
+                this.list();
             }
         });
     </script>
