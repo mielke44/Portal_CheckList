@@ -73,7 +73,7 @@ Route::delete('profile/destroy', "ProfileController@destroy")->name('profile.des
 //Groups
 Route::post('Group/store', "GroupController@store")->name('group.store');
 Route::get('Group/list', "GroupController@list")->name('group.list');
-Route::post('Group/Delete', "GroupController@destroy")->name('group.delete');
+Route::delete('Group/destroy', "GroupController@destroy")->name('group.delete');
 
 //Sites
 Route::get('site/list', "SiteController@list")->name('site.list');

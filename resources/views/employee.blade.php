@@ -135,7 +135,6 @@
                                                                             comentário</v-btn>
                                                                     </v-flex>
                                                                 </v-layout>
-
                                                             </v-flex>
                                                         </template>
                                                     </v-layout>

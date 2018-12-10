@@ -32,8 +32,8 @@
         </v-flex>
         <!--VIEW FILTRO GROUP-->
         <v-flex xs12 class="pa-0 ma-0" v-if="Filter==0">
-            <v-expansion-panel v-model="model_group">
-                <v-expansion-panel-content v-for='grp in groups'>
+            <v-expansion-panel  v-model="model_group">
+                <v-expansion-panel-content color="primary" v-for='grp in groups'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex  class="font-weight-bold" xs9>
@@ -41,19 +41,23 @@
                             </v-flex>
                         </v-layout>
                     </div>
-                    <v-flex  xs12 class="text-xs-right font-weight-bold" xs1>
+                    <v-flex  xs12 class="text-xs-right font-weight-bold">
                             <v-icon @click="editGroup(grp)">edit</v-icon>
                             <v-icon @click="destroy_group(grp.id)">delete</v-icon>
+                            <v-autocomplete v-model="form.team" :items="admin" color="black" hide-no-data hide-selected multiple
+                            item-text="name" item-value="id" label="Adicionar ao grupo" append-outer-icon="add" @click:append-outer="ChangeTeam(form.team[0], grp.id,2)"></v-autocomplete>
                     </v-flex>
                     <v-container>
                         <v-expansion-panel>
                                 <v-expansion-panel-content v-for='adm in admin_group'>
                                     <div slot="header">
                                         <v-layout row wrap fill-height align-center>
-                                            <v-flex xs6>
+                                            <v-flex xs11>
                                                 @{{adm.name}}
                                             </v-flex>
+                                            <v-icon @click="ChangeTeam(adm.id, grp.id,1)">close</v-icon>
                                         </v-layout>
+                                        
                                     </div>
                                     <v-layout class="pa-2" row wrap>
                                             <v-flex xs6>E-mail:</v-flex>
@@ -204,7 +208,7 @@
         <!--POPUP CREATE GROUP-->
         <v-dialog v-model="popup_group" max-width="600" r>
             <v-card>
-                <v-card-title>Adicionar Grupo</v-card-title>
+                <v-card-title>@{{form_texts.title}}</v-card-title>
                 <v-card-text>
                     <v-layout row wrap>
                     <v-flex xs12>
@@ -341,6 +345,7 @@
                 },
                 form: {
                     id: "",
+                    team: '',
                     name: '',
                     email: '',
                     password: '',
@@ -415,14 +420,18 @@
                 this.form = {
                     id: "",
                     name: '',
+                    team:"",
                 }
+                this.form_texts.title = 'Adicionar Grupo'
             },
             editGroup: function(grp){
                 this.popup_group = true;
                 this.form = {
                     id: grp.id,
                     name: grp.name,
+                    team:'',
                 }
+                this.form_texts.title = 'Editar Grupo'
             },
             storeGroup: function () {
                     app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green", () => {
@@ -523,9 +532,56 @@
                         });
                     })
             },
-            mounted: function(){
-                app.setMenu('admin');
+            ChangeTeam: function(admin_id,group_id,s){
+                if(s==1){app.confirm("Remover integrante?",
+                    "Este integrante será removido do grupo.", "red", () => {
+                        this.form = {
+                            id: admin_id,
+                            group: group_id,
+                            s: s,
+                        }
+                        $.ajax({
+                            url: "{{route('admin.store')}}",
+                            method: "POST",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: {
+                                form: this.form,
+                            },
+                            success: (response) => {
+                                this.list_group();
+                                this.list();
+                                app.notify("Integrante Removido!", "success");
+                            }
+                        });
+                })
+                }if(s==2){app.confirm("Adicionar integrante?",
+                    "Este integrante será adicionado ao grupo.", "yellow darken-2", () => {
+                        this.form = {
+                            id: admin_id,
+                            group: group_id,
+                            s: s,
+                        }
+                        $.ajax({
+                            url: "{{route('admin.store')}}",
+                            method: "POST",
+                            dataType: "json",
+                            headers: app.headers,
+                            data: {
+                                form: this.form,
+                            },
+                            success: (response) => {
+                                this.list_group();
+                                this.list();
+                                app.notify("Integrante Removido!", "success");
+                            }
+                        });
+                })
+
             }
+        },
+        mounted: function(){
+            app.setMenu('admin');
         },
         mounted() {
             this.list_group();
@@ -540,6 +596,7 @@
                 this.sites = response;
             });
         }
-    });
+    },
+});
 </script>
 @endsection

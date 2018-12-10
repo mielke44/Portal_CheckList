@@ -23,10 +23,15 @@ class AdminController extends Controller
 
     public function store(Request $request)
     {
-        //print_r($request->all());
-        //return;
         if($request['form']["id"] != "") $admin = Admin::find($request['form']["id"]);
         else $admin = new Admin();
+        if($request['form']['group']!=''){
+            $admin = Admin::find($request['form']['id']);
+            if($request['form']['s']==1)$admin->group=0;
+            if($request['form']['s']==2)$admin->group=$request['form']['group'];
+            $admin->save();
+            return json_encode(array('error'=>false, 'message'=>'sucesso!'));
+        }
         $admin->name = $request['form']['name'];
         $admin->email = $request['form']['email'];
         $admin->site = $request['form']['site'];
