@@ -68,7 +68,7 @@
             </template>
 
             <v-expansion-panel v-if='task_view_mode==0'>
-                <v-expansion-panel-content v-for='(t,i) in tasks' v-if='search_data[i]'>
+                <v-expansion-panel-content v-for='(t,i) in pagination_result'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs6>
@@ -133,9 +133,10 @@
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
-
+        <v-flex xs12 class='text-xs-center'>
+            <v-pagination v-model="pagination" :length="pagination_pages" v-if='task_view_mode==0'></v-pagination>
+        </v-flex>
     </v-layout>
-
     <!-- FORM VIEW-->
     <v-layout row wrap v-if="form_view">
         <v-flex s12>
@@ -148,8 +149,7 @@
                             <v-textarea v-model="form.description" label="Descrição" :rules="rules.description"
                                 required counter='300'></v-textarea>
                             <v-autocomplete v-model="form.resp" :items="resp" color="black" item-text="name" item-value="id"
-                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected
-                                ></v-autocomplete>
+                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected></v-autocomplete>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
                             <div class='headline mb-2 mt-2'>Dependências</div>
@@ -234,7 +234,9 @@
                     },
                 ],
                 search: '',
-                task_view_mode: 0
+                task_view_mode: 0,
+                pagination: 1,
+                itemsPage: 20,
             }
         },
         watch: {
@@ -261,13 +263,45 @@
             },
             search_data: function () {
                 var array = [];
+                this.pagination = 1;
                 for (t of this.tasks) {
-                    if (t.name.toLowerCase().indexOf(this.search.toLowerCase()) > -1 || this.search == '') {
-                        array.push(true);
-                    } else array.push(false);
+                    array.push(app.search_text(this.search,t.name));
+
                 }
                 return array;
+            },
+            search_total: function () {
+
+                var total = 0;
+                for (s of this.search_data) {
+                    if (s) total++;
+                }
+                return total;
+            },
+            pagination_result() {
+                var array = [];
+                var length = 0;
+                var j = 0;
+                for (var i = 0; i < this.tasks.length; i++) {
+                    if (this.search_data[i]) {
+                        j++;
+                        if ( j > this.itemsPage * (this.pagination-1)) {
+
+                            length++;
+                            array.push(this.tasks[i]);
+                            if(length==this.itemsPage)break;
+                        }
+                    }
+
+                }
+                return array;
+            },
+            pagination_pages() {
+                var pages = this.search_total / this.itemsPage;
+                if (this.search_total % this.itemsPage > 0) pages++;
+                return pages;
             }
+
         },
         methods: {
             add: function () {
