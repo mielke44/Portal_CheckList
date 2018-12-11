@@ -28,6 +28,7 @@
 
                 </v-list-tile>
             </v-list>
+
         </v-toolbar>
 
         <v-list class="pt-0" dense>
@@ -44,7 +45,17 @@
                 </v-list-tile-content>
             </v-list-tile>
         </v-list>
+        <v-footer height="auto" absolute color='primary'>
+            <v-layout row wrap align-center>
+                <v-flex xs12 v-if='mini'>
+                    <v-img src="{{asset('images/t-logo3.png')}}" max-width='50' style='display: block;margin: 0 auto;'></v-img>
+                </v-flex>
+                <v-flex xs12 class='text-xs-center font-weight-bold caption' v-if='!mini'>T-Systems Mobile Apps
+                </v-flex>
+            </v-layout>
+        </v-footer>
     </div>
+
 </v-navigation-drawer>
 
 
@@ -56,8 +67,8 @@
         @yield('l-title')
     </v-toolbar-title>
     <template v-if="search.model">
-        <v-text-field ref='search_input' v-model='search.value' append-icon="search" label="Procurar" full-width solo slot='extension'
-            @click:append='searching' @input='searching'></v-text-field>
+        <v-text-field ref='search_input' v-model='search.value' append-icon="search" label="Procurar" full-width solo
+            slot='extension' @click:append='searching' @input='searching'></v-text-field>
     </template>
     <v-spacer></v-spacer>
     <v-toolbar-items class="hidden-sm-and-down">
@@ -360,7 +371,7 @@
                 }
             },
             search_text: function (search, text) {
-                if (text.toLowerCase().indexOf(search.toLowerCase()) > -1 || search =='') {
+                if (text.toLowerCase().indexOf(search.toLowerCase()) > -1 || search == '') {
                     return true;
                 } else return false;
             }
