@@ -57,7 +57,7 @@ class SendEmail
     {
         $data=array(
                     0=>Admin::findOrFail($event->getReceiver()[0])['email'],
-                    1=>Employee::findOrFail($event->getReceiver()[1])['email']);
+                    1=>Employee::findOrFail($event->getReceiver()[1]['email']));
 
         $demo[] = array(
             'Header' => 'Você tem uma atualização no Portal CheckList!',
