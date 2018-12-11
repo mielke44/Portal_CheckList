@@ -16,104 +16,96 @@ use Auth;
 
 class SendEmail
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
     public function __construct()
     {
         //
     }
-
-    /**
-     * Handle the event.
-     *
-     * @param  CheckUpdateEvent  $event
-     * @return void
-     */
-
     public function handleCheck(CheckUpdateEvent $event)
     {
-        $resp = Employee::findOrFail(Checklist::findOrFail($event->getCheck()->checklist_id))[0];
-        if(count($event->getReceiver())==1){
-            
-            $data=array(0=>$resp->name,1=>$resp->email);
-        
-        }else{
-            $gestor=Admin::findOrFail($event->getReceiver()[0]);
-            $employee = Employee::findOrFail($event->getReceiver()[1]);
-        }
+        if(count($event->getReceiver())==1)$data=array(
+                                                        0=>Employee::findOrFail(Checklist::findOrFail($event->getCheck()->checklist_id))[0]->email);
+        if(count($event->getReceiver())==2)$data=array(
+                                                        0=>Admin::findOrFail($event->getReceiver()[0])['email'],
+                                                        1=>Employee::findOrFail($event->getReceiver()[1])['email']);
         if(count($event->getReceiver())==3)$data = array(
-                                                        0=>$gestor['name'],
-                                                        1=>$gestor['email'],
-                                                        2=>$employee['name'],
-                                                        3=>$employee['email'],
-                                                        4=>Admin::findOrFail($event->getReceiver()[2])['name'],
-                                                        5=>Admin::findOrFail($event->getReceiver()[2])['email']);
-        if(count($event->getReceiver())==2)$data=array(0=>$gestor['name'],1=>$gestor['email'],2=>$employee['name'],3=>$employee['email']);
-        
-        
-        $objDemo = new \stdClass();
-        $objDemo->Header = 'Você tem uma atualização no Portal CheckList!';
-        $objDemo->text= $event->getText();
-        $objDemo->name = $event->getName();
-        $objDemo->sender = 'T-Systems Portal Checklist';
-        $objDemo->link = 'http://localhost:8000/';
+                                                        0=>Admin::findOrFail($event->getReceiver()[0])['email'],
+                                                        1=>Employee::findOrFail($event->getReceiver()[1])['email'],
+                                                        2=>Admin::findOrFail($event->getReceiver()[2])['email']);
 
-        for($i=0;$i<count($data);$i+=2){
-        $objDemo->receiver=$data[$i];
-        //Mail::to($data[$i+1])->send(new Email($objDemo));
-        }
-        //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING
+        
+        
+        $demo[] = array(
+            'Header' => 'Você tem uma atualização no Portal CheckList!',
+            'text'=> $event->getText(),
+            'name' => $event->getName(),
+            'sender' => 'T-Systems Portal Checklist',
+            'link' => 'http://localhost:8000/',
+        );
+
+        
+        Mail::send('mail',$demo,
+        function($message) use ($data) {
+            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
+            //$message->to($data);
+            $message->to('wilson.mielke@t-systems.com.br');
+            $message->subject('Nova atualização no portal!');
+            }
+        );
     }
 
     public function handleChecklist(ChecklistUpdateEvent $event)
     {
-        $gestor=Admin::findOrFail($event->getReceiver()[0]);
-        $employee = Employee::findOrFail($event->getReceiver()[1]);
-        $data=array(0=>$gestor['name'],1=>$gestor['email'],2=>$employee['name'],3=>$employee['email']);
+        $data=array(
+                    0=>Admin::findOrFail($event->getReceiver()[0])['email'],
+                    1=>Employee::findOrFail($event->getReceiver()[1]['email']));
 
-        $objDemo = new \stdClass();
-        $objDemo->Header = 'Você tem uma atualização no Portal CheckList!';
-        $objDemo->text= $event->getText();
-        $objDemo->name = $event->getName();
-        $objDemo->sender = 'T-Systems LTDA Portal Checklist';
-        $objDemo->link = 'http://localhost:8000/';
+        $demo[] = array(
+            'Header' => 'Você tem uma atualização no Portal CheckList!',
+            'text'=> $event->getText(),
+            'name' => $event->getName(),
+            'sender' => 'T-Systems Portal Checklist',
+            'link' => 'http://localhost:8000/',
+        );
         
-        for($i=0;$i<count($data);$i+=2){
-            $objDemo->receiver=$data[$i];
-            //Mail::to($data[$i+1])->send(new Email($objDemo));
-        }
-
-        //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo));
+        Mail::send('mail',$demo,
+        function($message) use ($data) {
+            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
+            //$message->to($data);
+            $message->to('wilson.mielke@t-systems.com.br');
+            $message->subject('Nova atualização no portal!');
+            }
+        );
     }
 
     public function handleEmployee(NewEmployeeEvent $event)
     {
-        $employee = $event->getEmployee();
-        $admin = $event->getAdmin();
+        $data[]=array(0=>$event->getEmployee()['email']);
         if($event->getReason()=='new'){
-            $objDemo = new \stdClass();
-            $objDemo->receiver = $employee['name'];
-            $objDemo->Header = 'Bem vindo à T-Systems do Brasil LTDA!';
-            $objDemo->text= "Adicionou você ao portal CheckList!";
-            $objDemo->name = $event->getAdmin()->name;
-            $objDemo->sender = 'T-Systems LTDA Portal Checklist';
-            $objDemo->link = 'http://localhost:8000/employee/yourchecklist?token='.$employee->token;
-
-            //Mail::to($employee['email'])->send(new Email($objDemo)); //USE THIS
+            $demo[]=array(
+                            'receiver' => $event->getEmployee()['name'],
+                            'Header' => 'Bem vindo à T-Systems do Brasil LTDA!',
+                            'text'=> "Adicionou você ao portal CheckList!",
+                            'name' =>$event->getAdmin()->name,
+                            'sender' => 'T-Systems LTDA Portal Checklist',
+                            'link' => 'http://localhost:8000/employee/yourchecklist?token='.$event->getEmployee()->token);
         }else if($event->getReason()=='update'){
-            $objDemo = new \stdClass();
-            $objDemo->receiver = $admin['name'];
-            $objDemo->Header = 'Você tem uma atualização no Portal Checklist!';
-            $objDemo->text= " Adicionou você como gestor do empregado: ".$employee->name;
-            $objDemo->name = Auth::user()->name;
-            $objDemo->sender = 'T-Systems LTDA Portal Checklist';
-            $objDemo->link = 'http://localhost:8000';
-    
-            //Mail::to($employee['email'])->send(new Email($objDemo)); //USE THIS
+            $demo[] = array(
+                            'receiver'=>$event->getAdmin()['name'],
+                            'Header'=>'Você tem uma atualização no Portal Checklist!',
+                            'text'=>"Adicionou você como gestor do empregado: ".$event->getEmployee()->name,
+                            'name'=>Auth::user()->name,
+                            'sender'=>'T-Systems LTDA Portal Checklist',
+                            'link'=>'http://localhost:8000');
         }
+        Mail::send('mail',$demo,
+        function($message) use ($data) {
+            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
+            //$message->to($data);
+            $message->to('wilson.mielke@t-systems.com.br');
+            $message->subject('Nova atualização no portal!');
+            }
+        );
+
 
         //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING
     }

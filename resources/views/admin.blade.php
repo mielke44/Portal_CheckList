@@ -11,14 +11,14 @@
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view && !prof_view">
         <v-flex xs6 sm6 class="py-2">
-            <v-btn-toggle v-model="Filter" mandatory>
+            <v-btn-toggle v-model="Filter.model" mandatory>
                 <v-btn flat>
                     <v-icon>group</v-icon>
                     Grupos
                 </v-btn>
                 <v-btn flat>
                     <v-icon>person</v-icon>
-                    Posição
+                    Todos
                 </v-btn>
                 <v-btn flat>
                     <v-icon>domain</v-icon>
@@ -28,10 +28,10 @@
         </v-flex>
         <v-flex xs6 sm6 class="text-xs-right">
             <v-btn class="ma-0 " v-if="user.is_admin==1" @click="is_admin=true;add();" color="primary">Adicionar Gestor</v-btn>
-            <v-btn class="ma-0 " v-if="Filter==0" @click="addGroup();" color="primary">Adicionar Grupo</v-btn>
+            <v-btn class="ma-0 " v-if="Filter.model==0" @click="addGroup();" color="primary">Adicionar Grupo</v-btn>
         </v-flex>
         <!--VIEW FILTRO GROUP-->
-        <v-flex xs12 class="pa-0 ma-0" v-if="Filter==0">
+        <v-flex xs12 class="pa-0 ma-0" v-if="Filter.model==0">
             <v-expansion-panel  v-model="model_group">
                 <v-expansion-panel-content color="primary" v-for='grp in groups'>
                     <div slot="header">
@@ -49,7 +49,7 @@
                     </v-flex>
                     <v-container>
                         <v-expansion-panel>
-                                <v-expansion-panel-content v-for='adm in admin_group'>
+                                <v-expansion-panel-content v-if="adm.group==grp.id" v-for='adm in admin'>
                                     <div slot="header">
                                         <v-layout row wrap fill-height align-center>
                                             <v-flex xs11>
@@ -82,7 +82,7 @@
             </v-expansion-panel>
         </v-flex>
         <!--VIEW FILTRO POS-->
-        <v-flex xs12 class="pa-0 ma-0" v-if="Filter==1">
+        <v-flex xs12 class="pa-0 ma-0" v-if="Filter.model==1">
             <v-flex xs12>
                 <v-expansion-panel>
                     <v-expansion-panel-content v-for='adm in admin'>
@@ -163,7 +163,7 @@
             </v-flex>
         </v-flex>
         <!--VIEW FILTRO SITE-->
-        <v-flex xs12 class="pa-0 ma-0" v-if="Filter==2">
+        <v-flex xs12 class="pa-0 ma-0" v-if="Filter.model==2">
                 <v-expansion-panel v-model="model_site">
                     <v-expansion-panel-content v-for='st in sites'>
                         <div slot="header">
@@ -175,7 +175,7 @@
                         </div>
                         <v-container>
                             <v-expansion-panel>
-                                    <v-expansion-panel-content v-for='adm in admin_site'>
+                                    <v-expansion-panel-content v-if="adm.site==st.id" v-for='adm in admin'>
                                         <div slot="header">
                                             <v-layout row wrap fill-height align-center>
                                                 <v-flex xs6>
@@ -313,7 +313,9 @@
                     title: "",
                     button: ""
                 },
-                Filter: true,
+                Filter: {
+                    model:true,
+                },
                 rules: {
                     name: [
                         v => !!v || 'Campo obrigatório',
@@ -356,6 +358,7 @@
                 items: [],
                 sites: [],
                 prof_view2: [],
+                search: '',
             }
         },
         computed: {
@@ -363,21 +366,6 @@
                 if ("true" == "{{$prof_view}}") return true;
                 return false;
             },
-            admin_group: function(){
-                var admin_group = [];
-                for(adm of this.admin){
-                    if(adm.group==this.groups[this.model_group].id)admin_group.push(adm);
-                }
-                return admin_group;
-            },
-            admin_site: function(){
-                var admin_site = [];
-                for(adm of this.admin){
-                    if(adm.site==this.sites[this.model_site].id){admin_site.push(adm);
-                    }
-                }
-                return admin_site;
-            }
         },
         methods: {
             add: function () {
@@ -582,6 +570,9 @@
         },
         mounted: function(){
             app.setMenu('admin');
+        },
+        searching: function (search) {
+            this.search = search;
         },
         mounted() {
             this.list_group();

@@ -16,11 +16,12 @@ class GroupController extends Controller
         }
         $group->name = $r['form']['name'];
         if($group->save()){
-            foreach($r['form']['team'] as $t){
-                $user = Admin::findOrFail($t);
-                $user->group = $group->id;
-                $user->save();
-            }
+            if(isset($r['form']['team']))
+                foreach($r['form']['team'] as $t){
+                    $user = Admin::findOrFail($t);
+                    $user->group = $group->id;
+                    $user->save();
+                }
             return json_encode(array('error' => false, 'message'=>'success!'));
         }else{
             return json_encode(array('error'=>true, 'message'=> 'Ocorreu um erro, tente novemente!'));

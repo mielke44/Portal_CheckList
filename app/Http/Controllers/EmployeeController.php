@@ -41,7 +41,7 @@ class EmployeeController extends Controller
         else {
             $Employee = new Employee();
             $Employee ->token = bcrypt($request['name'].rand(100000,999999));
-            $r = 'novo';
+            $r = 'new';
         }
         $Employee -> name = $request['name'];
         $Employee -> email = $request['email'];
