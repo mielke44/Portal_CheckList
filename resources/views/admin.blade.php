@@ -534,7 +534,7 @@
                     })
             },
             ChangeTeam: function(admin_id,group_id,s){
-                alert(JSON.stringify(this.model_group));
+                //alert(JSON.stringify(this.model_group));
                 if(s==1){app.confirm("Remover integrante?",
                     "Este integrante será removido do grupo.", "red", () => {
                         this.form = {
@@ -589,7 +589,8 @@
         searching: function (search) {
             this.search = search;
         },
-        mounted() {
+    },
+    mounted() {
             this.list_group();
             this.list();
             this.prof_view2 = this.prof_view;
@@ -602,7 +603,6 @@
                 this.sites = response;
             });
         }
-    },
 });
 </script>
 @endsection
