@@ -62,10 +62,10 @@ class CheckController extends Controller
             }else if($Check['resp']==-1){
                 foreach(Group::all() as $grp){
                     if(in_array($task->id,$grp->lists)){
-                        $name=$group->name;
+                        $name=$grp->name;
                         foreach(Admin::all() as $adm){
                             if($adm->group==$grp->id){
-                                array_push($receiver['adm'],$adm->id);
+                                array_push($receiver['admin'],$adm->id);
                             }
                         }
                     }

@@ -279,7 +279,7 @@
                         id: id
                     },
                 }).done(response => {
-                    alert(JSON.stringify(response));
+                    //alert(JSON.stringify(response));
                     this.form_texts.title = "Editar Lista";
                     this.form_texts.button = "Salvar";
                     this.form = response;

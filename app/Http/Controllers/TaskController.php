@@ -7,6 +7,7 @@ use App\TaskRequiere;
 use Illuminate\Http\Request;
 use App\Admin;
 use App\Group;
+use App\LinkerChecklist;
 
 class TaskController extends Controller
 {
@@ -137,6 +138,7 @@ class TaskController extends Controller
         $task = Task::findOrFail($request["id"]);
         TaskRequiere::where("task_id",$task->id)->delete();
         TaskRequiere::where("task_requiere_id",$task->id)->delete();
+        LinkerChecklist::where("task_id",$task->id)->delete();
         foreach(Group::all() as $grp){
             $grp->toArray();
             if(($key = array_search($task->id, $grp->lists)) !== false) {

@@ -31,7 +31,7 @@ class ChecklistTemplateController extends Controller
             $clinker = LinkerChecklist::where("checklist_id",$c->id)->get();
             foreach($clinker as $cl){
                 $taskdep = Task::find($cl->task_id);
-                $dep[]=array('task_id'=>$cl->task_id,"name"=>$taskdep->name, "desc"=>$taskdep->description);
+                $dep[]=array('task_id'=>$cl['task_id'],"name"=>$taskdep['name'], "desc"=>$taskdep['description']);
             }
             $c->dependences = $dep;
             $c->profile = $prof;

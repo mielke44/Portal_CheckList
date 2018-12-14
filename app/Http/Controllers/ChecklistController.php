@@ -88,7 +88,7 @@ class ChecklistController extends Controller
         }
         if($i = $checks->count()){
             $text = 'Esta lista de tarefas está completa!';
-
+            $emp = Employee::findOrFail($checklist->employee_id);
             if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
             else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
 
