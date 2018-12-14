@@ -28,54 +28,55 @@
         </v-flex>
         <v-flex xs6 sm6 class="text-xs-right">
             <v-btn class="ma-0 " v-if="user.is_admin==1" @click="is_admin=true;add();" color="primary">Adicionar Gestor</v-btn>
-            <v-btn class="ma-0 " v-if="Filter.model==0" @click="addGroup();" color="primary">Adicionar Grupo</v-btn>
+            <v-btn class="ma-0 " @click="addGroup();" color="primary">Adicionar Grupo</v-btn>
         </v-flex>
         <!--VIEW FILTRO GROUP-->
         <v-flex xs12 class="pa-0 ma-0" v-if="Filter.model==0">
-            <v-expansion-panel  v-model="model_group">
+            <v-expansion-panel v-model="model_group">
                 <v-expansion-panel-content color="primary" v-for='grp in groups'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
-                            <v-flex  class="font-weight-bold" xs9>
+                            <v-flex class="font-weight-bold" xs9>
                                 @{{grp.name}}
                             </v-flex>
                         </v-layout>
                     </div>
-                    <v-flex  xs12 class="text-xs-right font-weight-bold">
-                            <v-icon @click="editGroup(grp)">edit</v-icon>
-                            <v-icon @click="destroy_group(grp.id)">delete</v-icon>
-                            <v-autocomplete v-model="form.team" :items="admin" color="black" hide-no-data hide-selected multiple
-                            item-text="name" item-value="id" label="Adicionar ao grupo" append-outer-icon="add" @click:append-outer="ChangeTeam(form.team[0], grp.id,2)"></v-autocomplete>
+                    <v-flex xs12 class="text-xs-right font-weight-bold">
+                        <v-icon @click="editGroup(grp)">edit</v-icon>
+                        <v-icon @click="destroy_group(grp.id)">delete</v-icon>
+                        <v-autocomplete v-model="form.team" :items="admin" color="black" hide-no-data hide-selected
+                            multiple item-text="name" item-value="id" label="Adicionar ao grupo" append-outer-icon="add"
+                            @click:append-outer="ChangeTeam(form.team[0], grp.id,2)"></v-autocomplete>
                     </v-flex>
                     <v-container>
                         <v-expansion-panel>
-                                <v-expansion-panel-content v-if="adm.group==grp.id" v-for='adm in admin'>
-                                    <div slot="header">
-                                        <v-layout row wrap fill-height align-center>
-                                            <v-flex xs11>
-                                                @{{adm.name}}
-                                            </v-flex>
-                                            <v-icon @click="ChangeTeam(adm.id, grp.id,1)">close</v-icon>
-                                        </v-layout>
-                                        
-                                    </div>
-                                    <v-layout class="pa-2" row wrap>
-                                            <v-flex xs6>E-mail:</v-flex>
-                                            <v-flex xs6 class='font-weight-bold'>@{{adm.email}}</v-flex>
-                                            <v-flex xs6>Data admissão</v-flex>
-                                            <v-flex xs6 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
-                                            <v-flex xs6>Site</v-flex>
-                                            <v-flex xs6 class='font-weight-bold'>@{{getSiteName(adm.site)}}</v-flex>
-                                            <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
-                                                <v-btn @click="edit(adm.id)" color="yellow darken-2" outline>
-                                                    <v-icon dark class='mr-2'>edit</v-icon> Editar
-                                                </v-btn>
-                                                <v-btn @click="destroy(adm.id)" color="red" outline>
-                                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                                </v-btn>
-                                            </v-flex>
+                            <v-expansion-panel-content v-if="adm.group==grp.id" v-for='adm in admin'>
+                                <div slot="header">
+                                    <v-layout row wrap fill-height align-center>
+                                        <v-flex xs11>
+                                            @{{adm.name}}
+                                        </v-flex>
+                                        <v-icon @click="ChangeTeam(adm.id, grp.id,1)">close</v-icon>
                                     </v-layout>
-                                </v-expansion-panel-content>
+
+                                </div>
+                                <v-layout class="pa-2" row wrap>
+                                    <v-flex xs6>E-mail:</v-flex>
+                                    <v-flex xs6 class='font-weight-bold'>@{{adm.email}}</v-flex>
+                                    <v-flex xs6>Data admissão</v-flex>
+                                    <v-flex xs6 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
+                                    <v-flex xs6>Site</v-flex>
+                                    <v-flex xs6 class='font-weight-bold'>@{{getSiteName(adm.site)}}</v-flex>
+                                    <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
+                                        <v-btn @click="edit(adm.id)" color="yellow darken-2" outline>
+                                            <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                        </v-btn>
+                                        <v-btn @click="destroy(adm.id)" color="red" outline>
+                                            <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                        </v-btn>
+                                    </v-flex>
+                                </v-layout>
+                            </v-expansion-panel-content>
                         </v-expansion-panel>
                     </v-container>
                 </v-expansion-panel-content>
@@ -120,7 +121,8 @@
                 </v-expansion-panel>
             </v-flex>
             <v-flex xs12 sm12 class='text-xs-right'>
-                <v-btn class=" ma-0" v-if="user.is_admin==1 && Filter==1" @click="is_admin=false;add();" color="primary">Adicionar Responsável</v-btn>
+                <v-btn class=" ma-0" v-if="user.is_admin==1 && Filter==1" @click="is_admin=false;add();" color="primary">Adicionar
+                    Responsável</v-btn>
             </v-flex>
             <v-flex xs12>
                 <v-expansion-panel>
@@ -164,66 +166,66 @@
         </v-flex>
         <!--VIEW FILTRO SITE-->
         <v-flex xs12 class="pa-0 ma-0" v-if="Filter.model==2">
-                <v-expansion-panel v-model="model_site">
-                    <v-expansion-panel-content v-for='st in sites'>
-                        <div slot="header">
-                            <v-layout row wrap fill-height align-center>
-                                <v-flex class="font-weight-bold" xs6>
-                                    @{{getSiteName(st.id)}}
-                                </v-flex>
-                            </v-layout>
-                        </div>
-                        <v-container>
-                            <v-expansion-panel>
-                                    <v-expansion-panel-content v-if="adm.site==st.id" v-for='adm in admin'>
-                                        <div slot="header">
-                                            <v-layout row wrap fill-height align-center>
-                                                <v-flex xs6>
-                                                    @{{adm.name}}
-                                                </v-flex>
-                                            </v-layout>
-                                        </div>
-                                        <v-layout class="pa-2" row wrap>
-                                                <v-flex xs6>E-mail:</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{adm.email}}</v-flex>
-                                                <v-flex xs6>Data admissão</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
-                                                <v-flex xs6>Site</v-flex>
-                                                <v-flex xs6 class='font-weight-bold'>@{{getSiteName(adm.site)}}</v-flex>
-                                                <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
-                                                    <v-btn @click="edit(adm.id)" color="yellow darken-2" outline>
-                                                        <v-icon dark class='mr-2'>edit</v-icon> Editar
-                                                    </v-btn>
-                                                    <v-btn @click="destroy(adm.id)" color="red" outline>
-                                                        <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                                    </v-btn>
-                                                </v-flex>
-                                        </v-layout>
-                                    </v-expansion-panel-content>
-                            </v-expansion-panel>
-                        </v-container>
-                    </v-expansion-panel-content>
-                </v-expansion-panel>
-            </v-flex>
+            <v-expansion-panel v-model="model_site">
+                <v-expansion-panel-content v-for='st in sites'>
+                    <div slot="header">
+                        <v-layout row wrap fill-height align-center>
+                            <v-flex class="font-weight-bold" xs6>
+                                @{{getSiteName(st.id)}}
+                            </v-flex>
+                        </v-layout>
+                    </div>
+                    <v-container>
+                        <v-expansion-panel>
+                            <v-expansion-panel-content v-if="adm.site==st.id" v-for='adm in admin'>
+                                <div slot="header">
+                                    <v-layout row wrap fill-height align-center>
+                                        <v-flex xs6>
+                                            @{{adm.name}}
+                                        </v-flex>
+                                    </v-layout>
+                                </div>
+                                <v-layout class="pa-2" row wrap>
+                                    <v-flex xs6>E-mail:</v-flex>
+                                    <v-flex xs6 class='font-weight-bold'>@{{adm.email}}</v-flex>
+                                    <v-flex xs6>Data admissão</v-flex>
+                                    <v-flex xs6 class='font-weight-bold'>@{{adm.created_at}}</v-flex>
+                                    <v-flex xs6>Site</v-flex>
+                                    <v-flex xs6 class='font-weight-bold'>@{{getSiteName(adm.site)}}</v-flex>
+                                    <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
+                                        <v-btn @click="edit(adm.id)" color="yellow darken-2" outline>
+                                            <v-icon dark class='mr-2'>edit</v-icon> Editar
+                                        </v-btn>
+                                        <v-btn @click="destroy(adm.id)" color="red" outline>
+                                            <v-icon dark class='mr-2'>delete</v-icon> Remover
+                                        </v-btn>
+                                    </v-flex>
+                                </v-layout>
+                            </v-expansion-panel-content>
+                        </v-expansion-panel>
+                    </v-container>
+                </v-expansion-panel-content>
+            </v-expansion-panel>
+        </v-flex>
         <!--POPUP CREATE GROUP-->
         <v-dialog v-model="popup_group" max-width="600" r>
             <v-card>
                 <v-card-title>@{{form_texts.title}}</v-card-title>
                 <v-card-text>
                     <v-layout row wrap>
-                    <v-flex xs12>
-                        <v-text-field v-model='form.name' :rules="rules.name" label='Nome do grupo' required></v-text-field>
-                    </v-flex>
+                        <v-flex xs12>
+                            <v-text-field v-model='form.name' :rules="rules.name" label='Nome do grupo' required></v-text-field>
+                        </v-flex>
                     </v-layout>
-                </v-card-content>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="storeGroup()">
-                        <v-icon dark class='mr-2'>group_add</v-icon>Salvar
-                    </v-btn>
-                </v-card-actions>
+                    </v-card-content>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="primary" @click="storeGroup()">
+                            <v-icon dark class='mr-2'>group_add</v-icon>Salvar
+                        </v-btn>
+                    </v-card-actions>
             </v-card>
-            
+
         </v-dialog>
     </v-layout>
 
@@ -314,7 +316,7 @@
                     button: ""
                 },
                 Filter: {
-                    model:true,
+                    model: 1,
                 },
                 rules: {
                     name: [
@@ -381,26 +383,27 @@
             },
             store: function (is_admin) {
                 if (this.$refs.form.validate()) {
-                    app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green", () => {
-                        $.ajax({
-                            url: "{{route('admin.store')}}",
-                            method: "POST",
-                            dataType: "json",
-                            headers: app.headers,
-                            data: {
-                                form: this.form,
-                                is_admin: is_admin,
-                            },
-                            success: (response) => {
-                                this.list();
-                                this.form_view = false;
-                                if (this.form.id == "") app.notify(
-                                    "Registro adicionado com sucesso!",
-                                    "success");
-                                else app.notify("Edição salva", "success");
-                            }
-                        });
-                    })
+                    app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green",
+                        () => {
+                            $.ajax({
+                                url: "{{route('admin.store')}}",
+                                method: "POST",
+                                dataType: "json",
+                                headers: app.headers,
+                                data: {
+                                    form: this.form,
+                                    is_admin: is_admin,
+                                },
+                                success: (response) => {
+                                    this.list();
+                                    this.form_view = false;
+                                    if (this.form.id == "") app.notify(
+                                        "Registro adicionado com sucesso!",
+                                        "success");
+                                    else app.notify("Edição salva", "success");
+                                }
+                            });
+                        })
                 }
             },
             addGroup: function () {
@@ -408,39 +411,39 @@
                 this.form = {
                     id: "",
                     name: '',
-                    team:"",
+                    team: "",
                 }
                 this.form_texts.title = 'Adicionar Grupo'
             },
-            editGroup: function(grp){
+            editGroup: function (grp) {
                 this.popup_group = true;
                 this.form = {
                     id: grp.id,
                     name: grp.name,
-                    team:'',
+                    team: '',
                 }
                 this.form_texts.title = 'Editar Grupo'
             },
             storeGroup: function () {
-                    app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green", () => {
-                        $.ajax({
-                            url: "{{route('group.store')}}",
-                            method: "POST",
-                            dataType: "json",
-                            headers: app.headers,
-                            data: {
-                                form: this.form,
-                            },
-                            success: (response) => {
-                                this.list_group();
-                                this.popup_group = false;
-                                if (this.form.id == "") app.notify(
-                                    "Registro adicionado com sucesso!",
-                                    "success");
-                                else app.notify("Edição salva", "success");
-                            }
-                        });
-                    })
+                app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green", () => {
+                    $.ajax({
+                        url: "{{route('group.store')}}",
+                        method: "POST",
+                        dataType: "json",
+                        headers: app.headers,
+                        data: {
+                            form: this.form,
+                        },
+                        success: (response) => {
+                            this.list_group();
+                            this.popup_group = false;
+                            if (this.form.id == "") app.notify(
+                                "Registro adicionado com sucesso!",
+                                "success");
+                            else app.notify("Edição salva", "success");
+                        }
+                    });
+                })
             },
             list: function () {
                 $.ajax({
@@ -453,7 +456,7 @@
                     this.resp = response['resp_list']
                 });
             },
-            list_group: function(){
+            list_group: function () {
                 $.ajax({
                     url: "{{route('group.list')}}",
                     method: "GET",
@@ -468,21 +471,21 @@
                 }
             },
             edit: function (id) {
-                    $.ajax({
-                        url: "{{route('admin.edit')}}",
-                        method: "GET",
-                        dataType: "json",
-                        data: {
-                            id: id
-                        },
-                    }).done(response => {
-                        this.form_texts.title = "Editar Admin";
-                        this.form_texts.button = "Salvar";
-                        this.form = response;
-                        this.form_view = true;
-                        this.prof_view2 = false;
-                        this.form.site = parseInt(this.form.site);
-                    });
+                $.ajax({
+                    url: "{{route('admin.edit')}}",
+                    method: "GET",
+                    dataType: "json",
+                    data: {
+                        id: id
+                    },
+                }).done(response => {
+                    this.form_texts.title = "Editar Admin";
+                    this.form_texts.button = "Salvar";
+                    this.form = response;
+                    this.form_view = true;
+                    this.prof_view2 = false;
+                    this.form.site = parseInt(this.form.site);
+                });
             },
             destroy: function (id) {
                 app.confirm("Remover registro?",
@@ -520,59 +523,63 @@
                         });
                     })
             },
-            ChangeTeam: function(admin_id,group_id,s){
-                if(s==1){app.confirm("Remover integrante?",
-                    "Este integrante será removido do grupo.", "red", () => {
-                        this.form = {
-                            id: admin_id,
-                            group: group_id,
-                            s: s,
-                        }
-                        $.ajax({
-                            url: "{{route('admin.store')}}",
-                            method: "POST",
-                            dataType: "json",
-                            headers: app.headers,
-                            data: {
-                                form: this.form,
-                            },
-                            success: (response) => {
-                                this.list_group();
-                                this.list();
-                                app.notify("Integrante Removido!", "success");
+            ChangeTeam: function (admin_id, group_id, s) {
+                if (s == 1) {
+                    app.confirm("Remover integrante?",
+                        "Este integrante será removido do grupo.", "red", () => {
+                            this.form = {
+                                id: admin_id,
+                                group: group_id,
+                                s: s,
                             }
-                        });
-                })
-                }if(s==2){app.confirm("Adicionar integrante?",
-                    "Este integrante será adicionado ao grupo.", "yellow darken-2", () => {
-                        this.form = {
-                            id: admin_id,
-                            group: group_id,
-                            s: s,
-                        }
-                        $.ajax({
-                            url: "{{route('admin.store')}}",
-                            method: "POST",
-                            dataType: "json",
-                            headers: app.headers,
-                            data: {
-                                form: this.form,
-                            },
-                            success: (response) => {
-                                this.list_group();
-                                this.list();
-                                app.notify("Integrante Removido!", "success");
+                            $.ajax({
+                                url: "{{route('admin.store')}}",
+                                method: "POST",
+                                dataType: "json",
+                                headers: app.headers,
+                                data: {
+                                    form: this.form,
+                                },
+                                success: (response) => {
+                                    this.list_group();
+                                    this.list();
+                                    app.notify("Integrante Removido!", "success");
+                                }
+                            });
+                        })
+                }
+                if (s == 2) {
+                    app.confirm("Adicionar integrante?",
+                        "Este integrante será adicionado ao grupo.", "yellow darken-2", () => {
+                            this.form = {
+                                id: admin_id,
+                                group: group_id,
+                                s: s,
                             }
-                        });
-                })
+                            $.ajax({
+                                url: "{{route('admin.store')}}",
+                                method: "POST",
+                                dataType: "json",
+                                headers: app.headers,
+                                data: {
+                                    form: this.form,
+                                },
+                                success: (response) => {
+                                    this.list_group();
+                                    this.list();
+                                    app.notify("Integrante Removido!", "success");
+                                }
+                            });
+                        })
 
-            }
-        },
-        mounted: function(){
-            app.setMenu('admin');
-        },
-        searching: function (search) {
-            this.search = search;
+                }
+            },
+            mounted: function () {
+                app.setMenu('admin');
+            },
+            searching: function (search) {
+                this.search = search;
+            },
         },
         mounted() {
             this.list_group();
@@ -587,7 +594,6 @@
                 this.sites = response;
             });
         }
-    },
-});
+    }, );
 </script>
 @endsection
