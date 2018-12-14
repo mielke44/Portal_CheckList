@@ -86,7 +86,7 @@
             </v-btn>
             <v-list class="ma-0 pa-0">
                 <template v-for='n in notifyLimit'>
-                    <v-list-tile @click="get_check(n.id)">
+                    <v-list-tile @click="get_not_source(n.id)">
                         <v-list-tile-avatar>
                             <v-icon color="primary" v-if='n.type==0'>check_box</v-icon>
                             <v-icon color="primary" v-if='n.type==1'>add_comment</v-icon>
@@ -337,7 +337,7 @@
                     this.notifications = response;
                 });
             },
-            get_check: function (id) {
+            get_not_source: function (id) {
                 $.ajax({
                     url: "{{route('updnot')}}",
                     method: 'POST',

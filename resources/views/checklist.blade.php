@@ -75,8 +75,6 @@
                     <v-form ref='form'>
                         <v-card-text>
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
-                            <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil"
-                                :rules="rules.prof_id" persistent-hint required></v-select>
                             <v-autocomplete v-model="form.profile_id" :items="profile" label="Perfis" item-text="name"
                                 item-value="id" multiple>
                                 <template slot="selection" slot-scope="data">
@@ -281,7 +279,7 @@
                         id: id
                     },
                 }).done(response => {
-
+                    alert(JSON.stringify(response));
                     this.form_texts.title = "Editar Lista";
                     this.form_texts.button = "Salvar";
                     this.form = response;

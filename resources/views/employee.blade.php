@@ -204,7 +204,8 @@
             <v-dialog v-model="dialog2" max-width="700" r>
                 <v-card>
                     <v-card-title>
-                        <p style="width:100%" class="headline text-xs-center">Checklist</p>
+                        <p style="width:100%" class="headline text-xs-center">Criar Lista de Tarefa</p>
+                        <h2 style="width:100%" class="subheading text-xs-center">Ao criar uma lista, o criador é considerado gerenciador desta lista</h2>
                     </v-card-title>
                     <v-card-text>
                         <v-flex xs6>Lista de tarefas:</v-flex>

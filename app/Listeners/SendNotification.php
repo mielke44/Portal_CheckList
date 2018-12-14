@@ -32,12 +32,20 @@ class SendNotification
      */
     public function CheckUpdate(CheckUpdateEvent $event)
     {           
-        for($i = 0; $i<count($event->getReceiver());$i++){
+        if(count($event->getReceiver()['admin']>0))foreach($event->getReceiver()['admin'] as $rec){
             $flag = new Flag();
             $flag->type = 'notification';
-            $flag->receiver = $event->getReceiver()[$i];
+            $flag->receiver = $rec;
             $flag->save();
         }
+        if(count($event->getReceiver()['emp'])>0){
+            $flag = new Flag();
+            $flag->type = 'emp notification';
+            $flag->receiver = $event->getReceiver()['emp'][0];
+            $flag->save();
+            print_r('teste');
+        }
+
         $notification = new Notification;
         $notification->text = $event->getText();
         $notification->name = $event->getName();
@@ -60,13 +68,25 @@ class SendNotification
 
     public function ChecklistUpdate(ChecklistUpdateEvent $event)
     {
-        for($i = 0; $i<count($event->getReceiver());$i++){
+        foreach($event->getReceiver()['admin'] as $rec){
             $flag = new Flag();
             $flag->type = 'notification';
-            $flag->receiver = $event->getReceiver()[$i];
+            $flag->receiver = $rec;
             $flag->save();
+            $notification = new Notification;
+            $notification->text = $event->getText();
+            $notification->name = $event->getName();
+            $notification->admin_id = $rec;
+            $notification->employee_id = $event->getChecklist()->employee_id;
+            $notification->type = 3;
+            $notification->check_id = 0;
+            $notification->status = 'pending';
         }
-
+        $flag = new Flag();
+        $flag->type = 'emp notification';
+        $flag->receiver = $event->getReceiver()['emp'][0];
+        $flag->save();
+        
         $notification = new Notification;
         $notification->text = $event->getText();
         $notification->name = $event->getName();
@@ -96,8 +116,6 @@ class SendNotification
         $flag->receiver = $Employee->gestor;
         $flag->save();
         
-
-
         $notification = new Notification;
         $notification->text = 'Você foi selecionado como gestor do empregado '.$Employee->name;
         $notification->name = Admin::findOrFail($Employee->gestor)->name;

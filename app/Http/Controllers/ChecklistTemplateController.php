@@ -10,27 +10,15 @@ use App\LinkerChecklist;
 use App\ProfileLinker;
 class ChecklistTemplateController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(){
         $this->middleware('auth');
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index()
-    {
+
+    public function index(){
         return view("checklist");
     }
 
-    /**
-     * Sends a JSON list with all instances.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function list()
-    {
+    public function list(){
         $clists = ChecklistTemplate::all();
         //print_r(ProfileLinker::where("checklist_id",1)->get());//ProfileLinker::where("checklist_id",$clists[0]->id));
         foreach($clists as $c){
@@ -51,21 +39,13 @@ class ChecklistTemplateController extends Controller
         return json_encode($clists);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         if($request["id"] != "") $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
         $clist->name = $request["name"];
 
         if($clist->save()){
             $clinker = LinkerChecklist::where("checklist_id",$clist->id)->delete();
-
             foreach($request['profile_id'] as $pid){
                 $linker = new ProfileLinker();
                 $linker->profile_id = $pid;
@@ -82,34 +62,25 @@ class ChecklistTemplateController extends Controller
         else return json_encode(array('error'=>"true"));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\ChecklistTemplate  $checklistTemplate
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Request $request)
-    {
+    public function edit(Request $request){
         $clist = ChecklistTemplate::findOrFail($request["id"]);
-        $dep = array();
+        $profileLinker = ProfileLinker::where('checklist_id',$request["id"])->select('profile_id')->get();
         $clinker = LinkerCheckList::where("checklist_id",$clist->id)->get();
+        $profile_id=[];
+        $dep = array();
+        foreach($profileLinker as $p){
+            array_push($profile_id,$p->profile_id);
+        }
         foreach($clinker as $cl){
             $taskdep = Task::find($cl->task_id);
             $dep[]=$taskdep->id;
         }
         $clist->dependences = $dep;
+        $clist->profile_id = $profile_id;
         return $clist;
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\ChecklistTemplate  $checklistTemplate
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
+    public function destroy(Request $request){
         $clist = ChecklistTemplate::findOrFail($request["id"]);
         LinkerChecklist::where("checklist_id",$clist->id)->delete();
         ProfileLinker::where("checklist_id",$clist->id)->delete();

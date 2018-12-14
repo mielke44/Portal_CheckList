@@ -6,26 +6,28 @@ use App\Task;
 use App\TaskRequiere;
 use Illuminate\Http\Request;
 use App\Admin;
+use App\Group;
 
 class TaskController extends Controller
 {
-    public function __construct()
-    {
+    public function __construct(){
         $this->middleware('auth');
     }
 
-    public function index()
-    {
+    public function index(){
         return view("task");
     }
 
-    public function list()
-    {
+    public function list(){
         $tasks = Task::all();
 
         foreach($tasks as  $t){
             if($t->resp=='0')$t->resp_name='Contratado';
-            else $t->resp_name = Admin::findOrFail($t->resp)->name;
+            else if($t->resp=='-1'){
+                foreach(Group::all() as $grp){
+                    if(in_array($t->id,$grp->lists))$t->resp_name=$grp->name;
+                }
+            }else $t->resp_name = Admin::findOrFail($t->resp)->name;
             $dep = array();
             $trs = TaskRequiere::where("task_id",$t->id)->get();
             $trs2 = TaskRequiere::where("task_requiere_id",$t->id)->get();
@@ -60,14 +62,13 @@ class TaskController extends Controller
                     array_push($aux["children"],TaskController::treeChildren($d->task_requiere_id,$d->task_id.";"));
                 }
                 array_push($tree,$aux);
-
             }
         }
         return json_encode($tree);
     }
+
     private static function treeChildren($id,$tasksInTree){
         $aux = array();
-
         $task = Task::find($id);
         $deps =  TaskRequiere::where("task_id",$id)->get();
         $aux["id"] = $id;
@@ -80,22 +81,24 @@ class TaskController extends Controller
         return $aux;
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         if($request["id"] != "") $task = Task::find($request["id"]);
         else $task = new Task();
         $task->name = $request["name"];
         $task->description = $request["description"];
         $task->type = $request["type"];
-        $task->resp = $request["resp"];
+        if(strlen($request['resp'])>1){
+            $task->resp = '-1';
+        }else $task->resp = $request["resp"];
 
         if($task->save()) {
+            if($task->resp=='-1'){
+                $group = Group::findOrFail($request['resp'][5]);
+                $list = $group->lists;
+                array_push($list,$task->id);
+                $group->lists = $list;
+                $group->save();
+            }
             TaskRequiere::where("task_requiere_id",$task->id)->delete();
             if($request->dependences2 != "")foreach($request->dependences2 as $d){
                 $tr = new TaskRequiere();
@@ -108,18 +111,16 @@ class TaskController extends Controller
         else return json_encode(array('error'=>"true"));
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Request $request)
-    {
+    public function edit(Request $request){
         $task = Task::findOrFail($request["id"]);
         $dep = array();
         $trs = TaskRequiere::where("task_id",$task->id)->get();
         $trs2 = TaskRequiere::where("task_requiere_id",$task->id)->get();
+        if($task->resp==-1){
+            foreach(Group::all() as $grp){
+                if(in_array($task->id,$grp->lists))$task->resp=$grp;
+            }
+        }
         foreach($trs as $tr){
             $dep[]=$tr->task_requiere_id;
         }
@@ -132,18 +133,19 @@ class TaskController extends Controller
         return $task;
     }
 
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Task  $task
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy(Request $request)
-    {
+    public function destroy(Request $request){
         $task = Task::findOrFail($request["id"]);
         TaskRequiere::where("task_id",$task->id)->delete();
         TaskRequiere::where("task_requiere_id",$task->id)->delete();
+        foreach(Group::all() as $grp){
+            $grp->toArray();
+            if(($key = array_search($task->id, $grp->lists)) !== false) {
+                $proxy=$grp->lists;
+                unset($proxy[$key]);
+                $grp->lists=$proxy;
+                $grp->save();
+            }
+        }
         if($task->delete()) return json_encode(array('success'=>"true"));
         else return json_encode(array('error'=>"true"));
     }

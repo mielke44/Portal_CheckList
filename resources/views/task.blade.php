@@ -64,9 +64,7 @@
                         </v-layout>
                     </v-container>
                 </v-card>
-
             </template>
-
             <v-expansion-panel v-if='task_view_mode==0'>
                 <v-expansion-panel-content v-for='(t,i) in pagination_result'>
                     <div slot="header">
@@ -125,7 +123,6 @@
                                 </v-btn>
                             </v-flex>
                         </v-layout>
-
                     </v-container>
                 </v-expansion-panel-content>
                 <v-expansion-panel-content v-if='tasks.length==0'>
@@ -326,6 +323,8 @@
                             headers: app.headers,
                             data: this.form,
                             success: (response) => {
+                                this.tasks.length=0;
+                                this.task_tree.length=0;
                                 this.list();
                                 this.form_view = false;
                                 if (this.form.id == "") app.notify("Tarefa criada",
@@ -342,7 +341,7 @@
                     method: "GET",
                     dataType: "json",
                 }).done(response => {
-                    this.tasks = response;
+                    for(r of response)this.tasks.push(r);
                     this.get_task_tree();
                 });
             },
@@ -357,10 +356,19 @@
                         this.resp.push(response['admin_list'][i]);
                     }
                     this.resp.push(response['default']);
+                    $.ajax({
+                        url: "{{route('group.list')}}",
+                        method: "GET",
+                        dataType: "json",
+                    }).done(response =>{
+                        for(r of response){
+                            r.id='group'+r.id;
+                            this.resp.push(r);
+                        }
+                    })
                 })
             },
             edit: function (task_id) {
-
                 $.ajax({
                     url: "{{route('task.edit')}}",
                     method: "GET",
@@ -372,6 +380,7 @@
                     this.form_texts.title = "Editar tarefa";
                     this.form_texts.button = "Salvar";
                     this.form = response;
+                    this.form.resp='group'+response.resp.id;
                     this.form_view = true;
                 });
             },
@@ -386,6 +395,8 @@
                             id: task_id
                         },
                         success: (response) => {
+                            this.tasks.length=0;
+                            this.task_tree.length=0;
                             this.list();
                             this.get_task_tree();
                             this.task_tree_active = '';

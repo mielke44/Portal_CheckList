@@ -23,15 +23,15 @@ class SendEmail
     public function handleCheck(CheckUpdateEvent $event)
     {
         if(count($event->getReceiver())==1)$data=array(
-                                                        0=>Employee::findOrFail(Checklist::findOrFail($event->getCheck()->checklist_id))[0]->email);
-        if(count($event->getReceiver())==2)$data=array(
-                                                        0=>Admin::findOrFail($event->getReceiver()[0])['email'],
-                                                        1=>Employee::findOrFail($event->getReceiver()[1])['email']);
-        if(count($event->getReceiver())==3)$data = array(
-                                                        0=>Admin::findOrFail($event->getReceiver()[0])['email'],
-                                                        1=>Employee::findOrFail($event->getReceiver()[1])['email'],
-                                                        2=>Admin::findOrFail($event->getReceiver()[2])['email']);
-
+                                                        0=>Employee::findOrFail(Checklist::findOrFail($event->getCheck()->checklist_id)->employee_id)[0]->email);
+        if(count($event->getReceiver()['emp'])>0)$data=array(
+                                                        0=>Admin::findOrFail($event->getReceiver()['admin'][0])['email'],
+                                                        1=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
+        if(count($event->getReceiver()['admin'])>1){
+            $data=array();
+            if(count($event->getReceiver()['emp'])>0)$data = array(0=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
+            foreach($event->getReceiver()['admin'] as $adm)array_push($data,Admin::findOrFail($adm)['email']);
+        }
         
         
         $demo[] = array(
@@ -42,7 +42,7 @@ class SendEmail
             'link' => 'http://localhost:8000/',
         );
 
-        
+        /*
         Mail::send('mail',$demo,
         function($message) use ($data) {
             $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
@@ -51,13 +51,14 @@ class SendEmail
             $message->subject('Nova atualização no portal!');
             }
         );
+        */
     }
 
     public function handleChecklist(ChecklistUpdateEvent $event)
     {
         $data=array(
-                    0=>Admin::findOrFail($event->getReceiver()[0])['email'],
-                    1=>Employee::findOrFail($event->getReceiver()[1])['email']);
+                    0=>Admin::findOrFail($event->getReceiver()['admin'][0])['email'],
+                    1=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
 
         $demo[] = array(
             'Header' => 'Você tem uma atualização no Portal CheckList!',
@@ -66,7 +67,7 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://localhost:8000/',
         );
-        
+        /*
         Mail::send('mail',$demo,
         function($message) use ($data) {
             $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
@@ -74,7 +75,7 @@ class SendEmail
             $message->to('wilson.mielke@t-systems.com.br');
             $message->subject('Nova atualização no portal!');
             }
-        );
+        );*/
     }
 
     public function handleEmployee(NewEmployeeEvent $event)
@@ -96,7 +97,7 @@ class SendEmail
                             'name'=>Auth::user()->name,
                             'sender'=>'T-Systems LTDA Portal Checklist',
                             'link'=>'http://localhost:8000');
-        }
+        }/*
         Mail::send('mail',$demo,
         function($message) use ($data) {
             $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
@@ -104,7 +105,7 @@ class SendEmail
             $message->to('wilson.mielke@t-systems.com.br');
             $message->subject('Nova atualização no portal!');
             }
-        );
+        );*/
 
 
         //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING

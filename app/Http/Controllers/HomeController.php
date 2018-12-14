@@ -85,11 +85,20 @@ class HomeController extends Controller
     }
 
     public function getFlagNot(){
-        $coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();
-        if(sizeof($coll)!=0){
-            Flag::where('type','notification')->where('receiver',Auth::user()->id)->delete();
-            return 'true';
+        if(Auth::user()->is_admin==-1){
+            $emp_id = Employee::where('token',Auth::user()->token)->id;
+            $coll = Flag::where('type','emp notification')->where('receiver',$emp_id);
+            if(sizeof($coll)!=0){
+                Flag::where('type','emp notification')->where('receiver',$emp_id)->delete();
+                return 'true';
+            }
+            return 'false';
+        }else{$coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();
+            if(sizeof($coll)!=0){
+                Flag::where('type','notification')->where('receiver',Auth::user()->id)->delete();
+                return 'true';
+            }
+            return 'false';
         }
-        return 'false';
     }
 }

@@ -15,6 +15,7 @@ use App\Checklist;
 use App\User;
 use App\TaskRequiere;
 use App\LinkerChecklist;
+use App\Group;
 
 use App\Http\Controllers\ChecklistController;
 
@@ -45,8 +46,8 @@ class CheckController extends Controller
         $this->middleware('auth');
     }
 
-    public static function store(Request $request)
-    {
+    public static function store(Request $request){
+        $receiver = array('admin'=>[],'emp'=>[]);
         if($request['check_id'] != "" ){
             $Check  = Check::findOrFail($request['check_id']);
             $task = Task::find($Check->task_id);
@@ -54,15 +55,27 @@ class CheckController extends Controller
             $name = '';
             $checklist=Checklist::findOrFail($Check->checklist_id);
 
-
+            //Setando a array de destinatários
             if($Check['resp']==0){
-                $receiver = array ('0'=> $checklist->gestor,
-                    '1'=> $checklist->employee_id);
+                array_push($receiver['admin'],$checklist->gestor);
+                array_push($receiver['emp'],$checklist->employee_id);
+            }else if($Check['resp']==-1){
+                foreach(Group::all() as $grp){
+                    if(in_array($task->id,$grp->lists)){
+                        $name=$group->name;
+                        foreach(Admin::all() as $adm){
+                            if($adm->group==$grp->id){
+                                array_push($receiver['adm'],$adm->id);
+                            }
+                        }
+                    }
+                }
             }else{
-                $receiver = array ('0'=> $checklist->gestor,
-                    '1'=> $checklist->employee_id,
-                    '2'=> $Check['resp']);
+                array_push ($receiver['admin'],$checklist->gestor,$Check['resp']);
+                array_push($receiver['emp'],$checklist->employee_id);
             }
+            
+            //Alteração de estado da tarefa
             if($request['status']!=''){
 
                 if($request['status']) $Check->status=1;
@@ -82,26 +95,36 @@ class CheckController extends Controller
                 }
 
             }else if($request['resp']!=''){
-
+            //Alteração de responsável da tarefa
                 $Check['resp'] = $request['resp'];
-                if($Check['resp']!=0){
-                    $resp = Admin::find($request['resp']);
-                    $receiver = array ('0'=> $checklist->gestor,
-                    '1'=> $checklist->employee_id,
-                    '2'=> $request['resp']);
-
-                }else{
+                if($Check['resp']==0){
                     $resp = Employee::findOrFail($checklist->employee_id);
-                    $receiver = array ('0'=> $checklist->gestor,
-                        '1'=> $checklist->employee_id);
+                    array_push($receiver['admin'],$checklist->gestor,$resp->gestor);
+                    array_push($receiver['emp'],$checklist->employee_id);
+                    $name=$resp->name;
+                }else if($Check['resp']==-1){
+                    foreach(Group::all() as $grp){
+                        if(in_array($task->id,$grp->lists)){
+                            $name=$group->name;
+                            foreach(Admin::all() as $adm){
+                                if($adm->group==$grp->id){
+                                    array_push($receiver['adm'],$adm->id);
+                                }
+                            }
+                        }
+                    }
+                }else{
+                    array_push($receiver['admin'],$checklist->gestor,$request['resp']);
+                    if(Employee::findOrFail($checklist->employee_id)->gestor!=$checklist->gestor)
+                        array_push($receiver,Employee::findOrFail($checklist->employee_id)->gestor);
+                    $name=Admin::findOrFail($request['resp'])->name;
                 }
-
                 $text = 'foi selecionado como responsável da tarefa: '.$task->name;
                 $type = 2;
 
                 if ($Check->save()) {
 
-                    event(new CheckUpdateEvent($Check, $text,$resp->name,$type, $receiver));
+                    event(new CheckUpdateEvent($Check, $text,$name,$type, $receiver));
 
                     return json_encode(array('error' => false,
                         'message' => $Check->id."//status:".$Check->status));
@@ -112,38 +135,47 @@ class CheckController extends Controller
                         'message' => 'Ocorreu um erro, tente novamente!'));
                 }
             }
-
-
-
         }
     }
-    public static function createCheck($Checklist_id,Request $request)
-    {
+
+    public static function createCheck($Checklist_id,Request $request){
         $user_id = Auth::user();
         $CLT = LinkerChecklist::where("checklist_id",$request['checklist_template_id'])->get();
         foreach($CLT as $ct){
+            $receiver=array('admin'=>[],'emp'=>[]);
             $task =Task::findOrFail($ct->task_id);
             $text = 'foi selecionado como responsável da tarefa: '.$task->name;
+
             $check = new Check();
-
-            $check->resp = Task::findOrFail($ct->task_id)->resp;
-            if($task->resp==0)$check->resp = 0;
-
             $check->status = false;
             $check->task_id = $ct->task_id;
             $check->checklist_id = $Checklist_id;
-
-            $receiver = array($check->resp);
-
-            if($check->resp!=0)$name=Admin::findOrFail($check->resp)['name'];
-            else $name=Employee::findOrFail(Checklist::findOrFail($Checklist_id)['employee_id'])['name'];
-
+            if($task->resp==0){
+                $check->resp = 0;
+                $name=Employee::findOrFail(Checklist::findOrFail($Checklist_id)['employee_id'])['name'];
+                $receiver=array('emp'=>Employee::findOrFail(Checklist::findOrFail($Checklist_id)['employee_id'])->id);
+            }else if($task->resp==-1){
+                $check->resp = -1;
+                foreach(Group::all() as $grp){
+                    if(in_array($task->id,$grp->lists)){
+                        $name=$grp->name;
+                        array_push($receiver['emp'],Checklist::findOrFail($Checklist_id)['employee_id']);
+                        foreach(Admin::all() as $adm){
+                            if($adm->group==$grp->id){
+                                array_push($receiver['admin'],$adm->id);
+                            }
+                        }
+                    }
+                }
+            }else{
+                $check->resp = $task->resp;
+                $name=Admin::findOrFail($check->resp)['name'];
+                $receiver=array('admin'=>Admin::findOrFail($check->resp)['id'],'emp'=>Checklist::findOrFail($Checklist_id)['employee_id']);
+            } 
+            
             $type=2;
-
             if($check->save()){
-
                 event(new CheckUpdateEvent($check, $text, $name, $type, $receiver));
-
                 if(Check::where("checklist_id",$Checklist_id)->where("task_id",$ct["task_id"])->count()==0){
                     createCheckDep($c->id,$user->id,$Checklist_id);
                 }
@@ -155,17 +187,15 @@ class CheckController extends Controller
         }
     }
 
-
     public static function createCheckDep($task_id,$user_id,$checklist_id){
         $dep = TaskRequiere::where('task_id',$task_id);
-
         foreach($dep as $d){
-            $task = new Check();
-            $task->resp = $user_id;
-            $task->status = false;
-            $task->task_id = $d["task_requiere_id"];
-            $task->checklist_id = $checklist_id;
-            $task->save();
+            $check = new Check();
+            $check->resp = Task::findOrFail($dep->task_requiere_id)->resp;
+            $check->status = false;
+            $check->task_id = $d["task_requiere_id"];
+            $check->checklist_id = $checklist_id;
+            $check->save();
             if(Check::where("checklist_id",$checklist_id)->where("task_id",$d["task_requiere_id"])->count()==0){
                 createCheckDep($c->id,$user->id,$request['id']);
             }
@@ -200,6 +230,7 @@ class CheckController extends Controller
         }
         return json_encode(array('checks'=>$checks,'editable'=>$editable));
     }
+
     public function YourChecklist(){
         return view("checklist-external");
     }
