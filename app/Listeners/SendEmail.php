@@ -22,17 +22,11 @@ class SendEmail
     }
     public function handleCheck(CheckUpdateEvent $event)
     {
-        if(count($event->getReceiver())==1)$data=array(
-                                                        0=>Employee::findOrFail(Checklist::findOrFail($event->getCheck()->checklist_id)->employee_id)[0]->email);
-        if(count($event->getReceiver()['emp'])>0)$data=array(
-                                                        0=>Admin::findOrFail($event->getReceiver()['admin'][0])['email'],
-                                                        1=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
-        if(count($event->getReceiver()['admin'])>1){
-            $data=array();
-            if(count($event->getReceiver()['emp'])>0)$data = array(0=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
-            foreach($event->getReceiver()['admin'] as $adm)array_push($data,Admin::findOrFail($adm)['email']);
+        $data=array();
+        foreach($event->getReceiver()['admin'] as $a){
+            array_push($data,Admin::findOrFail($a)->email);
         }
-        
+            array_push($data,Employee::findOrFail($event->getReceiver()['emp'][0])->email);
         
         $demo[] = array(
             'Header' => 'Você tem uma atualização no Portal CheckList!',

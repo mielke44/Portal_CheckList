@@ -34,7 +34,7 @@ class TaskTableSeeder extends Seeder
             'name' => "Criar E-Mail",
             'description' => "Criar E-Mail interno da empresa para o empregado",
             'type' => "Solicitação",
-            'resp' => 6,
+            'resp' => 'group1',
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);

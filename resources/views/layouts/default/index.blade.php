@@ -91,7 +91,8 @@
                             <v-icon color="primary" v-if='n.type==0'>check_box</v-icon>
                             <v-icon color="primary" v-if='n.type==1'>add_comment</v-icon>
                             <v-icon color="primary" v-if='n.type==2'>assignment_ind</v-icon>
-                            <v-icon color="primary" v-if='n.type==3'>playlist_add_check</v-icon>
+                            <v-icon color="primary" v-if='n.type==3'>playlist_add</v-icon>
+                            <v-icon color="primary" v-if='n.type==4'>playlist_add_check</v-icon>
                         </v-list-tile-avatar>
                         <v-list-tile-content class='body-1'>
                             <v-list-tile-title>@{{n.name}}</v-list-tile-title>

@@ -59,7 +59,6 @@ class HomeController extends Controller
                                                         ->orderBy('created_at','desc')
                                                         ->select('id','name','text', 'type', 'created_at')
                                                         ->get();
-
         else $notifications = Notification::where('admin_id',$session_id)
                                             ->where('status','pending')
                                             ->orderBy('created_at','desc')

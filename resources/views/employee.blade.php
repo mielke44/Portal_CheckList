@@ -131,8 +131,7 @@
                                                                     </v-flex>
                                                                     <v-flex xs12 class='text-xs-center'>
                                                                         <v-btn outline color="blue" dark @click='dialog_comment=true;form.comment="";form.comment_id=""'>+
-                                                                            Adicionar
-                                                                            comentário</v-btn>
+                                                                            Adicionar comentário</v-btn>
                                                                     </v-flex>
                                                                 </v-layout>
                                                             </v-flex>
@@ -378,15 +377,6 @@
                         resp: '',
 
                     },
-                    items: [{
-                            text: 'Efetivado',
-                            value: "1",
-                        },
-                        {
-                            text: 'Estagiário',
-                            value: "2",
-                        }
-                    ],
                     search: '',
                 }
             },
@@ -520,7 +510,20 @@
                         this.resp = response['admin_list'];
                         this.resp = this.resp.concat(response['resp_list']);
                         this.resp = this.resp.concat(response['default']);
+                        this.list_group();
                     });
+                },
+                list_group: function(){
+                    $.ajax({
+                        url: "{{route('group.list')}}",
+                        method: "GET",
+                        dataType: "json",
+                    }).done(response => {
+                        for (r of response){
+                            r.id = 'group'+r.id;
+                        }
+                        this.resp = this.resp.concat(response);
+                    })
                 },
                 list_profile: function () {
                     $.ajax({
@@ -768,8 +771,7 @@
                 },
                 getCheckByTask: function (id) {
                     for (j = 0; j < this.checklist_selected.checks.length; j++) {
-                        if (id == this.checklist_selected.checks[j].task_id) return this.checklist_selected
-                            .checks[j]
+                        if (id == this.checklist_selected.checks[j].task_id) return this.checklist_selected.checks[j]
                     }
                     return null;
                 },
@@ -786,8 +788,6 @@
                     app.setMenu('employee');
                     this.filtro.site = parseInt(app.user.site);
                 }
-
-
             },
             mounted() {
 

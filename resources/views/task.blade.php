@@ -380,7 +380,7 @@
                     this.form_texts.title = "Editar tarefa";
                     this.form_texts.button = "Salvar";
                     this.form = response;
-                    this.form.resp='group'+response.resp.id;
+                    this.form.resp=response.resp;
                     this.form_view = true;
                 });
             },

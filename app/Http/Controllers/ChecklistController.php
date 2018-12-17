@@ -13,6 +13,8 @@ use App\ChecklistTemplate;
 use App\Task;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CheckController;
+use App\Comment;
+use App\Group;
 
 class ChecklistController extends Controller
 {
@@ -40,7 +42,7 @@ class ChecklistController extends Controller
             $name = $emp->name;
             if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
             else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
-            event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name));
+            event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,3));
         }
         CheckController::createCheck($checklist['id'],$request);
         return json_encode(array('success'=>"true"));
@@ -48,7 +50,6 @@ class ChecklistController extends Controller
 
     public function tree($id){
         $checks = Check::where("checklist_id",$id)->get();
-
         $tree = json_decode(TaskController::tree());
         return $this->treeChild($tree,$checks);
     }
@@ -94,7 +95,7 @@ class ChecklistController extends Controller
 
             $name = ChecklistTemplate::findOrFail($checklist->checklist_template_id)->name;
 
-            event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name));
+            event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,4));
             return 'true';
         }
         //dd(Check::where('checklist_id',Checklist::findOrFail($id)->id)->get()[0]['status']);
@@ -103,8 +104,12 @@ class ChecklistController extends Controller
     public function destroy(Request $r){
         $checklist = Checklist::findOrFail($r->checklist_id);
         $Checks = Check::where('checklist_id',$checklist->id)->get();
+        
         if($checklist->delete()){
             foreach($Checks as $c){
+                foreach(Comment::where("check_id",$c->id)->get() as $comment){
+                    $comment->delete();
+                }
                 $c->delete();
             }
             return(json_encode(array('error'=> false,

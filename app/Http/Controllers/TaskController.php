@@ -24,10 +24,8 @@ class TaskController extends Controller
 
         foreach($tasks as  $t){
             if($t->resp=='0')$t->resp_name='Contratado';
-            else if($t->resp=='-1'){
-                foreach(Group::all() as $grp){
-                    if(in_array($t->id,$grp->lists))$t->resp_name=$grp->name;
-                }
+            else if(strlen($t->resp)>1){
+                $t->resp_name=Group::findOrFail($t->resp[5])->name;
             }else $t->resp_name = Admin::findOrFail($t->resp)->name;
             $dep = array();
             $trs = TaskRequiere::where("task_id",$t->id)->get();
@@ -88,15 +86,13 @@ class TaskController extends Controller
         $task->name = $request["name"];
         $task->description = $request["description"];
         $task->type = $request["type"];
-        if(strlen($request['resp'])>1){
-            $task->resp = '-1';
-        }else $task->resp = $request["resp"];
+        $task->resp = $request["resp"];
 
         if($task->save()) {
-            if($task->resp=='-1'){
+            if(strlen($request['resp'])>1){
                 $group = Group::findOrFail($request['resp'][5]);
                 $list = $group->lists;
-                array_push($list,$task->id);
+                array_push($list,'task'.$task->id);
                 $group->lists = $list;
                 $group->save();
             }
@@ -117,10 +113,8 @@ class TaskController extends Controller
         $dep = array();
         $trs = TaskRequiere::where("task_id",$task->id)->get();
         $trs2 = TaskRequiere::where("task_requiere_id",$task->id)->get();
-        if($task->resp==-1){
-            foreach(Group::all() as $grp){
-                if(in_array($task->id,$grp->lists))$task->resp=$grp;
-            }
+        if(strlen($request['resp'])>1){
+            $task->resp='group'.Group::findOrFail($request['resp'][5])->id;
         }
         foreach($trs as $tr){
             $dep[]=$tr->task_requiere_id;
@@ -139,15 +133,6 @@ class TaskController extends Controller
         TaskRequiere::where("task_id",$task->id)->delete();
         TaskRequiere::where("task_requiere_id",$task->id)->delete();
         LinkerChecklist::where("task_id",$task->id)->delete();
-        foreach(Group::all() as $grp){
-            $grp->toArray();
-            if(($key = array_search($task->id, $grp->lists)) !== false) {
-                $proxy=$grp->lists;
-                unset($proxy[$key]);
-                $grp->lists=$proxy;
-                $grp->save();
-            }
-        }
         if($task->delete()) return json_encode(array('success'=>"true"));
         else return json_encode(array('error'=>"true"));
     }

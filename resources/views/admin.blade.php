@@ -44,8 +44,10 @@
                     <v-flex  xs12 class="text-xs-right font-weight-bold">
                             <v-icon @click="editGroup(grp)">edit</v-icon>
                             <v-icon @click="destroy_group(grp.id)">delete</v-icon>
-                            <v-autocomplete v-model="form.team" :items="admin_list_group" color="black" hide-no-data hide-selected multiple
-                            item-text="name" item-value="id" label="Adicionar ao grupo" append-outer-icon="add" @click:append-outer="ChangeTeam(form.team, grp.id,2)"></v-autocomplete>
+                            <v-container>
+                                <v-autocomplete v-model="form.team" :items="admin_list_group" color="black" hide-no-data hide-selected multiple
+                                    item-text="name" item-value="id" label="Adicionar ao grupo" append-outer-icon="add" @click:append-outer="ChangeTeam(form.team, grp.id,2)"></v-autocomplete>
+                            </v-container>
                     </v-flex>
                     <v-container>
                         <v-expansion-panel>

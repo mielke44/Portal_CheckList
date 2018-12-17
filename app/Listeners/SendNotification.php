@@ -31,31 +31,40 @@ class SendNotification
      * @return void
      */
     public function CheckUpdate(CheckUpdateEvent $event)
-    {           
+    {
         if(count($event->getReceiver()['admin']>0))foreach($event->getReceiver()['admin'] as $rec){
+            
             $flag = new Flag();
             $flag->type = 'notification';
             $flag->receiver = $rec;
             $flag->save();
+
+            $notification = new Notification;
+            $notification->text = $event->getText();
+            $notification->name = $event->getName();
+            $notification->admin_id = $rec;
+            $notification->employee_id =0;
+            $notification->type = $event->getType();
+            $notification->check_id = $event->getCheck()->id;
+            $notification->status = 'pending';
         }
         if(count($event->getReceiver()['emp'])>0){
             $flag = new Flag();
             $flag->type = 'emp notification';
             $flag->receiver = $event->getReceiver()['emp'][0];
             $flag->save();
-            print_r('teste');
         }
 
         $notification = new Notification;
         $notification->text = $event->getText();
         $notification->name = $event->getName();
-        $notification->admin_id = $event->getCheck()->resp;
+        $notification->admin_id = 0;
         $notification->employee_id = Checklist::findOrFail($event->getCheck()->checklist_id)->employee_id;
         $notification->type = $event->getType();
         $notification->check_id = $event->getCheck()->id;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate)
+        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate; 4:ChecklistComplete)
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,
@@ -78,7 +87,7 @@ class SendNotification
             $notification->name = $event->getName();
             $notification->admin_id = $rec;
             $notification->employee_id = $event->getChecklist()->employee_id;
-            $notification->type = 3;
+            $notification->type = $event->getType();
             $notification->check_id = 0;
             $notification->status = 'pending';
         }
@@ -90,13 +99,13 @@ class SendNotification
         $notification = new Notification;
         $notification->text = $event->getText();
         $notification->name = $event->getName();
-        $notification->admin_id = $event->getChecklist()->gestor;
+        $notification->admin_id = 0;
         $notification->employee_id = $event->getChecklist()->employee_id;
-        $notification->type = 3;
+        $notification->type = $event->getType();
         $notification->check_id = 0;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate)
+        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate; 4:ChecklistComplete)
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,
@@ -125,7 +134,7 @@ class SendNotification
         $notification->check_id = 0;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate)
+        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate; 4:ChecklistComplete)
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,
