@@ -14,22 +14,11 @@ use App\Admin;
 
 class SendNotification
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
     public function __construct()
     {
         //
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  CheckUpdateEvent  $event
-     * @return void
-     */
     public function CheckUpdate(CheckUpdateEvent $event)
     {
         if(count($event->getReceiver()['admin']>0))foreach($event->getReceiver()['admin'] as $rec){
@@ -47,6 +36,7 @@ class SendNotification
             $notification->type = $event->getType();
             $notification->check_id = $event->getCheck()->id;
             $notification->status = 'pending';
+            $notification->save();
         }
         if(count($event->getReceiver()['emp'])>0){
             $flag = new Flag();
@@ -64,7 +54,16 @@ class SendNotification
         $notification->check_id = $event->getCheck()->id;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate; 4:ChecklistComplete)
+        /*------------------------/
+        |   Notification Types:   |  
+        |  -1 = ExpireCheckLimit  | 
+        |  0 = CheckUpdateStatus  |
+        |  1 = CommentUpdate      |
+        |  2 = ResponsibleUpdate  |
+        |  3 = ChecklistUpdate    |
+        |  4 = ChecklistComplete  |
+        |  5 = CheckLimitWarning  |
+        /------------------------*/
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,
@@ -105,7 +104,16 @@ class SendNotification
         $notification->check_id = 0;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate; 4:ChecklistComplete)
+        /*------------------------/
+        |   Notification Types:   |  
+        |   -1:ExpireCheckLimit;  | 
+        |   0:CheckUpdateStatus;  |
+        |   1:CommentUpdate;      |
+        |   2:ResponsibleUpdate;  |
+        |   3:ChecklistUpdate;    |
+        |   4:ChecklistComplete;  |
+        |   5:CheckLimitWarning)  |
+        /------------------------*/
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,
@@ -134,7 +142,16 @@ class SendNotification
         $notification->check_id = 0;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate; 4:ChecklistComplete)
+        /*------------------------/
+        |   Notification Types:   |  
+        |   -1:ExpireCheckLimit;  | 
+        |   0:CheckUpdateStatus;  |
+        |   1:CommentUpdate;      |
+        |   2:ResponsibleUpdate;  |
+        |   3:ChecklistUpdate;    |
+        |   4:ChecklistComplete;  |
+        |   5:CheckLimitWarning)  |
+        /------------------------*/
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,

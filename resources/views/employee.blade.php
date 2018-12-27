@@ -60,26 +60,43 @@
                                             <v-tab-item v-for="c in checklists[em.id]">
                                                 <v-container grid-list-xs>
                                                     <v-layout row wrap>
-                                                        <v-flex xs6>
+                                                        <v-flex xs5>
                                                             <v-treeview :items="c.tree" open-all :active.sync='task_tree_active'
                                                                 activatable active-class='extra-treeview'>
                                                                 <template slot='prepend' slot-scope="{item}">
                                                                     <div>
-                                                                        <v-checkbox color="primary" v-model="item.status"
-                                                                            @change="count_check(item.check_id,item.status)"></v-checkbox>
+                                                                        <v-checkbox v-if="item.status==-1" color="primary" v-model="item.status"
+                                                                            indeterminate disabled></v-checkbox>
+                                                                        <v-checkbox v-if="item.status==-2" color="primary" v-model="item.status"
+                                                                            indeterminate disabled></v-checkbox>
+                                                                        <v-checkbox v-else color="primary" v-model="item.status"
+                                                                            @change="count_check(item.check_id,item.status,em.id)"></v-checkbox>
                                                                     </div>
                                                                 </template>
+                                                                <template v-if="item.status==-1" slot='append' slot-scope="{item}">
+                                                                    <v-icon color="red">warning</v-icon>
+                                                                </template>
+                                                                <template v-if="item.status==-2" slot='append' slot-scope="{item}">
+                                                                        <v-icon @click="app.notify('Esta tarefe depende de outra!','error')" color="green">feedback</v-icon>
+                                                                    </template>
                                                             </v-treeview>
                                                         </v-flex>
+                                                        <v-divider inset vertical></v-divider>
                                                         <template v-if='task_tree_selected!=0'>
                                                             <v-flex xs6>
                                                                 <v-layout row wrap>
                                                                     <v-flex xs12 class='headline'>
                                                                         @{{task_tree_selected.name}}
                                                                     </v-flex>
+                                                                    <v-flex xs12 class='font-weight-bold' color='red' v-if="check_tree_selected.status==-1">
+                                                                        Expirou dia: @{{check_tree_selected.limit}}
+                                                                    </v-flex>
+                                                                    <v-flex xs12 class='font-weight-bold' v-else>
+                                                                        Expira dia: @{{check_tree_selected.limit}}
+                                                                    </v-flex>
                                                                     <v-flex xs12>
                                                                         <p class='body-2'>@{{task_tree_selected.description}}</p>
-                                                                        <p class='caption mt-2'>Responsavel:
+                                                                        <p class='caption mt-2'>Responsável:
                                                                             @{{resp.find(r=>r.id==check_tree_selected.resp).name}}
                                                                             <a class='ml-2' @click='dialog_responsavel=true;form.resp=parseInt(check_tree_selected.resp)'>
                                                                                 <v-icon class='body-1' color='primary'>edit</v-icon>
@@ -712,7 +729,7 @@
                         })
 
                 },
-                updateCheck: function (change_type, check_id, data) {
+                updateCheck: function (change_type, check_id, data,id) {
                     this.dialog_responsavel = false;
                     form_data = {
                         check_id: check_id
@@ -733,10 +750,11 @@
                         headers: app.headers,
                         data: form_data
                     }).done(response => {
-                        app.notify("Tarefa modificada!", "success");
+                        if(response['error']==false)app.notify("Tarefa modificada!", "success");
+                        this.list_checklist(id);
                     });
                 },
-                count_check: function (check_id, check_status) {
+                count_check: function (check_id, check_status,id) {
                     if (check_status) {
                         this.employee_selected.check_true_size++;
                     } else if (!status) {
@@ -744,7 +762,7 @@
                     }
                     this.updateCheck("STATUS", check_id, {
                         status: check_status
-                    });
+                    },id);
 
                 },
                 remove(item) {
@@ -784,13 +802,11 @@
                     this.search = search;
                 },
                 mounted: function () {
-
                     app.setMenu('employee');
                     this.filtro.site = parseInt(app.user.site);
                 }
             },
             mounted() {
-
                 this.list_profile();
                 this.list_ChecklistTemplate();
                 this.list_sites();

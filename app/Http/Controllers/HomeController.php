@@ -7,24 +7,16 @@ use Auth;
 use Session;
 use App\Notification;
 use App\Flag;
+use Carbon\Carbon;
+use App\Http\Controllers\CheckController;
 
 class HomeController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    /**
-     * Show the application dashboard.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         return view('home');
@@ -64,7 +56,6 @@ class HomeController extends Controller
                                             ->orderBy('created_at','desc')
                                             ->select('id','name','text', 'type', 'created_at')
                                             ->get();
-        $date = array();
         foreach($notifications as $n){
             $data = explode(" ",$n['created_at']);
             $n['data'] = $data;
@@ -82,8 +73,16 @@ class HomeController extends Controller
             return json_encode(array('error'=> true,'message'=> 'Not updated!'));
         }
     }
+    public function clearAllNot(){
+        $session_id = Auth::user()->id;
+        if(Auth::user()->is_admin==-1)$notifications = Notification::where('employee_id',Employee::where('token',Auth::user()->token)->id)->delete();
+        else $notifications = Notification::where('admin_id',$session_id)->delete();
+        return json_encode(array('error'=>false));
+    }
 
     public function getFlagNot(){
+        HomeController::Cleaner();
+        if(Carbon::now()->toArray()['hour']=='00' && intval(Carbon::now()->toArray()['minute'])<5)CheckController::monitorExpireDate();
         if(Auth::user()->is_admin==-1){
             $emp_id = Employee::where('token',Auth::user()->token)->id;
             $coll = Flag::where('type','emp notification')->where('receiver',$emp_id);
@@ -98,6 +97,18 @@ class HomeController extends Controller
                 return 'true';
             }
             return 'false';
+        }
+    }
+
+    public static function Cleaner(){
+        $date=Carbon::now()->toArray();
+        $notifications = Notification::all();
+        foreach($notifications as $n){
+            $update=explode(" ",$n['updated_at']);
+            $limit = str_split($update[0],2)[4]+2;
+            if($limit==$date['day']){
+                $n->delete();
+            }
         }
     }
 }

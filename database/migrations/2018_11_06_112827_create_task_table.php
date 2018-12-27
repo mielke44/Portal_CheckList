@@ -19,6 +19,7 @@ class CreateTaskTable extends Migration
             $table->text("description");
             $table->string("type");
             $table->string("resp");
+            $table->string("limit");
             $table->timestamps();
         });
     }

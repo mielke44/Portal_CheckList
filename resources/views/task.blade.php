@@ -94,6 +94,16 @@
                             <v-flex xs6>
                                 @{{t.resp_name}}
                             </v-flex>
+                            <v-flex xs6 class='font-weight-bold'>
+                                Tempo Limite Padrão:
+                            </v-flex>
+                            <v-flex xs6 v-if="t.limit!=1">
+                                @{{t.limit}} Dias
+                            </v-flex>
+                            <v-flex xs6 v-else>
+                                @{{t.limit}} Dia
+                            </v-flex>
+
                             <template v-if="t.dependence.length>0">
                                 <v-flex xs3 class='font-weight-bold'>
                                     Dependentes:
@@ -149,6 +159,19 @@
                                 label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected></v-autocomplete>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
+                            <div class='headline mb-2 mt-2'>Limite de tempo</div>
+                            <v-layout row wrap>
+                                <v-flex xs9 class="pr-5">
+                                    <v-slider v-model="form.limit" :max='31' :min='0' thumb-color="primary" label="Dias"
+                                    inverse-label thumb-label="always">
+                                        <v-icon slot="prepend" color="primary" @click="form.limit-=1">remove</v-icon>
+                                        <v-icon slot="append" color="primary" @click="form.limit+=1">add</v-icon>
+                                    </v-slider>
+                                </v-flex>
+                                <v-flex xs1 shrink class="pl-2">
+                                        <v-text-field suffix="Dias" v-model="form.limit" single-line type="number"></v-text-field>
+                                </v-flex>
+                            </v-layout>
                             <div class='headline mb-2 mt-2'>Dependências</div>
                             <v-layout row wrap>
                                 <v-flex xs6>
@@ -219,6 +242,7 @@
                     type: '',
                     dependences2: [],
                     resp: '',
+                    limit:'',
 
                 },
                 types: [{
@@ -310,7 +334,8 @@
                     name: '',
                     description: '',
                     type: '',
-                    dependences2: []
+                    dependences2: [],
+                    limit:'',
                 }
             },
             store: function () {

@@ -23,8 +23,8 @@ class TaskController extends Controller
         $tasks = Task::all();
 
         foreach($tasks as  $t){
-            if($t->resp=='0')$t->resp_name='Contratado';
-            else if(strlen($t->resp)>1){
+            if($t->resp==='0')$t->resp_name='Contratado';
+            else if(strlen($t->resp)>5){
                 $t->resp_name=Group::findOrFail($t->resp[5])->name;
             }else $t->resp_name = Admin::findOrFail($t->resp)->name;
             $dep = array();
@@ -46,6 +46,8 @@ class TaskController extends Controller
         return json_encode($tasks);
     }
 
+    //task_requiere_id -> outra tarefa depende desta
+    //task_id -> tafera que depende da task_requiere_id
     public static function tree(){
         $tasks = Task::all();
         $tree = array();
@@ -87,15 +89,9 @@ class TaskController extends Controller
         $task->description = $request["description"];
         $task->type = $request["type"];
         $task->resp = $request["resp"];
+        $task->limit= $request["limit"];
 
         if($task->save()) {
-            if(strlen($request['resp'])>1){
-                $group = Group::findOrFail($request['resp'][5]);
-                $list = $group->lists;
-                array_push($list,'task'.$task->id);
-                $group->lists = $list;
-                $group->save();
-            }
             TaskRequiere::where("task_requiere_id",$task->id)->delete();
             if($request->dependences2 != "")foreach($request->dependences2 as $d){
                 $tr = new TaskRequiere();
