@@ -80,6 +80,7 @@ Route::get('site/list', "SiteController@list")->name('site.list');
 
 //Auth
 Auth::routes();
+Route::post('/clearnot','HomeController@clearAllNot')->name('clrnot');
 Route::post('/updtnot','HomeController@updateNotification')->name('updnot');
 Route::get('/getflag','HomeController@getFlagNot')->name('getflagnoti');
 Route::get('/logout','HomeController@logout')->name('logout');
