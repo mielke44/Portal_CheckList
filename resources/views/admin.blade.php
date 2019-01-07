@@ -387,7 +387,6 @@
                     id: "",
                     name: '',
                     type: '',
-                    dependences: '',
                     is_admin:'',
                     password:'',
                 }

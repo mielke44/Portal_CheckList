@@ -43,7 +43,7 @@ class AdminController extends Controller
         $admin->token = bcrypt($request['form']['id'].$request['form']['name']);
         if($request['form']['is_admin']=='true'){
             if($request['form']['password']!='')$admin->password=bcrypt($request['form']['password']);
-            $admin->is_admin = '1';
+            $admin->is_admin=1;
         }
         if($request['form']['is_admin']=='false'){
             $admin->is_admin=0;
@@ -53,7 +53,7 @@ class AdminController extends Controller
 
         if ($admin -> save()) {
             return json_encode(array('error' => false,
-                'message' => $admin -> id));
+                'message' => $admin->id));
         } else {
             return json_encode(array('error' => true,
                 'message' => 'Ocorreu um erro, tente novamente!'));

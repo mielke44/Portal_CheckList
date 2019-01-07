@@ -8,6 +8,7 @@ use App\Profile;
 use App\Task;
 use App\LinkerChecklist;
 use App\ProfileLinker;
+use App\TaskRequiere;
 class ChecklistTemplateController extends Controller
 {
     public function __construct(){
@@ -20,13 +21,15 @@ class ChecklistTemplateController extends Controller
 
     public function list(){
         $clists = ChecklistTemplate::all();
-        //print_r(ProfileLinker::where("checklist_id",1)->get());//ProfileLinker::where("checklist_id",$clists[0]->id));
+        //print_r(ProfileLinker::where("checklist_id",1)->get());
+        //ProfileLinker::where("checklist_id",$clists[0]->id));
         foreach($clists as $c){
             $dep = array();
+            $prof = array();
             $plinker = ProfileLinker::where("checklist_id",$c->id)->get();
             foreach($plinker as $pl){
                 $profile = Profile::findOrFail($pl->profile_id);
-                $prof[] = array('id'=>$profile->id, 'name'=>$profile->name);
+                array_push($prof,array('id'=>$profile->id,'name'=>$profile->name));
             }
             $clinker = LinkerChecklist::where("checklist_id",$c->id)->get();
             foreach($clinker as $cl){
@@ -46,12 +49,23 @@ class ChecklistTemplateController extends Controller
 
         if($clist->save()){
             $clinker = LinkerChecklist::where("checklist_id",$clist->id)->delete();
+            $proflinker = ProfileLinker::where('checklist_id',$clist->id)->delete();
             foreach($request['profile_id'] as $pid){
                 $linker = new ProfileLinker();
                 $linker->profile_id = $pid;
                 $linker->checklist_id = $clist->id;
+                $linker->save();
             }
             if($request->dependences != "")foreach($request->dependences as $d){
+                //$d = task id;
+                if(TaskRequiere::where("task_id",$d)->count()>0)foreach(TaskRequiere::where("task_id",$d)->get() as $dep){
+                    if(!in_array($dep->task_requiere_id,$request->dependences)){
+                        $clinker = new LinkerChecklist();
+                        $clinker->checklist_id = $clist->id;
+                        $clinker->task_id = $dep->task_requiere_id;
+                        $clinker->save();
+                    }
+                }
                 $clinker = new LinkerChecklist();
                 $clinker->checklist_id = $clist->id;
                 $clinker->task_id = $d;
