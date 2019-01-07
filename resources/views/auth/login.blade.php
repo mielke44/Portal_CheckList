@@ -98,7 +98,7 @@ Login - Portal Checklist
                         },
                         data: this.form,
                         success: response=>{
-                            location.href='/';
+                            window.location = '{{route("dashboard")}}';
                         },
                         error: response=>{
                             this.notify("Credenciais inválidas","error");
