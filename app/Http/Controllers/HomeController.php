@@ -9,6 +9,7 @@ use App\Notification;
 use App\Flag;
 use Carbon\Carbon;
 use App\Http\Controllers\CheckController;
+use App\Employee;
 
 class HomeController extends Controller
 {
@@ -46,7 +47,7 @@ class HomeController extends Controller
 
     public function getNotifications(){
         $session_id = Auth::user()->id;
-        if(Auth::user()->is_admin==-1)$notifications = Notification::where('employee_id',Employee::where('token',Auth::user()->token)->id)
+        if(Auth::user()->is_admin==-1)$notifications = Notification::where('employee_id',Employee::where('token',Auth::user()->token)->get()[0]->id)
                                                         ->where('status','pending')
                                                         ->orderBy('created_at','desc')
                                                         ->select('id','name','text', 'type', 'created_at')
@@ -75,7 +76,7 @@ class HomeController extends Controller
     }
     public function clearAllNot(){
         $session_id = Auth::user()->id;
-        if(Auth::user()->is_admin==-1)$notifications = Notification::where('employee_id',Employee::where('token',Auth::user()->token)->id)->delete();
+        if(Auth::user()->is_admin==-1)$notifications = Notification::where('employee_id',Employee::where('token',Auth::user()->token)->get()[0]->id)->delete();
         else $notifications = Notification::where('admin_id',$session_id)->delete();
         return json_encode(array('error'=>false));
     }
@@ -84,7 +85,8 @@ class HomeController extends Controller
         HomeController::Cleaner();
         if(Carbon::now()->toArray()['hour']=='00' && intval(Carbon::now()->toArray()['minute'])<5)CheckController::monitorExpireDate();
         if(Auth::user()->is_admin==-1){
-            $emp_id = Employee::where('token',Auth::user()->token)->id;
+            $emp_id = Employee::where('token',Auth::user()->token)->get()[0]->id;
+
             $coll = Flag::where('type','emp notification')->where('receiver',$emp_id);
             if(sizeof($coll)!=0){
                 Flag::where('type','emp notification')->where('receiver',$emp_id)->delete();

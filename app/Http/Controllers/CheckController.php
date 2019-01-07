@@ -252,7 +252,7 @@ class CheckController extends Controller
             foreach($checklists as $cl){
                 $checks = array_merge($checks,Check::where("checklist_id",$cl->id)->where("resp",0)->get()->all());
             }
-            $editable = false;
+            $editable = true;
         }
         else {
             $checks = Check::where("resp",Auth::user()->id)->get();

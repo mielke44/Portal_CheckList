@@ -35,7 +35,7 @@ class Email extends Mailable
      */
     public function build()
     {
-        return $this->from()
+        return $this->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList')
                     ->view();
                     /*
                     ->attach(public_path('/images').'/demo.jpg', [

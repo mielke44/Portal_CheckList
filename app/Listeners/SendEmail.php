@@ -35,7 +35,6 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://localhost:8000/',
         );
-
         /*
         Mail::send('mail',$demo,
         function($message) use ($data) {
@@ -99,9 +98,7 @@ class SendEmail
             $message->to('wilson.mielke@t-systems.com.br');
             $message->subject('Nova atualização no portal!');
             }
-        );*/
-
-
-        //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING
+        );
+        */
     }
 }
