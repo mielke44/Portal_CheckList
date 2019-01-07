@@ -21,7 +21,7 @@ class SendNotification
 
     public function CheckUpdate(CheckUpdateEvent $event)
     {
-        if(count($event->getReceiver()['admin']>0))foreach($event->getReceiver()['admin'] as $rec){
+        if(count($event->getReceiver()['admin'])>0)foreach($event->getReceiver()['admin'] as $rec){
             
             $flag = new Flag();
             $flag->type = 'notification';
