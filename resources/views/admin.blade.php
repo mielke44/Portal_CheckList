@@ -268,7 +268,7 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Nome" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
-                            <v-checkbox label="Usuário é gestor?" v-model="form.is_admin"></v-checkbox>
+                            <v-checkbox value :indeterminate="form.is_admin==-1" :disabled="form.is_admin==-1" label="Usuário é gestor?" v-model="form.is_admin"></v-checkbox>
                             <v-select v-model="form.site" :items="sites" item-text="complete_name" item-value="id"
                                 label="Site" persistent-hint required></v-select>
                             <v-text-field v-if="!this.form_edit" v-model="form.password" :append-icon="show1 ? 'visibility_off' : 'visibility'"
@@ -595,7 +595,6 @@
             this.list_group();
             this.list();
             this.prof_view2 = this.prof_view;
-
             $.ajax({
                 url: "{{route('site.list')}}",
                 method: "GET",

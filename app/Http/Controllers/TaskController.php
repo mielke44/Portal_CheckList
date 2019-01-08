@@ -121,7 +121,7 @@ class TaskController extends Controller
             $dep[]= $tr->task_id;
         }
         $task->dependences2 = $dep;
-        return $task;
+        return json_encode($task);
     }
 
     public function destroy(Request $request){

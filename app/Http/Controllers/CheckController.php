@@ -66,7 +66,8 @@ class CheckController extends Controller
                     array_push($receiver['admin'],$adm->id);
                 }
             }else{
-                array_push ($receiver['admin'],$checklist->gestor,$Check['resp']);
+                if($checklist->gestor!=$Check['resp'])array_push($receiver['admin'],$checklist->gestor,$Check['resp']);
+                else array_push($receiver['admin'],$Check['resp']);
                 array_push($receiver['emp'],$checklist->employee_id);
             }
             
@@ -107,7 +108,6 @@ class CheckController extends Controller
                         }
                     }
                 }
-
                 $text = 'Alterou o estado da tarefa: '.$task->name;
                 $name = Auth::user()->name;
                 $type = 0;
@@ -120,9 +120,8 @@ class CheckController extends Controller
                     return json_encode(array('error' => true,
                         'message' => 'Ocorreu um erro, tente novamente!'));
                 }
-
             }else if($request['resp']!=''){
-            //Alteração de responsável da tarefa
+                //Alteração de responsável da tarefa
                 if($request['resp']==='0'){
                     $resp = Employee::findOrFail($checklist->employee_id);
                     array_push($receiver['admin'],$checklist->gestor,$resp->gestor);

@@ -373,7 +373,7 @@
                     },
                 }).done(response => {
                     this.list_notifications();
-                    window.location = "{{route('emp.yourchecklist.view')}}";
+                    window.location = '{{route("emp.yourchecklist.view")}}';
                 });
             },
             update: function () {

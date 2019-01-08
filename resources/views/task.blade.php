@@ -144,6 +144,7 @@
             <v-pagination v-model="pagination" :length="pagination_pages" v-if='task_view_mode==0'></v-pagination>
         </v-flex>
     </v-layout>
+
     <!-- FORM VIEW-->
     <v-layout row wrap v-if="form_view">
         <v-flex s12>
@@ -155,8 +156,8 @@
                             <v-text-field v-model="form.name" label="Tarefa" required :rules="rules.name" counter='25'></v-text-field>
                             <v-textarea v-model="form.description" label="Descrição" :rules="rules.description"
                                 required counter='300'></v-textarea>
-                            <v-autocomplete v-model="form.resp" :items="resp" color="black" item-text="name" item-value="id"
-                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected></v-autocomplete>
+                            <v-autocomplete v-model="form.resp" :items="resp" item-text="name" item-value="id"
+                                label="Responsável padrão" hide-no-data hide-selected></v-autocomplete>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
                             <div class='headline mb-2 mt-2'>Limite de tempo</div>
@@ -192,10 +193,8 @@
                             </v-layout>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
-
                     </v-form>
                 </v-container>
-
             </v-card>
         </v-flex>
     </v-layout>
@@ -234,6 +233,9 @@
                     type: [
                         v => !!v || 'Campo obrigtório'
                     ],
+                    resp: [
+                        v => !!v || 'Campo obrigtório'
+                    ],
                 },
                 form: {
                     id: "",
@@ -241,7 +243,7 @@
                     description: '',
                     type: '',
                     dependences2: [],
-                    resp: '',
+                    resp: "",
                     limit:'',
 
                 },
@@ -402,11 +404,13 @@
                         id: task_id
                     },
                 }).done(response => {
-                    this.form_texts.title = "Editar tarefa";
-                    this.form_texts.button = "Salvar";
-                    this.form = response;
-                    this.form.resp=response.resp;
-                    this.form_view = true;
+                    this.form_texts.title="Editar tarefa";
+                    this.form_texts.button="Salvar";
+                    this.form=response;
+                    if(response.resp.length==1){
+                        this.form.resp=parseInt(this.form.resp);
+                    }
+                    this.form_view=true;
                 });
             },
             destroy: function (task_id) {

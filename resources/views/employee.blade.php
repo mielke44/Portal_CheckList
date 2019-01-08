@@ -77,7 +77,7 @@
                                                                     <v-icon color="red">warning</v-icon>
                                                                 </template>
                                                                 <template v-if="item.status==-2" slot='append' slot-scope="{item}">
-                                                                        <v-icon @click="app.notify('Esta tarefe depende de outra!','error')" color="green">feedback</v-icon>
+                                                                        <v-icon @click="app.notify('Esta tarefe depende de outra!','error')" color="green">error_outline</v-icon>
                                                                     </template>
                                                             </v-treeview>
                                                         </v-flex>

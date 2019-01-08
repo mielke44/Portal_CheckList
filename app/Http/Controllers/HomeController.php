@@ -10,6 +10,7 @@ use App\Flag;
 use Carbon\Carbon;
 use App\Http\Controllers\CheckController;
 use App\Employee;
+use App\Check;
 
 class HomeController extends Controller
 {
@@ -68,11 +69,8 @@ class HomeController extends Controller
     public function updateNotification(Request $r){
         $notification = Notification::findOrFail($r['id']);
         $notification->status = 'seen';
-        if($notification->save()){
-            return json_encode(array('error'=> false,'message'=> 'Updated!'));
-        }else{
-            return json_encode(array('error'=> true,'message'=> 'Not updated!'));
-        }
+        $notification->save();
+        return json_encode(array('error'=>false,'message'=>'Notification updated'));
     }
     public function clearAllNot(){
         $session_id = Auth::user()->id;

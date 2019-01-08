@@ -33,7 +33,6 @@
                                 @{{tasks.find(t=>t.id==c.task_id).description}}
                             </v-flex>
                             <v-flex xs6>
-
                                 <v-layout row wrap>
                                     <v-flex xs12>
                                         <p class='font-weight-bold'>Comentários</p>
@@ -81,10 +80,8 @@
                                             comentário</v-btn>
                                     </v-flex>
                                 </v-layout>
-
                             </v-flex>
                         </v-layout>
-
                     </v-container>
                 </v-expansion-panel-content>
                 <v-expansion-panel-content v-if='checks.length==0'>
@@ -113,7 +110,6 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-
             <v-btn color="red" @click="dialog_comment = false" outline>
                 <v-icon dark class='mr-2'>close</v-icon>Fechar
             </v-btn>
@@ -191,7 +187,6 @@
                 }).done(response => {
                     this.checks = response['checks'];
                     this.editable = response['editable'];
-
                 });
             },
             list_tasks: function () {
@@ -228,7 +223,6 @@
                         comment_id: this.form.comment_id,
                         check_id: this.checks[this.model_checks].id
                     },
-
                     success: (response) => {
                         if (response['st'] == 'add') app.notify("Comentário adicionado",
                             "success");
@@ -236,7 +230,6 @@
                             "comentário editado com sucesso!", "success");
                         this.list_comment(this.checks[this.model_checks].id);
                         this.dialog_comment = false;
-
                     }
                 });
             },
@@ -257,15 +250,12 @@
                             }
                         });
                     });
-
-
             },
             updateCheck: function (check_id, status) {
                 form_data = {
                     check_id: check_id
                 };
                 form_data.status = status ? 1 : 0;
-
                 $.ajax({
                     url: "{{route('check.edit')}}",
                     method: "POST",
