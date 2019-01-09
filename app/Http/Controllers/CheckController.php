@@ -93,6 +93,15 @@ class CheckController extends Controller
                                 if(TaskRequiere::where('task_id',$t->task_id)->count()==$tempstat){
                                     $cd->status=0;
                                     $cd->save();
+                                    if($cd->resp==0)event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",array('employee'=>$cd->resp)));
+                                    else if(strlen($cd->resp)!=1){
+                                        $group = Group::findOrFail($request['resp'][5]);
+                                        $temparray=array('admin'=>[]);
+                                        foreach(Admin::where('group',$request['resp'][5])->get() as $adm){
+                                            array_push($temparray['admin'],$adm->id);
+                                        }
+                                        event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",$temparray));
+                                    }else event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",array('admin'=>$cd->resp)));
                                 }
                             }
                         }
