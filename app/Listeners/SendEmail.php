@@ -35,7 +35,7 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://localhost:8000/',
         );
-        /*
+        
         Mail::send('mail',$demo,
         function($message) use ($data) {
             $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
@@ -44,7 +44,7 @@ class SendEmail
             $message->subject('Nova atualização no portal!');
             }
         );
-        */
+        
     }
 
     public function handleChecklist(ChecklistUpdateEvent $event)
@@ -60,7 +60,7 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://localhost:8000/',
         );
-        /*
+        
         Mail::send('mail',$demo,
         function($message) use ($data) {
             $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
@@ -68,7 +68,7 @@ class SendEmail
             $message->to('wilson.mielke@t-systems.com.br');
             $message->subject('Nova atualização no portal!');
             }
-        );*/
+        );
     }
 
     public function handleEmployee(NewEmployeeEvent $event)
@@ -90,7 +90,7 @@ class SendEmail
                             'name'=>Auth::user()->name,
                             'sender'=>'T-Systems LTDA Portal Checklist',
                             'link'=>'http://localhost:8000');
-        }/*
+        }
         Mail::send('mail',$demo,
         function($message) use ($data) {
             $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
@@ -99,6 +99,6 @@ class SendEmail
             $message->subject('Nova atualização no portal!');
             }
         );
-        */
+        
     }
 }
