@@ -35,16 +35,7 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://localhost:8000/',
         );
-        
-        Mail::send('mail',$demo,
-        function($message) use ($data) {
-            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
-            //$message->to($data);
-            $message->to('wilson.mielke@t-systems.com.br');
-            $message->subject('Nova atualização no portal!');
-            }
-        );
-        
+        foreach($data as $d)Mail::send(new Email($demo,$d));
     }
 
     public function handleChecklist(ChecklistUpdateEvent $event)
@@ -60,15 +51,7 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://localhost:8000/',
         );
-        
-        Mail::send('mail',$demo,
-        function($message) use ($data) {
-            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
-            //$message->to($data);
-            $message->to('wilson.mielke@t-systems.com.br');
-            $message->subject('Nova atualização no portal!');
-            }
-        );
+        foreach($data as $d)Mail::send(new Email($demo,$d));
     }
 
     public function handleEmployee(NewEmployeeEvent $event)
@@ -91,14 +74,6 @@ class SendEmail
                             'sender'=>'T-Systems LTDA Portal Checklist',
                             'link'=>'http://localhost:8000');
         }
-        Mail::send('mail',$demo,
-        function($message) use ($data) {
-            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
-            //$message->to($data);
-            $message->to('wilson.mielke@t-systems.com.br');
-            $message->subject('Nova atualização no portal!');
-            }
-        );
-        
+        foreach($data as $d)Mail::send(new Email($demo,$d));
     }
 }

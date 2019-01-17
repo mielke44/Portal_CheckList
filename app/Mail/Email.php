@@ -11,37 +11,21 @@ class Email extends Mailable
 {
     use Queueable, SerializesModels;
     
-    /**
-     * The demo object instance.
-     *
-     * @var Demo
-     */
     public $demo;
+    public $data;
 
-    /**
-     * Create a new message instance.
-     *
-     * @return void
-     */
-    public function __construct($demo)
+    public function __construct($demo,$data)
     {
         $this->demo = $demo;
+        $this->data = $data;
     }
 
-    /**
-     * Build the message.
-     *
-     * @return $this
-     */
     public function build()
     {
         return $this->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList')
-                    ->view();
-                    /*
-                    ->attach(public_path('/images').'/demo.jpg', [
-                            'as' => 'demo.jpg',
-                            'mime' => 'image/jpeg',
-                    ]);
-                    */
+                    ->to($data)
+                    ->subject('Nova atualização no portal!')
+                    ->view('mail')->with(['data'=> $this->demo]);
+
     }
 }
