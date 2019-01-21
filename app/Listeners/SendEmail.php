@@ -39,7 +39,7 @@ class SendEmail
         
 
         foreach($data as $d){
-            foreach($event->getReceiver()['admin'] as $a)array_push($demo['Receiver'],Admin::findOrFail($a)->name);
+            foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
             Mail::send(new Email($demo,$d));
         }
     }
@@ -59,7 +59,7 @@ class SendEmail
             'link' => 'http://apps.t-systems.com.br/portal_checklist/login',
         );
         foreach($data as $d){
-            foreach($event->getReceiver()['admin'] as $a)array_push($demo['Receiver'],Admin::findOrFail($a)->name);
+            foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
             Mail::send(new Email($demo,$d));
         }
     }
