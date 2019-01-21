@@ -35,7 +35,7 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://localhost:8000/',
         );
-        //foreach($data as $d)Mail::send(new Email($demo,$d));
+        foreach($data as $d)Mail::send(new Email($demo,$d));
     }
 
     public function handleChecklist(ChecklistUpdateEvent $event)
@@ -51,7 +51,7 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://localhost:8000/',
         );
-        //foreach($data as $d)Mail::send(new Email($demo,$d));
+        foreach($data as $d)Mail::send(new Email($demo,$d));
     }
 
     public function handleEmployee(NewEmployeeEvent $event)
@@ -74,6 +74,6 @@ class SendEmail
                             'sender'=>'T-Systems LTDA Portal Checklist',
                             'link'=>'http://localhost:8000');
         }
-        //foreach($data as $d)Mail::send(new Email($demo,$d));
+        foreach($data as $d)Mail::send(new Email($demo,$d));
     }
 }
