@@ -22,20 +22,26 @@ class SendEmail
     }
     public function handleCheck(CheckUpdateEvent $event)
     {
-        $data=array();
-        foreach($event->getReceiver()['admin'] as $a){
-            array_push($data,Admin::findOrFail($a)->email);
-        }
-            if(count($event->getReceiver()['emp'])>0)array_push($data,Employee::findOrFail($event->getReceiver()['emp'][0])->email);
-        
         $demo[] = array(
+            'Receiver' =>'',
             'Header' => 'Você tem uma atualização no Portal CheckList!',
             'text'=> $event->getText(),
             'name' => $event->getName(),
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://apps.t-systems.com.br/portal_checklist/login',
         );
-        foreach($data as $d)Mail::send(new Email($demo,$d));
+
+        $data=array();
+        foreach($event->getReceiver()['admin'] as $a){
+            array_push($data,Admin::findOrFail($a)->email);
+        }
+            if(count($event->getReceiver()['emp'])>0)array_push($data,Employee::findOrFail($event->getReceiver()['emp'][0])->email);
+        
+
+        foreach($data as $d){
+            foreach($event->getReceiver()['admin'] as $a)array_push($demo['Receiver'],Admin::findOrFail($a)->name);
+            Mail::send(new Email($demo,$d));
+        }
     }
 
     public function handleChecklist(ChecklistUpdateEvent $event)
@@ -45,13 +51,17 @@ class SendEmail
                     1=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
 
         $demo[] = array(
+            'Receiver' =>'',
             'Header' => 'Você tem uma atualização no Portal CheckList!',
             'text'=> $event->getText(),
             'name' => $event->getName(),
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://apps.t-systems.com.br/portal_checklist/login',
         );
-        foreach($data as $d)Mail::send(new Email($demo,$d));
+        foreach($data as $d){
+            foreach($event->getReceiver()['admin'] as $a)array_push($demo['Receiver'],Admin::findOrFail($a)->name);
+            Mail::send(new Email($demo,$d));
+        }
     }
 
     public function handleEmployee(NewEmployeeEvent $event)
