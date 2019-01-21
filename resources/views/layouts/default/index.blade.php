@@ -9,9 +9,9 @@
 
 
 
-<v-navigation-drawer :mini-variant.sync="mini" fixend app v-model="drawer" hide-overlay stateless class="red accent-3"
+<v-navigation-drawer fixend app v-model="drawer" hide-overlay stateless class="red accent-3"
     dark>
-    <div @mouseover="mini=false" @mouseout="mini=true" style='height:100%'>
+    <div style='height:100%'>
         <v-toolbar flat class="transparent">
             <v-list class="pa-0">
                 <v-list-tile avatar>
@@ -47,10 +47,7 @@
         </v-list>
         <v-footer height="auto" absolute color='primary'>
             <v-layout row wrap align-center>
-                <v-flex xs12 v-if='mini'>
-                    <v-img src="{{asset('images/t-logo3.png')}}" max-width='50' style='display: block;margin: 0 auto;'></v-img>
-                </v-flex>
-                <v-flex xs12 class='text-xs-center font-weight-bold caption' v-if='!mini'>T-Systems Mobile Apps
+                <v-flex xs12 class='text-xs-center font-weight-bold caption'>T-Systems Mobile Apps
                 </v-flex>
             </v-layout>
         </v-footer>
@@ -125,7 +122,6 @@
                 </v-list-tile>
             </v-list>
         </v-menu>
-
         <v-menu offset-y left>
             <v-btn icon slot="activator">
                 <v-icon>more_vert</v-icon>
@@ -205,7 +201,6 @@
                 app_name: "Portal Checklist",
                 notifications: [],
                 drawer: true,
-                mini: false,
                 search: {
                     value: "",
                     model: false
