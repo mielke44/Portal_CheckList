@@ -1,7 +1,7 @@
 <![if !mso]>
 <div style="-webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px; color: #ffffff; display: block;">
     <h1 style="color: #ffffff; text-align: left; background-color: #33cccc;">Portal Checklist</h1>
-    <p style="text-align: center;"><em style="text-align: center; color: #000000;">{{$demo['receiver']}}</em> <em style="text-align: center;">,</em></p>
+    <p style="text-align: center;"><em style="text-align: center; color: #000000;">{{$demo['Receiver']}}</em> <em style="text-align: center;">,</em></p>
     <p style="text-align: center; color: #000000;">&nbsp;</p>
     <p style="text-align: center; color: #000000;"><u>{{$demo['Header']}}</u></p>
     <p style="text-align: center; color: #000000;">&nbsp;</p>

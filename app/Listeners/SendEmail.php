@@ -22,7 +22,14 @@ class SendEmail
     }
     public function handleCheck(CheckUpdateEvent $event)
     {
-        $demo[] = array(
+
+
+        $data=array();
+        foreach($event->getReceiver()['admin'] as $a){
+            array_push($data,Admin::findOrFail($a)->email);
+        }
+        if(count($event->getReceiver()['emp'])>0)array_push($data,Employee::findOrFail($event->getReceiver()['emp'][0])->email);
+        $demo = array(
             'Receiver' =>'',
             'Header' => 'Você tem uma atualização no Portal CheckList!',
             'text'=> $event->getText(),
@@ -30,14 +37,6 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://apps.t-systems.com.br/portal_checklist/login',
         );
-
-        $data=array();
-        foreach($event->getReceiver()['admin'] as $a){
-            array_push($data,Admin::findOrFail($a)->email);
-        }
-            if(count($event->getReceiver()['emp'])>0)array_push($data,Employee::findOrFail($event->getReceiver()['emp'][0])->email);
-        
-
         foreach($data as $d){
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
             Mail::send(new Email($demo,$d));
@@ -50,7 +49,7 @@ class SendEmail
                     0=>Admin::findOrFail($event->getReceiver()['admin'][0])['email'],
                     1=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
 
-        $demo[] = array(
+        $demo = array(
             'Receiver' =>'',
             'Header' => 'Você tem uma atualização no Portal CheckList!',
             'text'=> $event->getText(),
@@ -66,7 +65,7 @@ class SendEmail
 
     public function handleEmployee(NewEmployeeEvent $event)
     {
-        $data[]=array(0=>$event->getEmployee()['email']);
+        $data=array(0=>$event->getEmployee()['email']);
         if($event->getReason()=='new'){
             $demo[]=array(
                             'receiver' => $event->getEmployee()['name'],
@@ -76,7 +75,7 @@ class SendEmail
                             'sender' => 'T-Systems LTDA Portal Checklist',
                             'link' => 'http://apps.t-systems.com.br/portal_checklist/employee/yourchecklist?token='.$event->getEmployee()->token);
         }else if($event->getReason()=='update'){
-            $demo[] = array(
+            $demo = array(
                             'receiver'=>$event->getAdmin()['name'],
                             'Header'=>'Você tem uma atualização no Portal Checklist!',
                             'text'=>"Adicionou você como gestor do empregado: ".$event->getEmployee()->name,
