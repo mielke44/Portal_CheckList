@@ -33,7 +33,7 @@ class SendEmail
             'text'=> $event->getText(),
             'name' => $event->getName(),
             'sender' => 'T-Systems Portal Checklist',
-            'link' => 'http://localhost:8000/',
+            'link' => 'http://apps.t-systems.com.br/portal_checklist/login',
         );
         foreach($data as $d)Mail::send(new Email($demo,$d));
     }
@@ -49,7 +49,7 @@ class SendEmail
             'text'=> $event->getText(),
             'name' => $event->getName(),
             'sender' => 'T-Systems Portal Checklist',
-            'link' => 'http://localhost:8000/',
+            'link' => 'http://apps.t-systems.com.br/portal_checklist/login',
         );
         foreach($data as $d)Mail::send(new Email($demo,$d));
     }
@@ -64,7 +64,7 @@ class SendEmail
                             'text'=> "Adicionou você ao portal CheckList!",
                             'name' =>$event->getAdmin()->name,
                             'sender' => 'T-Systems LTDA Portal Checklist',
-                            'link' => 'http://localhost:8000/employee/yourchecklist?token='.$event->getEmployee()->token);
+                            'link' => 'http://apps.t-systems.com.br/portal_checklist/employee/yourchecklist?token='.$event->getEmployee()->token);
         }else if($event->getReason()=='update'){
             $demo[] = array(
                             'receiver'=>$event->getAdmin()['name'],
@@ -72,7 +72,7 @@ class SendEmail
                             'text'=>"Adicionou você como gestor do empregado: ".$event->getEmployee()->name,
                             'name'=>Auth::user()->name,
                             'sender'=>'T-Systems LTDA Portal Checklist',
-                            'link'=>'http://localhost:8000');
+                            'link'=>'http://apps.t-systems.com.br/portal_checklist/login');
         }
         foreach($data as $d)Mail::send(new Email($demo,$d));
     }
