@@ -35,7 +35,6 @@ class ChecklistController extends Controller
         $checklist->checklist_template_id = $request['checklist_template_id'];
         $ctemplate = ChecklistTemplate::findOrFail($checklist->checklist_template_id)['name'];
         $CLT = LinkerChecklist::where("checklist_id",$request['checklist_template_id'])->get();
-        
         if($checklist->save()){
             $emp = Employee::findOrFail($checklist->employee_id);
             $text = 'Uma nova lista de tarefas foi criada: '.$ctemplate.'; Com '.count($CLT).' tarefas!';
@@ -81,7 +80,6 @@ class ChecklistController extends Controller
     public static function completeCheckList($id){
         $checklist = Checklist::findOrFail($id);
         $checks = Check::where('checklist_id',$checklist->id)->get();
-
         $i = 0;
         foreach($checks as $c){
             if($c['status'])$i++;
@@ -98,7 +96,6 @@ class ChecklistController extends Controller
             event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,4));
             return 'true';
         }
-        //dd(Check::where('checklist_id',Checklist::findOrFail($id)->id)->get()[0]['status']);
     }
 
     public function destroy(Request $r){

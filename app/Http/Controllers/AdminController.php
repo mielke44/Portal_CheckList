@@ -21,9 +21,9 @@ class AdminController extends Controller
     }
 
     public function store(Request $request){
-        if($request['form']["id"] != "") $admin = Admin::find($request['form']["id"]);
+        if(isset($request['form']["id"])) $admin = Admin::find($request['form']["id"]);
         else $admin = new Admin();
-        if($request['form']['group']!=''){
+        if(isset($request['form']['group'])){
             if($request['form']['s']==1){
                 $admin->group=0;
                 $admin->save();

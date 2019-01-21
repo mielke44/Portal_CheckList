@@ -443,7 +443,6 @@
                     }
                     return array;
                 }
-
             },
             watch: {
                 model_employee: function (val) {
@@ -502,6 +501,9 @@
                         data: {
                             employee_id: id,
                             checklist_template_id: this.form.checklist_template_id,
+                        },
+                        error: (response) => {
+                            app.notify('Ocorreu um erro! Tente novamente!','error');
                         },
                         success: (response) => {
                             this.list_checklist(id);

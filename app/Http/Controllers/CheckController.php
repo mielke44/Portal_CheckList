@@ -280,14 +280,13 @@ class CheckController extends Controller
     public static function monitorExpireDate(){
         $date=Carbon::now()->toArray();
         $Today= array('day'=>$date['day'],'month'=>$date['month'],'year'=>$date['year']);
-        $Today= array('day'=>1,'month'=>1,'year'=>2018);
         foreach(Check::where('status',0)->get() as $c){
             $receiver=array('admin'=>[],'emp'=>[Checklist::findOrFail($c->checklist_id)['employee_id']]);
             if($c->resp==='0'){
             }else if(strlen($c->resp)>5){
-                    foreach(Admin::where('group',$c->resp[5])->get() as $adm){
-                        array_push($receiver['admin'],$adm->id);
-                    }
+                foreach(Admin::where('group',$c->resp[5])->get() as $adm){
+                    array_push($receiver['admin'],$adm->id);
+                }
             }else{
                 array_push($receiver['admin'],Admin::findOrFail($c->resp)['id']);
             }
