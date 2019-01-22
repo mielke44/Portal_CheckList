@@ -38,11 +38,8 @@ class SendEmail
         print_r('HANDLE CHECK->   '.json_encode($data).'----------');
         foreach($data as $d){
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
-            try{
-                Mail::to($d)->send(new Email($demo));
-            }catch(Exception $e){
-                print_r(json_encode($e->getTraceAsString()));
-            }
+            
+            Mail::to($d)->send(new Email($demo));
         }
     }
 
@@ -63,11 +60,7 @@ class SendEmail
         print_r('HANDLE CHECKLIST->   '.json_encode($data).'----------');
         foreach($data as $d){
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
-            try{
-                Mail::to($d)->send(new Email($demo));
-            }catch(Exception $e){
-                print_r(json_encode($e->getTraceAsString()));
-            }
+            Mail::to($d)->send(new Email($demo));
         }
     }
 
@@ -93,11 +86,7 @@ class SendEmail
         }
         print_r('HANDLE EMPLOYEE->   '.json_encode($data).'----------');
         foreach($data as $d){
-            try{
-                Mail::to($d)->send(new Email($demo));
-            }catch(Exception $e){
-                print_r(json_encode($e->getTraceAsString()));
-            }
+            Mail::to($d)->send(new Email($demo));
         }
     }
 }
