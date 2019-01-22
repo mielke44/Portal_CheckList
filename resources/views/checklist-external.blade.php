@@ -104,7 +104,7 @@
                     </v-container>
                 </v-expansion-panel-content>
                 <v-expansion-panel-content v-if='checks.length==0'>
-                    <div slot="header">Nenhuma tarefa está desiginada para você</div>
+                    <div slot="header">Nenhuma tarefa está designada para você</div>
                 </v-expansion-panel-content>
             </v-expansion-panel>
         </v-flex>
@@ -116,7 +116,7 @@
 <v-dialog v-model="dialog_comment" max-width="600" r>
     <v-card>
         <v-card-title>
-            <p style="width:100%" class="headline text-xs-center font-weight-bold">Comentario</p>
+            <p style="width:100%" class="headline text-xs-center font-weight-bold">Comentário</p>
         </v-card-title>
         <v-card-text>
             <v-layout row wrap>
