@@ -201,7 +201,6 @@ class CheckController extends Controller
 
             if(TaskRequiere::where('task_id',$task->id)->count()!=0) $check->status=-2;
             else $check->status = 0;
-            
 
             $check->task_id = $ct->task_id;
             $check->checklist_id = $Checklist_id;

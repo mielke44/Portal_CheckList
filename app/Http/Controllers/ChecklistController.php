@@ -37,13 +37,14 @@ class ChecklistController extends Controller
         $CLT = LinkerChecklist::where("checklist_id",$request['checklist_template_id'])->get();
         if($checklist->save()){
             $emp = Employee::findOrFail($checklist->employee_id);
-            $text = 'Uma nova lista de tarefas foi criada: '.$ctemplate.'; Com '.count($CLT).' tarefas!';
+            $text = 'Teve uma nova lista de tarefas adicionada: '.$ctemplate.' com '.count($CLT).' tarefas!';
             $name = $emp->name;
             if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
             else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
+            CheckController::createCheck($checklist['id'],$request);
             event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,3));
         }
-        CheckController::createCheck($checklist['id'],$request);
+        
         return json_encode(array('success'=>"true"));
     }
 

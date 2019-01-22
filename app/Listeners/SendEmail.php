@@ -22,8 +22,6 @@ class SendEmail
     }
     public function handleCheck(CheckUpdateEvent $event)
     {
-
-
         $data=array();
         foreach($event->getReceiver()['admin'] as $a){
             array_push($data,Admin::findOrFail($a)->email);
@@ -35,11 +33,15 @@ class SendEmail
             'text'=> $event->getText(),
             'name' => $event->getName(),
             'sender' => 'T-Systems Portal Checklist',
-            'link' => 'http://apps.t-systems.com.br/portal_checklist/login',
+            'link' => 'http://apps.t-systems.com.br/portal_checklist',
         );
         foreach($data as $d){
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
-            Mail::send(new Email($demo,$d));
+            try{
+                Mail::send(new Email($demo,$d));
+            }catch(Exception $e){
+                print_r(json_encode($e->getTraceAsString()));
+            }
         }
     }
 
@@ -55,11 +57,15 @@ class SendEmail
             'text'=> $event->getText(),
             'name' => $event->getName(),
             'sender' => 'T-Systems Portal Checklist',
-            'link' => 'http://apps.t-systems.com.br/portal_checklist/login',
+            'link' => 'http://apps.t-systems.com.br/portal_checklist',
         );
         foreach($data as $d){
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
-            Mail::send(new Email($demo,$d));
+            try{
+                Mail::send(new Email($demo,$d));
+            }catch(Exception $e){
+                print_r(json_encode($e->getTraceAsString()));
+            }
         }
     }
 
@@ -67,8 +73,8 @@ class SendEmail
     {
         $data=array(0=>$event->getEmployee()['email']);
         if($event->getReason()=='new'){
-            $demo[]=array(
-                            'receiver' => $event->getEmployee()['name'],
+            $demo=array(
+                            'Receiver' => $event->getEmployee()['name'],
                             'Header' => 'Bem vindo à T-Systems do Brasil LTDA!',
                             'text'=> "Adicionou você ao portal CheckList!",
                             'name' =>$event->getAdmin()->name,
@@ -76,13 +82,19 @@ class SendEmail
                             'link' => 'http://apps.t-systems.com.br/portal_checklist/employee/yourchecklist?token='.$event->getEmployee()->token);
         }else if($event->getReason()=='update'){
             $demo = array(
-                            'receiver'=>$event->getAdmin()['name'],
+                            'Receiver'=>$event->getAdmin()['name'],
                             'Header'=>'Você tem uma atualização no Portal Checklist!',
                             'text'=>"Adicionou você como gestor do empregado: ".$event->getEmployee()->name,
                             'name'=>Auth::user()->name,
                             'sender'=>'T-Systems LTDA Portal Checklist',
-                            'link'=>'http://apps.t-systems.com.br/portal_checklist/login');
+                            'link'=>'http://apps.t-systems.com.br/portal_checklist');
         }
-        foreach($data as $d)Mail::send(new Email($demo,$d));
+        foreach($data as $d){
+            try{
+                Mail::send(new Email($demo,$d));
+            }catch(Exception $e){
+                print_r(json_encode($e->getTraceAsString()));
+            }
+        }
     }
 }
