@@ -88,7 +88,7 @@
                     url: "{{route('employee')}}",
                     method: "GET",
                 }).done(response => {
-                    window.location = '/employee'
+                    window.location = '{{route("employee")}}'
                 });
             },
             mounted: function(){
