@@ -22,91 +22,82 @@ class SendEmail
     }
     public function handleCheck(CheckUpdateEvent $event)
     {
-        if(count($event->getReceiver())==1)$data=array(
-                                                        0=>Employee::findOrFail(Checklist::findOrFail($event->getCheck()->checklist_id))[0]->email);
-        if(count($event->getReceiver())==2)$data=array(
-                                                        0=>Admin::findOrFail($event->getReceiver()[0])['email'],
-                                                        1=>Employee::findOrFail($event->getReceiver()[1])['email']);
-        if(count($event->getReceiver())==3)$data = array(
-                                                        0=>Admin::findOrFail($event->getReceiver()[0])['email'],
-                                                        1=>Employee::findOrFail($event->getReceiver()[1])['email'],
-                                                        2=>Admin::findOrFail($event->getReceiver()[2])['email']);
-
-        
-        
-        $demo[] = array(
+        $data=array();
+        foreach($event->getReceiver()['admin'] as $a){
+            array_push($data,Admin::findOrFail($a)->email);
+        }
+        if(count($event->getReceiver()['emp'])>0)array_push($data,Employee::findOrFail($event->getReceiver()['emp'][0])->email);
+        $demo = array(
+            'Receiver' =>'',
             'Header' => 'Você tem uma atualização no Portal CheckList!',
             'text'=> $event->getText(),
             'name' => $event->getName(),
             'sender' => 'T-Systems Portal Checklist',
-            'link' => 'http://localhost:8000/',
+            'link' => 'http://apps.t-systems.com.br/portal_checklist',
         );
-
-        
-        Mail::send('mail',$demo,
-        function($message) use ($data) {
-            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
-            //$message->to($data);
-            $message->to('wilson.mielke@t-systems.com.br');
-            $message->subject('Nova atualização no portal!');
+        print_r('HANDLE CHECK->   '.$data.'----------');
+        foreach($data as $d){
+            foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
+            try{
+                Mail::to($d)->send(new Email($demo));
+            }catch(Exception $e){
+                print_r(json_encode($e->getTraceAsString()));
             }
-        );
+        }
     }
 
     public function handleChecklist(ChecklistUpdateEvent $event)
     {
         $data=array(
-                    0=>Admin::findOrFail($event->getReceiver()[0])['email'],
-                    1=>Employee::findOrFail($event->getReceiver()[1])['email']);
+                    0=>Admin::findOrFail($event->getReceiver()['admin'][0])['email'],
+                    1=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
 
-        $demo[] = array(
+        $demo = array(
+            'Receiver' =>'',
             'Header' => 'Você tem uma atualização no Portal CheckList!',
             'text'=> $event->getText(),
             'name' => $event->getName(),
             'sender' => 'T-Systems Portal Checklist',
-            'link' => 'http://localhost:8000/',
+            'link' => 'http://apps.t-systems.com.br/portal_checklist',
         );
-        
-        Mail::send('mail',$demo,
-        function($message) use ($data) {
-            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
-            //$message->to($data);
-            $message->to('wilson.mielke@t-systems.com.br');
-            $message->subject('Nova atualização no portal!');
+        print_r('HANDLE CHECKLIST->   '.$data.'----------');
+        foreach($data as $d){
+            foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
+            try{
+                Mail::to($d)->send(new Email($demo));
+            }catch(Exception $e){
+                print_r(json_encode($e->getTraceAsString()));
             }
-        );
+        }
     }
 
     public function handleEmployee(NewEmployeeEvent $event)
     {
-        $data[]=array(0=>$event->getEmployee()['email']);
+        $data=array(0=>$event->getEmployee()['email']);
         if($event->getReason()=='new'){
-            $demo[]=array(
-                            'receiver' => $event->getEmployee()['name'],
+            $demo=array(
+                            'Receiver' => $event->getEmployee()['name'],
                             'Header' => 'Bem vindo à T-Systems do Brasil LTDA!',
                             'text'=> "Adicionou você ao portal CheckList!",
                             'name' =>$event->getAdmin()->name,
                             'sender' => 'T-Systems LTDA Portal Checklist',
-                            'link' => 'http://localhost:8000/employee/yourchecklist?token='.$event->getEmployee()->token);
+                            'link' => 'http://apps.t-systems.com.br/portal_checklist/employee/yourchecklist?token='.$event->getEmployee()->token);
         }else if($event->getReason()=='update'){
-            $demo[] = array(
-                            'receiver'=>$event->getAdmin()['name'],
+            $demo = array(
+                            'Receiver'=>$event->getAdmin()['name'],
                             'Header'=>'Você tem uma atualização no Portal Checklist!',
                             'text'=>"Adicionou você como gestor do empregado: ".$event->getEmployee()->name,
                             'name'=>Auth::user()->name,
                             'sender'=>'T-Systems LTDA Portal Checklist',
-                            'link'=>'http://localhost:8000');
+                            'link'=>'http://apps.t-systems.com.br/portal_checklist');
         }
-        Mail::send('mail',$demo,
-        function($message) use ($data) {
-            $message->from('Checklist.no-reply@webexchange.t-systems.com.br', 'Portal CheckList');
-            //$message->to($data);
-            $message->to('wilson.mielke@t-systems.com.br');
-            $message->subject('Nova atualização no portal!');
+        print_r('HANDLE EMPLOYEE->   '.$data.'----------');
+        foreach($data as $d){
+            try{
+                Mail::to($d)->send(new Email($demo));
+            }catch(Exception $e){
+                print_r(json_encode($e->getTraceAsString()));
             }
-        );
-
-
-        //Mail::to('wilson.mielke@t-systems.com.br')->send(new Email($objDemo)); //TESTING
+        }
     }
 }

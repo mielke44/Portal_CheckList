@@ -75,22 +75,8 @@
                     <v-form ref='form'>
                         <v-card-text>
                             <v-text-field v-model="form.name" label="Nome" required :rules="rules.name" counter='25'></v-text-field>
-                            <v-select v-model="form.profile_id" :items="profile" item-text="name" item-value="id" label="Perfil"
-                                :rules="rules.prof_id" persistent-hint required></v-select>
                             <v-autocomplete v-model="form.profile_id" :items="profile" label="Perfis" item-text="name"
-                                item-value="id" multiple>
-                                <template slot="selection" slot-scope="data">
-                                    <v-chip :selected="data.selected" close class="chip--select-multi" @input="remove(data.item)">@{{data.item.name}}</v-chip>
-                                </template>
-                                <template slot="item" slot-scope="data">
-                                    <template>
-                                        <v-list-tile-content>
-                                            <v-list-tile-title v-html="data.item.name"></v-list-tile-title>
-                                            <v-list-tile-sub-title v-html="data.item.description"></v-list-tile-sub-title>
-                                        </v-list-tile-content>
-                                    </template>
-                                </template>
-                            </v-autocomplete>
+                                item-value="id" :rules="rules.prof_id" multiple hide-no-data hide-selected></v-autocomplete>
                             <div class='headline mb-2 mt-2'>Dependências</div>
                             <v-layout row wrap>
                                 <v-flex xs6>
@@ -109,7 +95,6 @@
                                     @{{task_tree_selected.description}}
                                 </v-flex>
                             </v-layout>
-
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
                     </v-form>
@@ -160,7 +145,6 @@
                     name: '',
                     profile_id: '',
                     dependences: []
-
                 },
                 search:''
             }
@@ -168,7 +152,6 @@
         computed: {
             task_tree_selected: function () {
                 if (this.task_tree_active.length == 0) return 0;
-
                 return this.getTask(this.task_tree_active[0]);
             },
             search_data: function () {
@@ -192,6 +175,7 @@
                 }
             },
             store: function () {
+                //alert(JSON.stringify(this.profile));
                 if (this.$refs.form.validate()) {
                     app.confirm("Criando/Alterando Registro!", "Confirmar ação deste Registro?", "green", () => {
                         $.ajax({
@@ -241,7 +225,6 @@
             },
             set_dependence(id, set) {
                 position = this.positionDependenceSet(id);
-
                 if (!set & position > -1) this.form.dependences.splice(position, 1);
                 else if (set & position == -1) {
                     this.form.dependences.push(parseInt(id));
@@ -281,7 +264,7 @@
                         id: id
                     },
                 }).done(response => {
-
+                    //alert(JSON.stringify(response));
                     this.form_texts.title = "Editar Lista";
                     this.form_texts.button = "Salvar";
                     this.form = response;

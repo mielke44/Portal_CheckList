@@ -60,26 +60,43 @@
                                             <v-tab-item v-for="c in checklists[em.id]">
                                                 <v-container grid-list-xs>
                                                     <v-layout row wrap>
-                                                        <v-flex xs6>
+                                                        <v-flex xs5>
                                                             <v-treeview :items="c.tree" open-all :active.sync='task_tree_active'
                                                                 activatable active-class='extra-treeview'>
                                                                 <template slot='prepend' slot-scope="{item}">
                                                                     <div>
-                                                                        <v-checkbox color="primary" v-model="item.status"
-                                                                            @change="count_check(item.check_id,item.status)"></v-checkbox>
+                                                                        <v-checkbox v-if="item.status==-1" color="primary" v-model="item.status"
+                                                                            indeterminate disabled></v-checkbox>
+                                                                        <v-checkbox v-if="item.status==-2" color="primary" v-model="item.status"
+                                                                            indeterminate disabled></v-checkbox>
+                                                                        <v-checkbox v-else color="primary" v-model="item.status"
+                                                                            @change="count_check(item.check_id,item.status,em.id)"></v-checkbox>
                                                                     </div>
+                                                                </template>
+                                                                <template v-if="item.status==-1" slot='append' slot-scope="{item}">
+                                                                    <v-icon color="red">warning</v-icon>
+                                                                </template>
+                                                                <template v-if="item.status==-2" slot='append' slot-scope="{item}">
+                                                                    <v-icon @click="app.notify('Esta tarefa depende de outra!','error')" color="green">error_outline</v-icon>
                                                                 </template>
                                                             </v-treeview>
                                                         </v-flex>
+                                                        <v-divider inset vertical></v-divider>
                                                         <template v-if='task_tree_selected!=0'>
                                                             <v-flex xs6>
                                                                 <v-layout row wrap>
                                                                     <v-flex xs12 class='headline'>
                                                                         @{{task_tree_selected.name}}
                                                                     </v-flex>
+                                                                    <v-flex xs12 class='font-weight-bold' color='red' v-if="check_tree_selected.status==-1">
+                                                                        Expirou dia: @{{check_tree_selected.limit}}
+                                                                    </v-flex>
+                                                                    <v-flex xs12 class='font-weight-bold' v-else>
+                                                                        Expira dia: @{{check_tree_selected.limit}}
+                                                                    </v-flex>
                                                                     <v-flex xs12>
                                                                         <p class='body-2'>@{{task_tree_selected.description}}</p>
-                                                                        <p class='caption mt-2'>Responsavel:
+                                                                        <p class='caption mt-2'>Responsável:
                                                                             @{{resp.find(r=>r.id==check_tree_selected.resp).name}}
                                                                             <a class='ml-2' @click='dialog_responsavel=true;form.resp=parseInt(check_tree_selected.resp)'>
                                                                                 <v-icon class='body-1' color='primary'>edit</v-icon>
@@ -131,8 +148,7 @@
                                                                     </v-flex>
                                                                     <v-flex xs12 class='text-xs-center'>
                                                                         <v-btn outline color="blue" dark @click='dialog_comment=true;form.comment="";form.comment_id=""'>+
-                                                                            Adicionar
-                                                                            comentário</v-btn>
+                                                                            Adicionar comentário</v-btn>
                                                                     </v-flex>
                                                                 </v-layout>
                                                             </v-flex>
@@ -204,7 +220,8 @@
             <v-dialog v-model="dialog2" max-width="700" r>
                 <v-card>
                     <v-card-title>
-                        <p style="width:100%" class="headline text-xs-center">Checklist</p>
+                        <p style="width:100%" class="headline text-xs-center">Criar Lista de Tarefa</p>
+                        <h2 style="width:100%" class="subheading text-xs-center">Ao criar uma lista, o criador é considerado gerenciador desta lista</h2>
                     </v-card-title>
                     <v-card-text>
                         <v-flex xs6>Lista de tarefas:</v-flex>
@@ -377,15 +394,6 @@
                         resp: '',
 
                     },
-                    items: [{
-                            text: 'Efetivado',
-                            value: "1",
-                        },
-                        {
-                            text: 'Estagiário',
-                            value: "2",
-                        }
-                    ],
                     search: '',
                 }
             },
@@ -435,7 +443,6 @@
                     }
                     return array;
                 }
-
             },
             watch: {
                 model_employee: function (val) {
@@ -495,6 +502,9 @@
                             employee_id: id,
                             checklist_template_id: this.form.checklist_template_id,
                         },
+                        error: (response) => {
+                            app.notify('Ocorreu um erro! Tente novamente!','error');
+                        },
                         success: (response) => {
                             this.list_checklist(id);
                             this.list();
@@ -519,7 +529,20 @@
                         this.resp = response['admin_list'];
                         this.resp = this.resp.concat(response['resp_list']);
                         this.resp = this.resp.concat(response['default']);
+                        this.list_group();
                     });
+                },
+                list_group: function(){
+                    $.ajax({
+                        url: "{{route('group.list')}}",
+                        method: "GET",
+                        dataType: "json",
+                    }).done(response => {
+                        for (r of response){
+                            r.id = 'group'+r.id;
+                        }
+                        this.resp = this.resp.concat(response);
+                    })
                 },
                 list_profile: function () {
                     $.ajax({
@@ -708,7 +731,7 @@
                         })
 
                 },
-                updateCheck: function (change_type, check_id, data) {
+                updateCheck: function (change_type, check_id, data,id) {
                     this.dialog_responsavel = false;
                     form_data = {
                         check_id: check_id
@@ -729,10 +752,11 @@
                         headers: app.headers,
                         data: form_data
                     }).done(response => {
-                        app.notify("Tarefa modificada!", "success");
+                        if(response['error']==false)app.notify("Tarefa modificada!", "success");
+                        this.list_checklist(id);
                     });
                 },
-                count_check: function (check_id, check_status) {
+                count_check: function (check_id, check_status,id) {
                     if (check_status) {
                         this.employee_selected.check_true_size++;
                     } else if (!status) {
@@ -740,7 +764,7 @@
                     }
                     this.updateCheck("STATUS", check_id, {
                         status: check_status
-                    });
+                    },id);
 
                 },
                 remove(item) {
@@ -767,8 +791,7 @@
                 },
                 getCheckByTask: function (id) {
                     for (j = 0; j < this.checklist_selected.checks.length; j++) {
-                        if (id == this.checklist_selected.checks[j].task_id) return this.checklist_selected
-                            .checks[j]
+                        if (id == this.checklist_selected.checks[j].task_id) return this.checklist_selected.checks[j]
                     }
                     return null;
                 },
@@ -781,15 +804,11 @@
                     this.search = search;
                 },
                 mounted: function () {
-
                     app.setMenu('employee');
                     this.filtro.site = parseInt(app.user.site);
                 }
-
-
             },
             mounted() {
-
                 this.list_profile();
                 this.list_ChecklistTemplate();
                 this.list_sites();

@@ -27,7 +27,7 @@
             </v-btn-toggle>
         </v-flex>
         <v-flex xs6 sm6 class="text-xs-right">
-            <v-btn class="ma-0 " v-if="user.is_admin==1" @click="is_admin=true;add();" color="primary">Adicionar Gestor</v-btn>
+            <v-btn class="ma-0 " v-if="user.is_admin==1" @click="is_admin=true;add();" color="primary">Adicionar Usuário</v-btn>
             <v-btn class="ma-0 " v-if="Filter.model==0" @click="addGroup();" color="primary">Adicionar Grupo</v-btn>
         </v-flex>
         <!--VIEW FILTRO GROUP-->
@@ -44,8 +44,10 @@
                     <v-flex  xs12 class="text-xs-right font-weight-bold">
                             <v-icon @click="editGroup(grp)">edit</v-icon>
                             <v-icon @click="destroy_group(grp.id)">delete</v-icon>
-                            <v-autocomplete v-model="form.team" :items="admin" color="black" hide-no-data hide-selected multiple
-                            item-text="name" item-value="id" label="Adicionar ao grupo" append-outer-icon="add" @click:append-outer="ChangeTeam(form.team[0], grp.id,2)"></v-autocomplete>
+                            <v-container>
+                                <v-autocomplete v-model="form.team" :items="admin_list_group" color="black" hide-no-data hide-selected multiple
+                                    item-text="name" item-value="id" label="Adicionar ao grupo" append-outer-icon="add" @click:append-outer="ChangeTeam(form.team, grp.id,2)"></v-autocomplete>
+                            </v-container>
                     </v-flex>
                     <v-container>
                         <v-expansion-panel>
@@ -146,9 +148,6 @@
                                 <v-flex xs3>Site</v-flex>
                                 <v-flex xs3 class='font-weight-bold'>@{{getSiteName(r.site)}}</v-flex>
                                 <v-flex xs12 v-if="user.is_admin==1" class='text-xs-right'>
-                                    <v-btn color="blue" outline>
-                                        <v-icon dark class='mr-2'>check</v-icon> Empregados
-                                    </v-btn>
                                     <v-btn @click="edit(r.id)" color="yellow darken-2" outline>
                                         <v-icon dark class='mr-2'>edit</v-icon> Editar
                                     </v-btn>
@@ -259,7 +258,7 @@
 
 
 
-    <!-- EDIT-->
+    <!-- FORM VIEW-->
     <v-layout row wrap v-if="form_view && !prof_view2">
         <v-flex xs12 sm6 offset-sm3>
             <v-card>
@@ -269,15 +268,15 @@
                         <v-card-text>
                             <v-text-field v-model="form.name" :rules="rules.name" label="Nome" required></v-text-field>
                             <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
+                            <v-checkbox value :indeterminate="form.is_admin==-1" :disabled="form.is_admin==-1" label="Usuário é gestor?" v-model="form.is_admin"></v-checkbox>
                             <v-select v-model="form.site" :items="sites" item-text="complete_name" item-value="id"
                                 label="Site" persistent-hint required></v-select>
-                            <v-text-field v-if="is_admin" v-model="form.password" :append-icon="show1 ? 'visibility_off' : 'visibility'"
+                            <v-text-field v-if="!this.form_edit" v-model="form.password" :append-icon="show1 ? 'visibility_off' : 'visibility'"
                                 :rules="rules.password" :type="show1 ? 'text' : 'password'" name="input-10-1" label="Senha"
                                 hint="Senha deve ter 6 caracteres" counter @click:append="show1 = !show1"></v-text-field>
-                            <v-text-field v-if="is_admin" v-model="form.passwordc" :rules="rules.passwordc" :type="show1 ? 'text' : 'password'"
+                            <v-text-field v-if="!this.form_edit" v-model="form.passwordc" :rules="rules.passwordc" :type="show1 ? 'text' : 'password'"
                                 name="input-10-1" label="Confirmar Senha"></v-text-field>
-                            <v-btn v-if="!is_admin" @click="store('0')" color="primary">@{{form_texts.button}}</v-btn>
-                            <v-btn v-if="is_admin" @click="store('1')" color="primary">@{{form_texts.button}}</v-btn>
+                            <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
                     </v-form>
                 </v-container>
@@ -298,11 +297,11 @@
         },
         data() {
             return {
+                form_edit:false,
                 model_group: 0,
                 model_site: 0,
                 name: '',
                 popup_group: false,
-                is_admin: false,
                 show1: false,
                 admin: [],
                 resp: [],
@@ -354,6 +353,7 @@
                     passwordc: '',
                     site: '',
                     group: '',
+                    is_admin: '',
                 },
                 items: [],
                 sites: [],
@@ -366,21 +366,34 @@
                 if ("true" == "{{$prof_view}}") return true;
                 return false;
             },
+            admin_list_group:function (){
+                if(this.model_group==null) return;
+                var array=[];
+                for(adm of this.admin){
+                    if(adm.group!=this.groups[this.model_group].id){
+                        array.push(adm);
+                    }
+                }
+            return array;
+            }
         },
         methods: {
             add: function () {
                 this.form_view = true;
-                this.form_texts.title = "Adicionar Registro";
+                this.form_texts.title = "Adicionar Usuário";
                 this.form_texts.button = "Salvar";
+                this.edit = false;
                 this.form = {
                     id: "",
                     name: '',
                     type: '',
-                    dependences: ''
+                    is_admin:'',
+                    password:'',
                 }
             },
-            store: function (is_admin) {
+            store: function () {
                 if (this.$refs.form.validate()) {
+                    this.form.group='';
                     app.confirm("Adicionando/Alterando Registro!", "Confirmar ação de Registro?", "green", () => {
                         $.ajax({
                             url: "{{route('admin.store')}}",
@@ -389,7 +402,6 @@
                             headers: app.headers,
                             data: {
                                 form: this.form,
-                                is_admin: is_admin,
                             },
                             success: (response) => {
                                 this.list();
@@ -479,7 +491,9 @@
                         this.form_texts.title = "Editar Admin";
                         this.form_texts.button = "Salvar";
                         this.form = response;
+                        this.form.password='';
                         this.form_view = true;
+                        this.form_edit=true;
                         this.prof_view2 = false;
                         this.form.site = parseInt(this.form.site);
                     });
@@ -521,6 +535,7 @@
                     })
             },
             ChangeTeam: function(admin_id,group_id,s){
+                //alert(JSON.stringify(this.model_group));
                 if(s==1){app.confirm("Remover integrante?",
                     "Este integrante será removido do grupo.", "red", () => {
                         this.form = {
@@ -543,7 +558,8 @@
                             }
                         });
                 })
-                }if(s==2){app.confirm("Adicionar integrante?",
+                }if(s==2){
+                    app.confirm("Adicionar integrante?",
                     "Este integrante será adicionado ao grupo.", "yellow darken-2", () => {
                         this.form = {
                             id: admin_id,
@@ -561,7 +577,7 @@
                             success: (response) => {
                                 this.list_group();
                                 this.list();
-                                app.notify("Integrante Removido!", "success");
+                                app.notify("Integrante Adicionado!", "success");
                             }
                         });
                 })
@@ -574,11 +590,11 @@
         searching: function (search) {
             this.search = search;
         },
-        mounted() {
+    },
+    mounted() {
             this.list_group();
             this.list();
             this.prof_view2 = this.prof_view;
-
             $.ajax({
                 url: "{{route('site.list')}}",
                 method: "GET",
@@ -587,7 +603,6 @@
                 this.sites = response;
             });
         }
-    },
 });
 </script>
 @endsection

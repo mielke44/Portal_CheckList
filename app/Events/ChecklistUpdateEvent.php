@@ -21,12 +21,13 @@ class ChecklistUpdateEvent
      *
      * @return void
      */
-    public function __construct(Checklist $checklist, $text, $receiver, $name)
+    public function __construct(Checklist $checklist,$text,$receiver,$name,$type)
     {
         $this->checklist = $checklist;
         $this->text = $text;
         $this->receiver = $receiver;
         $this->name = $name;
+        $this->type=$type;
     } 
 
     public function getType(){

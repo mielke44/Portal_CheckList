@@ -19,6 +19,7 @@ class CreateCheckTable extends Migration
             $table->string('resp');
             $table->string('task_id');
             $table->string('checklist_id');
+            $table->string("limit");
             $table->timestamps();
         });
     }

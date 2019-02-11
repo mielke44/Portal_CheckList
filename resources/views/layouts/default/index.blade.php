@@ -9,9 +9,10 @@
 
 
 
-<v-navigation-drawer :mini-variant.sync="mini" fixend app v-model="drawer" hide-overlay stateless class="red accent-3"
-    dark>
-    <div @mouseover="mini=false" @mouseout="mini=true" style='height:100%'>
+<!--<v-navigation-drawer :mini-variant.sync="mini" fixend app v-model="drawer" hide-overlay stateless class="red accent-3" dark>-->
+<v-navigation-drawer fixend app v-model="drawer" hide-overlay stateless class="red accent-3" dark>
+    <!--<div @mouseover="mini=false" @mouseout="mini=true" style='height:100%'>-->
+    <div style='height:100%'>
         <v-toolbar flat class="transparent">
             <v-list class="pa-0">
                 <v-list-tile avatar>
@@ -47,22 +48,21 @@
         </v-list>
         <v-footer height="auto" absolute color='primary'>
             <v-layout row wrap align-center>
-                <v-flex xs12 v-if='mini'>
+                <!--<v-flex xs12 v-if='mini'>
                     <v-img src="{{asset('images/t-logo3.png')}}" max-width='50' style='display: block;margin: 0 auto;'></v-img>
-                </v-flex>
-                <v-flex xs12 class='text-xs-center font-weight-bold caption' v-if='!mini'>T-Systems Mobile Apps
-                </v-flex>
+                </v-flex>-->
+                <!--<v-flex xs12 class='text-xs-center font-weight-bold caption' v-if='!mini'>T-Systems Mobile Apps
+                </v-flex>-->
+                <v-flex xs12 class='text-xs-center font-weight-bold caption'>T-Systems Mobile Apps</v-flex>
             </v-layout>
         </v-footer>
     </div>
-
 </v-navigation-drawer>
 
 
 
 <v-toolbar color="white" fixed app>
     <v-toolbar-side-icon @click.stop="drawer=!drawer;mini=false"></v-toolbar-side-icon>
-
     <v-toolbar-title>
         @yield('l-title')
     </v-toolbar-title>
@@ -85,13 +85,16 @@
                 </v-badge>
             </v-btn>
             <v-list class="ma-0 pa-0">
-                <template v-for='n in notifyLimit'>
-                    <v-list-tile @click="get_check(n.id)">
+                <template v-if="notifications.length>0" v-for='n in notifyLimit'>
+                    <v-list-tile @click="get_not_source(n.id)">
                         <v-list-tile-avatar>
+                            <v-icon color="red" v-if='n.type==-1' class="twotone">warning</v-icon>
                             <v-icon color="primary" v-if='n.type==0'>check_box</v-icon>
                             <v-icon color="primary" v-if='n.type==1'>add_comment</v-icon>
                             <v-icon color="primary" v-if='n.type==2'>assignment_ind</v-icon>
-                            <v-icon color="primary" v-if='n.type==3'>playlist_add_check</v-icon>
+                            <v-icon color="primary" v-if='n.type==3'>playlist_add</v-icon>
+                            <v-icon color="primary" v-if='n.type==4'>playlist_add_check</v-icon>
+                            <v-icon color="yellow darken-2" v-if='n.type==5'>warning</v-icon>
                         </v-list-tile-avatar>
                         <v-list-tile-content class='body-1'>
                             <v-list-tile-title>@{{n.name}}</v-list-tile-title>
@@ -104,11 +107,21 @@
                     </v-list-tile>
                     <v-divider></v-divider>
                 </template>
+                <template v-if="notifications.length==0">
+                    <v-list-tile>
+                        <v-list-tile-content>
+                            <v-list-tile-title>nenhuma notificação</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </template>
                 <v-list-tile class="pa-0">
-                    <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=notifications.length'>Mostrar
-                        todas as notificações</v-btn>
-                    <v-btn class="pa-0 ma-0" color="white" v-if="tam!=3" depressed block @click='tam=3'>Mostrar 3
-                        notificações</v-btn>
+                    <v-flex xs6>
+                        <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=notifications.length'><v-icon>expand_more</v-icon></v-btn>
+                        <v-btn class="pa-0 ma-0" color="white" v-if="tam!=3" depressed block @click='tam=3'><v-icon>expand_less</v-icon></v-btn>
+                    </v-flex>
+                    <v-flex xs6>
+                        <v-btn class="pa-0 ma-0" color="white" depressed block @click="clearnot"><v-icon>delete</v-icon></v-btn>
+                    </v-flex>
                 </v-list-tile>
             </v-list>
         </v-menu>
@@ -309,6 +322,18 @@
                 if (this.snackbar_notify.color == null) this.snackbar_notify.color = "black";
                 this.snackbar_notify.color = color;
             },
+            clearnot: function(){
+                $.ajax({
+                    url: "{{route('clrnot')}}",
+                    method: 'POST',
+                    datatype: 'json',
+                    headers : app.headers,
+                }).done(response => {
+                    if(response['error'])app.notify('Ocorreu um erro! Tente Novamente!','error');
+                    app.notify('notificações excluidas!','success');
+                    this.list_notifications();
+                })
+            },
             confirm: function (title, text, color, action) {
                 this.dialog_confirm.model = true;
                 this.dialog_confirm.title = title;
@@ -337,7 +362,7 @@
                     this.notifications = response;
                 });
             },
-            get_check: function (id) {
+            get_not_source: function (id) {
                 $.ajax({
                     url: "{{route('updnot')}}",
                     method: 'POST',
@@ -348,7 +373,7 @@
                     },
                 }).done(response => {
                     this.list_notifications();
-                    window.location = "{{route('employee')}}";
+                    window.location = '{{route("emp.yourchecklist.view")}}';
                 });
             },
             update: function () {
@@ -360,7 +385,6 @@
                     if (JSON.stringify(response) == "true") {
                         this.list_notifications()
                     };
-
                 });
             },
             setMenu: function (id) {
@@ -386,7 +410,7 @@
                     if (this.$refs.page.hasOwnProperty("mounted")) this.$refs.page.mounted()
                 }, 50);
             });
-            setInterval(() => this.update(), 15000);
+            setInterval(() => this.update(), 5000);
 
         }
     });

@@ -15,14 +15,27 @@
                 <v-expansion-panel-content v-for='(c,i) in checks' v-if='search_data[i]'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
-                            <v-flex xs1  >
-                                <v-checkbox color='primary' :readonly="!editable" v-model="c.status" @change='updateCheck(c.id,c.status)'></v-checkbox>
+                            <v-flex xs1>
+                                <v-checkbox v-if="c.status==-1" color="primary" v-model="c.status"
+                                    indeterminate disabled></v-checkbox>
+                                <v-checkbox v-else-if="c.status==-2" color="primary" v-model="c.status"
+                                    indeterminate disabled></v-checkbox>
+                                <v-checkbox v-else color="primary" v-model="c.status"
+                                    @change="updateCheck(c.id,c.status)"></v-checkbox>
                             </v-flex>
-                            <v-flex xs6 @click='model_checks=model_checks==i?-1:i'>
+                            <v-flex xs1>
+                                <template v-if="c.status==-2">
+                                    <v-icon @click="app.notify('Esta tarefa depende de outra!','warning')" color="green">error_outline</v-icon>
+                                </template>
+                                <template v-if="c.status==-1">
+                                    <v-icon @click="app.notify('Esta tarefa expirou!','error')" color="red">warning</v-icon>
+                                </template>
+                            </v-flex>
+                            <v-flex xs5 @click='model_checks=model_checks==i?-1:i'>
                                 @{{tasks.find(t=>t.id==c.task_id).name}}
                             </v-flex>
                             <v-flex xs5 @click='model_checks=model_checks==i?-1:i'>
-                                    @{{c.user}}
+                                @{{c.user}}
                             </v-flex>
                         </v-layout>
                     </div>
@@ -33,8 +46,13 @@
                                 @{{tasks.find(t=>t.id==c.task_id).description}}
                             </v-flex>
                             <v-flex xs6>
-
                                 <v-layout row wrap>
+                                    <v-flex xs12 class='font-weight-bold' color='red' v-if="c.status==-1">
+                                        Expirou dia: @{{c.limit}}
+                                    </v-flex>
+                                    <v-flex xs12 class='font-weight-bold' v-else>
+                                        Expira dia: @{{c.limit}}
+                                    </v-flex>
                                     <v-flex xs12>
                                         <p class='font-weight-bold'>Comentários</p>
                                     </v-flex>
@@ -81,10 +99,8 @@
                                             comentário</v-btn>
                                     </v-flex>
                                 </v-layout>
-
                             </v-flex>
                         </v-layout>
-
                     </v-container>
                 </v-expansion-panel-content>
                 <v-expansion-panel-content v-if='checks.length==0'>
@@ -113,7 +129,6 @@
         </v-card-text>
         <v-card-actions>
             <v-spacer></v-spacer>
-
             <v-btn color="red" @click="dialog_comment = false" outline>
                 <v-icon dark class='mr-2'>close</v-icon>Fechar
             </v-btn>
@@ -191,7 +206,6 @@
                 }).done(response => {
                     this.checks = response['checks'];
                     this.editable = response['editable'];
-
                 });
             },
             list_tasks: function () {
@@ -228,7 +242,6 @@
                         comment_id: this.form.comment_id,
                         check_id: this.checks[this.model_checks].id
                     },
-
                     success: (response) => {
                         if (response['st'] == 'add') app.notify("Comentário adicionado",
                             "success");
@@ -236,7 +249,6 @@
                             "comentário editado com sucesso!", "success");
                         this.list_comment(this.checks[this.model_checks].id);
                         this.dialog_comment = false;
-
                     }
                 });
             },
@@ -257,15 +269,12 @@
                             }
                         });
                     });
-
-
             },
             updateCheck: function (check_id, status) {
                 form_data = {
                     check_id: check_id
                 };
                 form_data.status = status ? 1 : 0;
-
                 $.ajax({
                     url: "{{route('check.edit')}}",
                     method: "POST",

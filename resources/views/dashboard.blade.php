@@ -26,7 +26,6 @@
                     </v-layout>
                 </v-container>
                 <v-card-title primary-title>
-
                 </v-card-title>
             </v-card>
         </v-flex>
@@ -100,4 +99,14 @@
 
     });
 </script>
+<style>
+    .v-card--reveal {
+        align-items: center;
+        bottom: 0;
+        justify-content: center;
+        opacity: .5;
+        position: absolute;
+        width: 100%;
+    }
+    </style>
 @endsection

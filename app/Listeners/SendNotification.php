@@ -14,40 +14,56 @@ use App\Admin;
 
 class SendNotification
 {
-    /**
-     * Create the event listener.
-     *
-     * @return void
-     */
     public function __construct()
     {
         //
     }
 
-    /**
-     * Handle the event.
-     *
-     * @param  CheckUpdateEvent  $event
-     * @return void
-     */
     public function CheckUpdate(CheckUpdateEvent $event)
-    {           
-        for($i = 0; $i<count($event->getReceiver());$i++){
+    {
+        if(count($event->getReceiver()['admin'])>0)foreach($event->getReceiver()['admin'] as $rec){
+            
             $flag = new Flag();
             $flag->type = 'notification';
-            $flag->receiver = $event->getReceiver()[$i];
+            $flag->receiver = $rec;
+            $flag->save();
+
+            $notification = new Notification;
+            $notification->text = $event->getText();
+            $notification->name = $event->getName();
+            $notification->admin_id = $rec;
+            $notification->employee_id =0;
+            $notification->type = $event->getType();
+            $notification->check_id = $event->getCheck()->id;
+            $notification->status = 'pending';
+            $notification->save();
+        }
+        if(count($event->getReceiver()['emp'])>0){
+            $flag = new Flag();
+            $flag->type = 'emp notification';
+            $flag->receiver = $event->getReceiver()['emp'][0];
             $flag->save();
         }
+
         $notification = new Notification;
         $notification->text = $event->getText();
         $notification->name = $event->getName();
-        $notification->admin_id = $event->getCheck()->resp;
+        $notification->admin_id = 0;
         $notification->employee_id = Checklist::findOrFail($event->getCheck()->checklist_id)->employee_id;
         $notification->type = $event->getType();
         $notification->check_id = $event->getCheck()->id;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate)
+        /*------------------------/
+        |   Notification Types:   |  
+        |  -1 = ExpireCheckLimit  | 
+        |  0 = CheckUpdateStatus  |
+        |  1 = CommentUpdate      |
+        |  2 = ResponsibleUpdate  |
+        |  3 = ChecklistUpdate    |
+        |  4 = ChecklistComplete  |
+        |  5 = CheckLimitWarning  |
+        /------------------------*/
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,
@@ -60,23 +76,44 @@ class SendNotification
 
     public function ChecklistUpdate(ChecklistUpdateEvent $event)
     {
-        for($i = 0; $i<count($event->getReceiver());$i++){
+        foreach($event->getReceiver()['admin'] as $rec){
             $flag = new Flag();
             $flag->type = 'notification';
-            $flag->receiver = $event->getReceiver()[$i];
+            $flag->receiver = $rec;
             $flag->save();
+            $notification = new Notification;
+            $notification->text = $event->getText();
+            $notification->name = $event->getName();
+            $notification->admin_id = $rec;
+            $notification->employee_id = $event->getChecklist()->employee_id;
+            $notification->type = $event->getType();
+            $notification->check_id = 0;
+            $notification->status = 'pending';
         }
-
+        $flag = new Flag();
+        $flag->type = 'emp notification';
+        $flag->receiver = $event->getReceiver()['emp'][0];
+        $flag->save();
+        
         $notification = new Notification;
         $notification->text = $event->getText();
         $notification->name = $event->getName();
-        $notification->admin_id = $event->getChecklist()->gestor;
+        $notification->admin_id = 0;
         $notification->employee_id = $event->getChecklist()->employee_id;
-        $notification->type = 3;
+        $notification->type = $event->getType();
         $notification->check_id = 0;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate)
+        /*------------------------/
+        |   Notification Types:   |  
+        |   -1:ExpireCheckLimit;  | 
+        |   0:CheckUpdateStatus;  |
+        |   1:CommentUpdate;      |
+        |   2:ResponsibleUpdate;  |
+        |   3:ChecklistUpdate;    |
+        |   4:ChecklistComplete;  |
+        |   5:CheckLimitWarning)  |
+        /------------------------*/
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,
@@ -96,8 +133,6 @@ class SendNotification
         $flag->receiver = $Employee->gestor;
         $flag->save();
         
-
-
         $notification = new Notification;
         $notification->text = 'Você foi selecionado como gestor do empregado '.$Employee->name;
         $notification->name = Admin::findOrFail($Employee->gestor)->name;
@@ -107,7 +142,16 @@ class SendNotification
         $notification->check_id = 0;
         $notification->status = 'pending';
 
-        //type -> (0:CheckUpdateStatus ; 1:CommentUpdate ; 2:ResponsibleUpdate; 3:ChecklistUpdate)
+        /*------------------------/
+        |   Notification Types:   |  
+        |   -1:ExpireCheckLimit;  | 
+        |   0:CheckUpdateStatus;  |
+        |   1:CommentUpdate;      |
+        |   2:ResponsibleUpdate;  |
+        |   3:ChecklistUpdate;    |
+        |   4:ChecklistComplete;  |
+        |   5:CheckLimitWarning)  |
+        /------------------------*/
 
         if ($notification-> save()) {
             return json_encode(array('error' => false,

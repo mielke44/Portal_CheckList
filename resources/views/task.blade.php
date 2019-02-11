@@ -64,9 +64,7 @@
                         </v-layout>
                     </v-container>
                 </v-card>
-
             </template>
-
             <v-expansion-panel v-if='task_view_mode==0'>
                 <v-expansion-panel-content v-for='(t,i) in pagination_result'>
                     <div slot="header">
@@ -96,6 +94,16 @@
                             <v-flex xs6>
                                 @{{t.resp_name}}
                             </v-flex>
+                            <v-flex xs6 class='font-weight-bold'>
+                                Tempo Limite Padrão:
+                            </v-flex>
+                            <v-flex xs6 v-if="t.limit!=1">
+                                @{{t.limit}} Dias
+                            </v-flex>
+                            <v-flex xs6 v-else>
+                                @{{t.limit}} Dia
+                            </v-flex>
+
                             <template v-if="t.dependence.length>0">
                                 <v-flex xs3 class='font-weight-bold'>
                                     Dependentes:
@@ -125,7 +133,6 @@
                                 </v-btn>
                             </v-flex>
                         </v-layout>
-
                     </v-container>
                 </v-expansion-panel-content>
                 <v-expansion-panel-content v-if='tasks.length==0'>
@@ -137,6 +144,7 @@
             <v-pagination v-model="pagination" :length="pagination_pages" v-if='task_view_mode==0'></v-pagination>
         </v-flex>
     </v-layout>
+
     <!-- FORM VIEW-->
     <v-layout row wrap v-if="form_view">
         <v-flex s12>
@@ -148,10 +156,23 @@
                             <v-text-field v-model="form.name" label="Tarefa" required :rules="rules.name" counter='25'></v-text-field>
                             <v-textarea v-model="form.description" label="Descrição" :rules="rules.description"
                                 required counter='300'></v-textarea>
-                            <v-autocomplete v-model="form.resp" :items="resp" color="black" item-text="name" item-value="id"
-                                label="Responsável padrão (pode alterar posteriormente)" hide-no-data hide-selected></v-autocomplete>
+                            <v-autocomplete v-model="form.resp" :items="resp" item-text="name" item-value="id"
+                                label="Responsável padrão" hide-no-data hide-selected></v-autocomplete>
                             <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                 label="Tipo de tarefa" persistent-hint single-line required></v-select>
+                            <div class='headline mb-2 mt-2'>Limite de tempo</div>
+                            <v-layout row wrap>
+                                <v-flex xs9 class="pr-5">
+                                    <v-slider v-model="form.limit" :max='31' :min='0' thumb-color="primary" label="Dias"
+                                    inverse-label thumb-label="always">
+                                        <v-icon slot="prepend" color="primary" @click="form.limit-=1">remove</v-icon>
+                                        <v-icon slot="append" color="primary" @click="form.limit+=1">add</v-icon>
+                                    </v-slider>
+                                </v-flex>
+                                <v-flex xs1 shrink class="pl-2">
+                                        <v-text-field suffix="Dias" v-model="form.limit" single-line type="number"></v-text-field>
+                                </v-flex>
+                            </v-layout>
                             <div class='headline mb-2 mt-2'>Dependências</div>
                             <v-layout row wrap>
                                 <v-flex xs6>
@@ -172,10 +193,8 @@
                             </v-layout>
                             <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
                         </v-card-text>
-
                     </v-form>
                 </v-container>
-
             </v-card>
         </v-flex>
     </v-layout>
@@ -214,6 +233,9 @@
                     type: [
                         v => !!v || 'Campo obrigtório'
                     ],
+                    resp: [
+                        v => !!v || 'Campo obrigtório'
+                    ],
                 },
                 form: {
                     id: "",
@@ -221,7 +243,8 @@
                     description: '',
                     type: '',
                     dependences2: [],
-                    resp: '',
+                    resp: "",
+                    limit:'',
 
                 },
                 types: [{
@@ -313,7 +336,8 @@
                     name: '',
                     description: '',
                     type: '',
-                    dependences2: []
+                    dependences2: [],
+                    limit:'',
                 }
             },
             store: function () {
@@ -326,6 +350,8 @@
                             headers: app.headers,
                             data: this.form,
                             success: (response) => {
+                                this.tasks.length=0;
+                                this.task_tree.length=0;
                                 this.list();
                                 this.form_view = false;
                                 if (this.form.id == "") app.notify("Tarefa criada",
@@ -342,7 +368,7 @@
                     method: "GET",
                     dataType: "json",
                 }).done(response => {
-                    this.tasks = response;
+                    for(r of response)this.tasks.push(r);
                     this.get_task_tree();
                 });
             },
@@ -357,10 +383,19 @@
                         this.resp.push(response['admin_list'][i]);
                     }
                     this.resp.push(response['default']);
+                    $.ajax({
+                        url: "{{route('group.list')}}",
+                        method: "GET",
+                        dataType: "json",
+                    }).done(response =>{
+                        for(r of response){
+                            r.id='group'+r.id;
+                            this.resp.push(r);
+                        }
+                    })
                 })
             },
             edit: function (task_id) {
-
                 $.ajax({
                     url: "{{route('task.edit')}}",
                     method: "GET",
@@ -369,10 +404,13 @@
                         id: task_id
                     },
                 }).done(response => {
-                    this.form_texts.title = "Editar tarefa";
-                    this.form_texts.button = "Salvar";
-                    this.form = response;
-                    this.form_view = true;
+                    this.form_texts.title="Editar tarefa";
+                    this.form_texts.button="Salvar";
+                    this.form=response;
+                    if(response.resp.length==1){
+                        this.form.resp=parseInt(this.form.resp);
+                    }
+                    this.form_view=true;
                 });
             },
             destroy: function (task_id) {
@@ -386,6 +424,8 @@
                             id: task_id
                         },
                         success: (response) => {
+                            this.tasks.length=0;
+                            this.task_tree.length=0;
                             this.list();
                             this.get_task_tree();
                             this.task_tree_active = '';

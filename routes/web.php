@@ -28,7 +28,8 @@ Route::get('employee/checklist', "ChecklistController@index")->name('checklist.e
 Route::get('employee/checklist/complete/{id}', "ChecklistController@completeCheckList")->name('checklist.complete');
 Route::post('employee/checklist/store', "ChecklistController@store")->name('checklist_store');
 Route::delete('employee/checklist/destroy', "ChecklistController@destroy")->name('checklist.employee.remove');
-Route::get('employee/yourchecklist', "CheckController@YourChecklist")->name('emp.yourchecklist.view');;
+
+Route::get('employee/yourchecklist', "CheckController@YourChecklist")->name('emp.yourchecklist.view');
 Route::get('employee/listyourchecklist', "CheckController@listYourChecks")->name('emp.yourchecklist');
 
 //Check
@@ -80,6 +81,7 @@ Route::get('site/list', "SiteController@list")->name('site.list');
 
 //Auth
 Auth::routes();
+Route::post('/clearnot','HomeController@clearAllNot')->name('clrnot');
 Route::post('/updtnot','HomeController@updateNotification')->name('updnot');
 Route::get('/getflag','HomeController@getFlagNot')->name('getflagnoti');
 Route::get('/logout','HomeController@logout')->name('logout');
