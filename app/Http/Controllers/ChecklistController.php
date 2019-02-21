@@ -27,7 +27,7 @@ class ChecklistController extends Controller
 
         return json_encode($checklists);
     }
-
+    
     public function store(Request $request){
         $checklist = new Checklist();
         $checklist->gestor = Auth::user()->id;
@@ -78,7 +78,7 @@ class ChecklistController extends Controller
         }
     }
 
-    public static function completeCheckList($id){
+    public static function completeCheckList($id){ 
         $checklist = Checklist::findOrFail($id);
         $checks = Check::where('checklist_id',$checklist->id)->get();
         $i = 0;
@@ -91,9 +91,7 @@ class ChecklistController extends Controller
             $emp = Employee::findOrFail($checklist->employee_id);
             if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
             else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
-
             $name = ChecklistTemplate::findOrFail($checklist->checklist_template_id)->name;
-
             event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,4));
             return 'true';
         }

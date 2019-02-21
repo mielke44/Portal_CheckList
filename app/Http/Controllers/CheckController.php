@@ -151,16 +151,11 @@ class CheckController extends Controller
                 $Check['resp'] = $request['resp'];
                 $text = 'foi selecionado como responsável da tarefa: '.$task->name;
                 $type = 2;
-
                 if ($Check->save()) {
-
                     event(new CheckUpdateEvent($Check, $text,$name,$type, $receiver));
-
                     return json_encode(array('error' => false,
                         'message' => $Check->id."//status:".$Check->status));
-
                 } else {
-
                     return json_encode(array('error' => true,
                         'message' => 'Ocorreu um erro, tente novamente!'));
                 }

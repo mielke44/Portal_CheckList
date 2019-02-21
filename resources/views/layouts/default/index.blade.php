@@ -210,61 +210,62 @@
                     value: "",
                     model: false
                 },
-                menu: [{
-                        id: 'dash',
-                        icon: "dashboard",
-                        text: "Dashboard",
-                        visible_external: false,
-                        link: function () {
-                            window.location = '{{route("dashboard")}}'
-                        }
-                    },
-                    {
-                        id: 'employee',
-                        icon: "face",
-                        text: "Empregados",
-                        visible_external: false,
-                        link: function () {
-                            window.location = '{{route("employee")}}'
-                        }
-                    },
-                    {
-                        id: 'yourchecklist',
-                        icon: "event_note",
-                        text: "Suas tarefas",
-                        visible_external: true,
-                        link: function () {
-                            window.location = '{{route("emp.yourchecklist.view")}}'
-                        }
-                    },
-                    {
-                        id: 'profile',
-                        icon: "portrait",
-                        text: "Perfis",
-                        visible_external: false,
-                        link: function () {
-                            window.location = '{{route("profile")}}'
-                        }
-                    },
-                    {
-                        id: 'checklist',
-                        icon: "list_alt",
-                        text: "Lista de tarefas",
-                        visible_external: false,
-                        link: function () {
-                            window.location = '{{route("checklist")}}'
-                        }
-                    },
-                    {
-                        id: 'task',
-                        icon: "list",
-                        text: "Tarefas",
-                        visible_external: false,
-                        link: function () {
-                            window.location = '{{route("task")}}'
-                        }
-                    },
-                    {
+                menu: [
+                        {
+                            id: 'dash',
+                            icon: "dashboard",
+                            text: "Dashboard",
+                            visible_external: false,
+                            link: function () {
+                                window.location = '{{route("dashboard")}}'
+                            }
+                        },
+                        {
+                            id: 'employee',
+                            icon: "face",
+                            text: "Empregados",
+                            visible_external: false,
+                            link: function () {
+                                window.location = '{{route("employee")}}'
+                            }
+                        },
+                        {
+                            id: 'yourchecklist',
+                            icon: "event_note",
+                            text: "Suas tarefas",
+                            visible_external: true,
+                            link: function () {
+                                window.location = '{{route("emp.yourchecklist.view")}}'
+                            }
+                        },
+                        {
+                            id: 'profile',
+                            icon: "portrait",
+                            text: "Perfis",
+                            visible_external: false,
+                            link: function () {
+                                window.location = '{{route("profile")}}'
+                            }
+                        },
+                        {
+                            id: 'checklist',
+                            icon: "list_alt",
+                            text: "Lista de tarefas",
+                            visible_external: false,
+                            link: function () {
+                                window.location = '{{route("checklist")}}'
+                            }
+                        },
+                        {
+                            id: 'task',
+                            icon: "list",
+                            text: "Tarefas",
+                            visible_external: false,
+                            link: function () {
+                                window.location = '{{route("task")}}'
+                            }
+                        },
+                        {
                         id: 'admin',
                         icon: "supervisor_account",
                         text: "Gestores e Responsáveis",

@@ -503,6 +503,7 @@
                             checklist_template_id: this.form.checklist_template_id,
                         },
                         error: (response) => {
+                            alert(JSON.stringify(response));
                             app.notify('Ocorreu um erro! Tente novamente!','error');
                         },
                         success: (response) => {
