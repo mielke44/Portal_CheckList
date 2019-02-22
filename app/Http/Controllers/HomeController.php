@@ -70,9 +70,13 @@ class HomeController extends Controller
         return json_encode(array('error'=>false));
     }
     public function getFlagNot(){
+        date_default_timezone_set('America/Sao_Paulo');
         HomeController::Cleaner();
+        //OPTIMIZE 
         if(Carbon::now()->toArray()['hour']=='00' && intval(Carbon::now()->toArray()['minute'])<5)CheckController::monitorExpireDate();
+        //OPTIMIZE 
         if(Auth::user()->is_admin==-1){
+            //is_admin -1 = not admin;
             $emp_id = Employee::where('token',Auth::user()->token)->get()[0]->id;
             $coll = Flag::where('type','emp notification')->where('receiver',$emp_id);
             if(sizeof($coll)!=0){
@@ -80,7 +84,8 @@ class HomeController extends Controller
                 return 'true';
             }
             return 'false';
-        }else{$coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();
+        }else{
+            $coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();
             if(sizeof($coll)!=0){
                 Flag::where('type','notification')->where('receiver',Auth::user()->id)->delete();
                 return 'true';
@@ -89,9 +94,9 @@ class HomeController extends Controller
         }
     }
     public static function Cleaner(){
+        date_default_timezone_set('America/Sao_Paulo');
         $date=Carbon::now()->toArray();
-        $notifications = Notification::all();
-        foreach($notifications as $n){
+        foreach(Notification::all() as $n){
             $update=explode(" ",$n['updated_at']);
             $limit=str_split($update[0],2)[4]+2;
             if($limit==$date['day']){

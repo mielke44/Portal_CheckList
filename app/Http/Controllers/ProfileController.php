@@ -6,7 +6,6 @@ use App\Profile;
 use App\Employee;
 use Illuminate\Http\Request;
 use App\ChecklistTemplate;
-use App\ProfileLinker;
 
 class ProfileController extends Controller
 {
@@ -23,14 +22,11 @@ class ProfileController extends Controller
     {
         $profile = Profile::all();
         foreach($profile as $p){
-            $linker= ProfileLinker::where("profile_id",$p->id)->get();
-            if(count($linker)==0)$p->clist=0;
-            foreach($linker as $l){
+            if(count($p->checklists())==0)$p->clist=0;
+            foreach($p->checklists() as $l){
                 $p->clist = ChecklistTemplate::where("id",$l->checklist_id)->select("name")->get();
-                //$profile[i]->clist[i]->name
             }
         }
-        //print_r(count($profile[0]->clist));
         return json_encode($profile);
     }
 
@@ -53,12 +49,11 @@ class ProfileController extends Controller
     {
         $profile= Profile::findOrFail($request["id"]);
         $emp = Employee::where('profile_id',$profile->id);
-        $plinker = ProfileLinker::where('profile_id',$profile->id);
+        $profile->checklists()->detach();
         if($profile->delete()){
             foreach($emp as $e)$e->profile_id = null;
-            foreach($plinker as $p)$p->delete();
-            return json_encode(array('success'=>"true"));
+            return json_encode(['error'=>false]);
         }
-        else return json_encode(array('error'=>"true"));
+        else return json_encode(array('error'=>true));
     }
 }

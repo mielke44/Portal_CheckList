@@ -60,12 +60,6 @@ class EmployeeController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Employee  $employee
-     * @return \Illuminate\Http\Response
-     */
     public function edit(Request $request)
     {
         $employee = Employee::findOrFail($request["id"]);
@@ -74,12 +68,6 @@ class EmployeeController extends Controller
         return $employee;
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Employee  $employee
-     * @return \Illuminate\Http\Response
-     */
     public function destroy(Request $request)
     {
         $employee = Employee::findOrFail($request["id"]);

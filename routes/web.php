@@ -24,7 +24,7 @@ Route::get('employee/list', "EmployeeController@list")->name('emp.list');
 
 
 //Checklist
-Route::get('employee/checklist', "ChecklistController@index")->name('checklist.employee');
+Route::get('employee/checklist', "ChecklistController@list")->name('checklist.employee');
 Route::get('employee/checklist/complete/{id}', "ChecklistController@completeCheckList")->name('checklist.complete');
 Route::post('employee/checklist/store', "ChecklistController@store")->name('checklist_store');
 Route::delete('employee/checklist/destroy', "ChecklistController@destroy")->name('checklist.employee.remove');
@@ -33,8 +33,9 @@ Route::get('employee/yourchecklist', "CheckController@YourChecklist")->name('emp
 Route::get('employee/listyourchecklist', "CheckController@listYourChecks")->name('emp.yourchecklist');
 
 //Check
-Route::post('employee/checkedit', "CheckController@store")->name('check.edit');
+Route::post('employee/checkedit', "CheckController@edit")->name('check.edit');
 Route::get('employee/check', "CheckController@list")->name('check.list');
+Route::get('/check/ExpireDates',"CheckController@monitorExpireDate")->name('check.dates');
 
 //Comment
 Route::post('comment/store', "CommentController@store")->name('comment.store');
