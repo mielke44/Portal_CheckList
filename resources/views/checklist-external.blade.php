@@ -144,7 +144,7 @@
 
 @section('l-js')
 <script>
-    Vue.component("page", {
+    vue_page = {
         props: {
             screen: String
         },
@@ -296,6 +296,6 @@
             this.list_tasks();
 
         }
-    });
+    };
 </script>
 @endsection

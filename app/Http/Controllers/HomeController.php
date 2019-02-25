@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use App\Http\Controllers\CheckController;
 use App\Employee;
 use App\Check;
+use Route;
 
 class HomeController extends Controller
 {
@@ -103,5 +104,13 @@ class HomeController extends Controller
                 $n->delete();
             }
         }
+    }
+    public static function getRoutes(){
+        $routeCollection = Route::getRoutes();
+        $routes = [];
+        foreach ($routeCollection as $value) {
+            if($value->getName() != '')$routes[$value->getName()] = URL($value->uri);
+        }
+        return "routes=".json_encode($routes,JSON_PRETTY_PRINT);
     }
 }
