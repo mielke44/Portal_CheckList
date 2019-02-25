@@ -35,14 +35,10 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://apps.t-systems.com.br/portal_checklist',
         );
-        print_r('HANDLE CHECK->   '.$data.'----------');
         foreach($data as $d){
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
-            try{
-                Mail::to($d)->send(new Email($demo));
-            }catch(Exception $e){
-                print_r(json_encode($e->getTraceAsString()));
-            }
+            
+            Mail::to($d)->send(new Email($demo));
         }
     }
 
@@ -60,14 +56,9 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://apps.t-systems.com.br/portal_checklist',
         );
-        print_r('HANDLE CHECKLIST->   '.$data.'----------');
         foreach($data as $d){
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
-            try{
-                Mail::to($d)->send(new Email($demo));
-            }catch(Exception $e){
-                print_r(json_encode($e->getTraceAsString()));
-            }
+            Mail::to($d)->send(new Email($demo));
         }
     }
 
@@ -91,13 +82,8 @@ class SendEmail
                             'sender'=>'T-Systems LTDA Portal Checklist',
                             'link'=>'http://apps.t-systems.com.br/portal_checklist');
         }
-        print_r('HANDLE EMPLOYEE->   '.$data.'----------');
         foreach($data as $d){
-            try{
-                Mail::to($d)->send(new Email($demo));
-            }catch(Exception $e){
-                print_r(json_encode($e->getTraceAsString()));
-            }
+            Mail::to($d)->send(new Email($demo));
         }
     }
 }

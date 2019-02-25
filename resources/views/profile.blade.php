@@ -50,7 +50,6 @@
             </v-expansion-panel>
         </v-flex>
     </v-layout>
-
     <v-layout row wrap v-if="form_view">
         <v-flex s12>
             <v-card>

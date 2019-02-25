@@ -18,7 +18,6 @@ class HomeController extends Controller
     {
         $this->middleware('auth');
     }
-
     public function index()
     {
         return view('home');
@@ -28,24 +27,18 @@ class HomeController extends Controller
         Auth::logout();
         Session::flush();
         return redirect("/login");
-
     }
     public static function getName()
     {
-
         $name = explode(" ",Auth::user()->name);
         return ucfirst($name[0]);
-
     }
-
     public static function getPerm(){
         return Auth::user()->is_admin;
     }
-
     public static function getUser(){
         return Auth::user();
     }
-
     public function getNotifications(){
         $session_id = Auth::user()->id;
         if(Auth::user()->is_admin==-1)$notifications = Notification::where('employee_id',Employee::where('token',Auth::user()->token)->get()[0]->id)
@@ -64,8 +57,6 @@ class HomeController extends Controller
         }
         return json_encode($notifications);
     }
-
-
     public function updateNotification(Request $r){
         $notification = Notification::findOrFail($r['id']);
         $notification->status = 'seen';
@@ -78,20 +69,23 @@ class HomeController extends Controller
         else $notifications = Notification::where('admin_id',$session_id)->delete();
         return json_encode(array('error'=>false));
     }
-
     public function getFlagNot(){
+        date_default_timezone_set('America/Sao_Paulo');
         HomeController::Cleaner();
+        //OPTIMIZE 
         if(Carbon::now()->toArray()['hour']=='00' && intval(Carbon::now()->toArray()['minute'])<5)CheckController::monitorExpireDate();
+        //OPTIMIZE 
         if(Auth::user()->is_admin==-1){
+            //is_admin -1 = not admin;
             $emp_id = Employee::where('token',Auth::user()->token)->get()[0]->id;
-
             $coll = Flag::where('type','emp notification')->where('receiver',$emp_id);
             if(sizeof($coll)!=0){
                 Flag::where('type','emp notification')->where('receiver',$emp_id)->delete();
                 return 'true';
             }
             return 'false';
-        }else{$coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();
+        }else{
+            $coll = Flag::where('type','notification')->where('receiver',Auth::user()->id)->get();
             if(sizeof($coll)!=0){
                 Flag::where('type','notification')->where('receiver',Auth::user()->id)->delete();
                 return 'true';
@@ -99,13 +93,12 @@ class HomeController extends Controller
             return 'false';
         }
     }
-
     public static function Cleaner(){
+        date_default_timezone_set('America/Sao_Paulo');
         $date=Carbon::now()->toArray();
-        $notifications = Notification::all();
-        foreach($notifications as $n){
+        foreach(Notification::all() as $n){
             $update=explode(" ",$n['updated_at']);
-            $limit = str_split($update[0],2)[4]+2;
+            $limit=str_split($update[0],2)[4]+2;
             if($limit==$date['day']){
                 $n->delete();
             }

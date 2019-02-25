@@ -410,6 +410,9 @@
                                     "Registro adicionado com sucesso!",
                                     "success");
                                 else app.notify("Edição salva", "success");
+                            },
+                            error: (response) => {
+                                app.notify("Ocorreu um erro, tente novamente!","error");
                             }
                         });
                     })
@@ -450,6 +453,9 @@
                                     "Registro adicionado com sucesso!",
                                     "success");
                                 else app.notify("Edição salva", "success");
+                            },
+                            error: (response) => {
+                                app.notify("Ocorreu um erro, tente novamente!","error");
                             }
                         });
                     })
@@ -512,6 +518,9 @@
                             success: (response) => {
                                 this.list();
                                 app.notify("Admin removido", "error");
+                            },
+                            error: (response) => {
+                                app.notify("Ocorreu um erro, tente novamente!","error");
                             }
                         });
                     })
@@ -530,6 +539,9 @@
                             success: (response) => {
                                 this.list_group();
                                 app.notify("Grupo removido", "success");
+                            },
+                            error: (response) => {
+                                app.notify("Ocorreu um erro, tente novamente!","error");
                             }
                         });
                     })
@@ -555,6 +567,9 @@
                                 this.list_group();
                                 this.list();
                                 app.notify("Integrante Removido!", "success");
+                            },
+                            error: (response) => {
+                                app.notify("Ocorreu um erro, tente novamente!","error");
                             }
                         });
                 })
@@ -584,15 +599,15 @@
 
             }
         },
-        mounted: function(){
+            mounted: function(){
             app.setMenu('admin');
         },
-        searching: function (search) {
+            searching: function (search) {
             this.search = search;
         },
-    },
-    mounted() {
-            this.list_group();
+        },
+        mounted(){
+                this.list_group();
             this.list();
             this.prof_view2 = this.prof_view;
             $.ajax({
@@ -603,6 +618,6 @@
                 this.sites = response;
             });
         }
-});
+    });
 </script>
 @endsection

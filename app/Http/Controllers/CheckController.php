@@ -13,10 +13,8 @@ use App\Employee;
 use App\Notification;
 use App\Checklist;
 use App\User;
-use App\TaskRequiere;
-use App\LinkerChecklist;
 use App\Group;
-use Carbon\Carbon;
+use DateTime;
 
 use App\Http\Controllers\ChecklistController;
 
@@ -24,37 +22,19 @@ class CheckController extends Controller
 {
 
     public function __construct(Request $r){
-            if(isset($r->token)){
-                $user = User::where('token',$r->token)->first();
-                if($user==null){
-                    $emp = Employee::where('token',$r->token)->first();
-                    if($emp!=null){
-                        $user = new User();
-                        $user->id = 0;
-                        $user->password= bcrypt("secret");
-                        $user->site=$emp->site;
-                        $user->is_admin=-1;
-                        $user->name = $emp->name;
-                        $user->email = $emp->email;
-                        $user->token = $emp->token;
-                        $user->save();
-                        Auth::login($user,true);
-
-                    }
-                }
-                else Auth::login($user,true);
-            }
-        $this->middleware('auth');
+        //
     }
 
-    public static function store(Request $request){
+    public static function edit(Request $request){
         $receiver = array('admin'=>[],'emp'=>[]);
-        if($request['check_id'] != "" ){
+        if(isset($request['check_id'])){
             $Check  = Check::findOrFail($request['check_id']);
             $task = Task::find($Check->task_id);
+            $checklist=Checklist::findOrFail($Check->checklist_id);
+            $checklist_template=ChecklistTemplate::find($checklist->checklist_template_id);
             $text = '';
             $name = '';
-            $checklist=Checklist::findOrFail($Check->checklist_id);
+            
 
             //Setando a array de destinatários
             if($Check['resp']==='0'){
@@ -72,108 +52,87 @@ class CheckController extends Controller
             }
             
             //Alteração de estado da tarefa
-            //task_requiere_id -> outra tarefa depende desta
-            //task_id -> tafera que depende da task_requiere_id
-            if($request['status']!=''){
+            if(isset($request['status'])){
                 if($request['status']){
-                    $Check->status=1;
                     $tempstat=0;
-                    if(TaskRequiere::where('task_requiere_id',$Check->task_id)->count()!=0){
-                        foreach(TaskRequiere::where('task_requiere_id',$Check->task_id)->get() as $t){
-                            //$t = linker da tarefa sendo atualizada
-                            foreach(Check::where('task_id',$t->task_id)->where('checklist_id',$Check->checklist_id)->get() as $cd){
-                                //$cd = tarefa instanciada que depende de $t
-                                foreach(TaskRequiere::where('task_id',$t->task_id)->get() as $tr){
-                                    //$tr = linkers de Tarefas abaixo de $cd (inclui $t)
-                                    foreach(Check::where('task_id',$tr->task_requiere_id)->where('checklist_id',$Check->checklist_id)->get() as $cdp);
-                                        //$cdp = instâncias de tarefas abaixo de $cd (inclui a instância de $t)
-                                        if($cdp->id==$Check->id)$tempstat+=1;
-                                        if($cdp->status==1)$tempstat+=1;
-                                    }
-                                if(TaskRequiere::where('task_id',$t->task_id)->count()==$tempstat){
-                                    $cd->status=0;
-                                    $cd->save();
-                                    if($cd->resp==0)event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",array('employee'=>$cd->resp)));
-                                    else if(strlen($cd->resp)!=1){
-                                        $group = Group::findOrFail($request['resp'][5]);
-                                        $temparray=array('admin'=>[]);
-                                        foreach(Admin::where('group',$request['resp'][5])->get() as $adm){
-                                            array_push($temparray['admin'],$adm->id);
-                                        }
-                                        event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",$temparray));
-                                    }else event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",array('admin'=>$cd->resp)));
-                                }
+                    $Check->status=1;
+                    $superior_check = Check::where('task_id',$checklist_template->tasks()->where('task_id_below',$task->id)->get()[0]->task_id)->get();//check que depende da check sendo alterada
+                    foreach($checklist_template->tasks()->where('task_id',$checklist_template->tasks()->where('task_id_below',$task->id)->get()[0]->task_id)->get() as $check_id_below){ //todas as relações que tem a check de cima em comum
+                        if(Check::where('task_id',$check_id_below->task_id_below)[0]->status)$tempstat++;
+                    }
+                    if($checklist_template->tasks()->where('task_id',$superior_check->id)->count()==$tempstat){
+                        $superior_check->status=0;
+                        $superior_check->save();
+                        if($superior_check->resp==0)event(new CheckUpdateEvent($superior_check,"Está liberada pra ser concluída!","",array('employee'=>$superior_check->resp)));
+                        else if(strlen($superior_check->resp)!=1){
+                            $group = Group::findOrFail($request['resp'][5]);
+                            $temparray=array('admin'=>[]);
+                            foreach(Admin::where('group',$request['resp'][5])->get() as $adm){
+                                array_push($temparray['admin'],$adm->id);
                             }
-                        }
+                            event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",$temparray));
+                        }else event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",array('admin'=>$superior_check->resp)));
                     }
                 }else if(!$request['status']){
-                    $Check->status=0;
-                    if(TaskRequiere::where('task_requiere_id',$Check->task_id)->count()!=0){
-                        foreach(TaskRequiere::where('task_requiere_id',$Check->task_id)->get() as $t){
-                            foreach(Check::where('task_id',$t->task_id)->where('checklist_id',$Check->checklist_id)->get() as $cd){
-                                $cd->status=-2;
-                                $cd->save();
-                            }
-                        }
+                $Check->status=0;
+                if($checklist_template->tasks()->where('task_id_below',$task->id)->get()->count()>1){
+                    $task = Check::where('task_id',$checklist_template->tasks()->where('task_id_below',$task->id)->get()->task_id)->get()[0];
+                    $task->status=-2;
+                    $task->save();
                     }
                 }
-                $text = 'Alterou o estado da tarefa: '.$task->name;
-                $name = Auth::user()->name;
-                $type = 0;
-                if ($Check->save()) {
-                    ChecklistController::completeChecklist($checklist->id);
-                    event(new CheckUpdateEvent($Check, $text, $name,$type,$receiver));
-                    return json_encode(array('error' => false,
-                        'message' => $Check->id."__status:".$Check->status));
-                } else {
-                    return json_encode(array('error' => true,
-                        'message' => 'Ocorreu um erro, tente novamente!'));
+            }
+            $text = 'Alterou o estado da tarefa: '.$task->name;
+            $name = Auth::user()->name;
+            $type = 0;
+            if ($Check->save()) {
+                ChecklistController::completeChecklist($checklist->id);
+                event(new CheckUpdateEvent($Check, $text, $name,$type,$receiver));
+                return json_encode(array('error' => false,
+                    'message' => $Check->id."__status:".$Check->status));
+            } else {
+                return json_encode(array('error' => true,
+                    'message' => 'Ocorreu um erro, tente novamente!'));
+            }
+        }else if($request['resp']!=''){
+            //Alteração de responsável da tarefa
+            if($request['resp']==='0'){
+                $resp = Employee::findOrFail($checklist->employee_id);
+                array_push($receiver['admin'],$checklist->gestor,$resp->gestor);
+                array_push($receiver['emp'],$checklist->employee_id);
+                $name=$resp->name;
+            }else if(strlen($request['resp'])>1){
+                $group = Group::findOrFail($request['resp'][5]);
+                $name=$group->name;
+                foreach(Admin::where('group',$request['resp'][5])->get() as $adm){
+                    array_push($receiver['admin'],$adm->id);
                 }
-            }else if($request['resp']!=''){
-                //Alteração de responsável da tarefa
-                if($request['resp']==='0'){
-                    $resp = Employee::findOrFail($checklist->employee_id);
-                    array_push($receiver['admin'],$checklist->gestor,$resp->gestor);
-                    array_push($receiver['emp'],$checklist->employee_id);
-                    $name=$resp->name;
-                }else if(strlen($request['resp'])>1){
-                    $group = Group::findOrFail($request['resp'][5]);
-                    $name=$group->name;
-                    foreach(Admin::where('group',$request['resp'][5])->get() as $adm){
-                        array_push($receiver['admin'],$adm->id);
-                    }
-                }else{
-                    array_push($receiver['admin'],$checklist->gestor,$request['resp']);
-                    if(Employee::findOrFail($checklist->employee_id)->gestor!=$checklist->gestor)
-                        array_push($receiver,Employee::findOrFail($checklist->employee_id)->gestor);
-                    $name=Admin::findOrFail($request['resp'])->name;
-                }
-                $Check['resp'] = $request['resp'];
-                $text = 'foi selecionado como responsável da tarefa: '.$task->name;
-                $type = 2;
-
-                if ($Check->save()) {
-
-                    event(new CheckUpdateEvent($Check, $text,$name,$type, $receiver));
-
-                    return json_encode(array('error' => false,
-                        'message' => $Check->id."//status:".$Check->status));
-
-                } else {
-
-                    return json_encode(array('error' => true,
-                        'message' => 'Ocorreu um erro, tente novamente!'));
-                }
+            }else{
+                array_push($receiver['admin'],$checklist->gestor,$request['resp']);
+                if(Employee::findOrFail($checklist->employee_id)->gestor!=$checklist->gestor)
+                    array_push($receiver,Employee::findOrFail($checklist->employee_id)->gestor);
+                $name=Admin::findOrFail($request['resp'])->name;
+            }
+            $Check['resp'] = $request['resp'];
+            $text = 'foi selecionado como responsável da tarefa: '.$task->name;
+            $type = 2;
+            if ($Check->save()) {
+                event(new CheckUpdateEvent($Check, $text,$name,$type, $receiver));
+                return json_encode(array('error' => false,
+                    'message' => $Check->id."//status:".$Check->status));
+            } else {
+                return json_encode(array('error' => true,
+                    'message' => 'Ocorreu um erro, tente novamente!'));
             }
         }
     }
 
     public static function createCheck($Checklist_id,Request $request){
         $user_id = Auth::user();
-        $CLT = LinkerChecklist::where("checklist_id",$request['checklist_template_id'])->get();
-        foreach($CLT as $ct){
+        
+        foreach(ChecklistTemplate::find($request['checklist_template_id'])->tasks() as $ct){
             $receiver=array('admin'=>[],'emp'=>[Employee::findOrFail(Checklist::findOrFail($Checklist_id)['employee_id'])->id]);
-            $task =Task::findOrFail($ct->task_id);
+            $task =Task::findOrFail($ct['task_id']);
             $text = 'foi selecionado como responsável da tarefa: '.$task->name;
 
             $check = new Check();
@@ -199,10 +158,10 @@ class CheckController extends Controller
                 $check->limit = $date;
             }else $check->limit='Não há uma data para expirar!';
 
-            if(TaskRequiere::where('task_id',$task->id)->count()!=0) $check->status=-2;
+            if(isset($ct->task_id_below)) $check->status=-2;
             else $check->status = 0;
 
-            $check->task_id = $ct->task_id;
+            $check->task_id = $ct['task_id'];
             $check->checklist_id = $Checklist_id;
             if($task->resp==='0'){
                 $check->resp = 0;
@@ -229,16 +188,16 @@ class CheckController extends Controller
     }
 
     public static function createCheckDep($task_id,$user_id,$checklist_id){
-        $dep = TaskRequiere::where('task_id',$task_id);
+        $dep = ChecklistTemplate::find(Checklist::find($checklist_id)->checklist_template_id)->tasks()->where('task_id',$task_id)->get();
         foreach($dep as $d){
             $check = new Check();
-            $check->resp = Task::findOrFail($dep->task_requiere_id)->resp;
-            $check->status = false;
-            $check->task_id = $d["task_requiere_id"];
+            $check->resp = Task::findOrFail($d['task_id_below'])->resp;
+            $check->status = 0;
+            $check->task_id = $d['task_id_below'];
             $check->checklist_id = $checklist_id;
             $check->save();
-            if(Check::where("checklist_id",$checklist_id)->where("task_id",$d["task_requiere_id"])->count()==0){
-                createCheckDep($c->id,$user->id,$request['id']);
+            if(ChecklistTemplate::find(Checklist::find($checklist_id)->checklist_template_id)->tasks()->where('task_id',$d['task_id_below'])->count()!=0){
+                createCheckDep($check->id,$user->id,$checklist_id);
             }
         }
     }
@@ -277,8 +236,7 @@ class CheckController extends Controller
     }
 
     public static function monitorExpireDate(){
-        $date=Carbon::now()->toArray();
-        $Today= array('day'=>$date['day'],'month'=>$date['month'],'year'=>$date['year']);
+        date_default_timezone_set('America/Sao_Paulo');
         foreach(Check::where('status',0)->get() as $c){
             $receiver=array('admin'=>[],'emp'=>[Checklist::findOrFail($c->checklist_id)['employee_id']]);
             if($c->resp==='0'){
@@ -289,43 +247,14 @@ class CheckController extends Controller
             }else{
                 array_push($receiver['admin'],Admin::findOrFail($c->resp)['id']);
             }
+
             $t = Task::findOrFail($c->task_id);
-            $Create=array(
-                'day'=>explode("-",explode(" ",$c->created_at)[0])[2],
-                'month'=>explode("-",explode(" ",$c->created_at)[0])[1],
-                'year'=>explode("-",explode(" ",$c->created_at)[0])[0]);
-            if(strlen($c->limit)<31){
-                $Expire=array(
-                    'day'=>explode("-",explode(" ",$c->limit)[0])[0],
-                    'month'=>explode("-",explode(" ",$c->limit)[0])[1],
-                    'year'=>explode("-",explode(" ",$c->limit)[0])[2]);
-                if($Today['day']==$Expire['day']){
-                    if($Today['month']==$Expire['month']){
-                        $c->status=-1;
-                        $c->save();
-                        event(new CheckUpdateEvent($c, "Expirou o tempo de execução!", $t->name, -1, $receiver));
-                    }
-                }else{
-                    if(intval($Create['day'])<intval($Expire['day'])){
-                        $D =intval($Create['day'])+intdiv($t->limit,2);
-                        if($Today['day']==$D){
-                            if($Today['month']==$Expire['month']){
-                                event(new CheckUpdateEvent($c, "Expira em ".intdiv($t->limit,2).' dias', $t->name, 5, $receiver));
-                            }
-                        }
-                    }else if(intval($Create['day'])>intval($Expire['day'])){
-                        $D = intval($Create['day'])+intdiv(31,2);
-                        if(in_array($Today['month'],[1,4,7,8,10,12]))$D -= 31;
-                        if(in_array($Today['month'],[3,5,6,9,11]))$D -= 30;
-                        if($Today['month']==2)if(intdiv($Today['year'],4)==0 && intdiv($Today['year'],100)!=0)$D -= 29;else $D -= 28;
-                        if($Today['day']==$D){
-                            if($Today['month']==$Expire['month']){
-                                event(new CheckUpdateEvent($c, "Expira em ".intdiv($t->limit,2).' dias', $t->name, 5, $receiver));
-                            }
-                        }
-                    }
-                }
-            }
+            $now = new DateTime(date('m/d/Y h:i:s a', time()));
+            $created_at = new DateTime($c->created_at);
+            $check_limit = new DateTime($c->limit);
+
+            if($now>=$check_limit) event(new CheckUpdateEvent($c, "Expirou o tempo de execução!", $t->name, -1, $receiver));
+            else event(new CheckUpdateEvent($c, "Expira em ".intdiv($t->limit,2).' dias', $t->name, 5, $receiver));
         }
     }
 }

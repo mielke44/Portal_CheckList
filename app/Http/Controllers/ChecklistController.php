@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Checklist;
 use App\Employee;
 use Illuminate\Http\Request;
-use App\LinkerChecklist;
 use App\Check;
 use App\Events\ChecklistUpdateEvent;
 use Auth;
@@ -15,29 +14,25 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\CheckController;
 use App\Comment;
 use App\Group;
+use Carbon\Carbon;
 
 class ChecklistController extends Controller
 {
-    public function index(Request $r){
-        $checklists = Checklist::where("employee_id",$r->id)->select("checklist_template_id","id")->get();
-        foreach($checklists as $c){
-            $c->checks = Check::where("checklist_id",$c->id)->get();
-            $c->tree = $this->tree($c->id);
-        }
-
+    public function list(Request $r){
+        $checklists = Checklist::where("employee_id",$r['id'])->select("checklist_template_id","id")->get();
         return json_encode($checklists);
     }
-
+    
     public function store(Request $request){
+        date_default_timezone_set('America/Sao_Paulo');
         $checklist = new Checklist();
         $checklist->gestor = Auth::user()->id;
         $checklist->employee_id = $request['employee_id'];
         $checklist->checklist_template_id = $request['checklist_template_id'];
-        $ctemplate = ChecklistTemplate::findOrFail($checklist->checklist_template_id)['name'];
-        $CLT = LinkerChecklist::where("checklist_id",$request['checklist_template_id'])->get();
+        $ctemplate = ChecklistTemplate::findOrFail($checklist->checklist_template_id)['name']." ".explode(' ',Carbon::now()->toArray()['formatted']);
         if($checklist->save()){
             $emp = Employee::findOrFail($checklist->employee_id);
-            $text = 'Teve uma nova lista de tarefas adicionada: '.$ctemplate.' com '.count($CLT).' tarefas!';
+            $text = 'Teve uma nova lista de tarefas adicionada: '.$ctemplate.' com '.$ctemplate->withCount('tasks').' tarefas!';
             $name = $emp->name;
             if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
             else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
@@ -46,27 +41,6 @@ class ChecklistController extends Controller
         }
         
         return json_encode(array('success'=>"true"));
-    }
-
-    public function tree($id){
-        $checks = Check::where("checklist_id",$id)->get();
-        $tree = json_decode(TaskController::tree());
-        return $this->treeChild($tree,$checks);
-    }
-
-    public function treeChild($tree,$checks){
-        $aux = array();
-        foreach($tree as $t){
-            foreach($checks as $c){
-                if($c->task_id == $t->id){
-                    $t->children = $this->treeChild($t->children,$checks);
-                    $t->check_id = $c->id;
-                    $t->status = $c->status;
-                    $aux[] = $t;
-                }
-            }
-        }
-        return $aux;
     }
 
     public function edit(Checklist $checklist){
@@ -78,7 +52,7 @@ class ChecklistController extends Controller
         }
     }
 
-    public static function completeCheckList($id){
+    public static function completeCheckList($id){ 
         $checklist = Checklist::findOrFail($id);
         $checks = Check::where('checklist_id',$checklist->id)->get();
         $i = 0;
@@ -91,9 +65,7 @@ class ChecklistController extends Controller
             $emp = Employee::findOrFail($checklist->employee_id);
             if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
             else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
-
             $name = ChecklistTemplate::findOrFail($checklist->checklist_template_id)->name;
-
             event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,4));
             return 'true';
         }

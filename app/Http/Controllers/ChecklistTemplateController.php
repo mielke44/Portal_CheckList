@@ -6,9 +6,6 @@ use App\ChecklistTemplate;
 use Illuminate\Http\Request;
 use App\Profile;
 use App\Task;
-use App\LinkerChecklist;
-use App\ProfileLinker;
-use App\TaskRequiere;
 class ChecklistTemplateController extends Controller
 {
     public function __construct(){
@@ -21,21 +18,13 @@ class ChecklistTemplateController extends Controller
 
     public function list(){
         $clists = ChecklistTemplate::all();
-        //print_r(ProfileLinker::where("checklist_id",1)->get());
-        //ProfileLinker::where("checklist_id",$clists[0]->id));
         foreach($clists as $c){
             $dep = array();
             $prof = array();
-            $plinker = ProfileLinker::where("checklist_id",$c->id)->get();
-            foreach($plinker as $pl){
-                $profile = Profile::findOrFail($pl->profile_id);
-                array_push($prof,array('id'=>$profile->id,'name'=>$profile->name));
-            }
-            $clinker = LinkerChecklist::where("checklist_id",$c->id)->get();
-            foreach($clinker as $cl){
-                $taskdep = Task::find($cl->task_id);
-                $dep[]=array('task_id'=>$cl['task_id'],"name"=>$taskdep['name'], "desc"=>$taskdep['description']);
-            }
+            foreach($clists->profiles() as $pl)
+                array_push($prof,$pl->profile_id);
+            foreach($clists->tasks() as $cl)
+                array_push($dep,$cl->task_id);
             $c->dependences = $dep;
             $c->profile = $prof;
         }
@@ -43,43 +32,40 @@ class ChecklistTemplateController extends Controller
     }
 
     public function store(Request $request){
-        if($request["id"] != "") $clist = ChecklistTemplate::find($request["id"]);
+        if(isset($request["id"])) $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
         $clist->name = $request["name"];
-
         if($clist->save()){
-            $clinker = LinkerChecklist::where("checklist_id",$clist->id)->delete();
-            $proflinker = ProfileLinker::where('checklist_id',$clist->id)->delete();
+            $clist->profiles()->detach();
+            $clist->tasks()->detach();
             foreach($request['profile_id'] as $pid){
-                $linker = new ProfileLinker();
-                $linker->profile_id = $pid;
-                $linker->checklist_id = $clist->id;
-                $linker->save();
+                $clist->profiles()->attach($pid,['profile_id'=>$pid,'checklist_id'=>$clist->id]);
             }
-            if($request->dependences != "")foreach($request->dependences as $d){
-                //$d = task id;
-                if(TaskRequiere::where("task_id",$d)->count()>0)foreach(TaskRequiere::where("task_id",$d)->get() as $dep){
-                    if(!in_array($dep->task_requiere_id,$request->dependences)){
-                        $clinker = new LinkerChecklist();
-                        $clinker->checklist_id = $clist->id;
-                        $clinker->task_id = $dep->task_requiere_id;
-                        $clinker->save();
-                    }
-                }
-                $clinker = new LinkerChecklist();
-                $clinker->checklist_id = $clist->id;
-                $clinker->task_id = $d;
-                $clinker->save();
-            }
+            if(isset($request['tasks']))ChecklistTemplateController::taskDepAttach($clist,$request['task']);
             return json_encode(array('success'=>"true"));
         }
         else return json_encode(array('error'=>"true"));
     }
 
+    public static function taskDepAttach($clist,$task_array){
+            //$task = [
+            //    {task_id,[{task_id,[dep]}]},
+            //    {task_id,[dep]}
+            //   ]
+        foreach($task_array as $task){
+            if($task['dep']->count()==0)$clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_id'=>$clist->id]);
+            else{
+                foreach($task['dep'] as $dep)
+                    $clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_id'=>$clist->id,'task_id_below'=>$dep['task_id']]);
+            ChecklistTemplateController::taskDepAttach($clist,$task['dep']);
+            }
+        }
+    }
+
     public function edit(Request $request){
         $clist = ChecklistTemplate::findOrFail($request["id"]);
-        $profileLinker = ProfileLinker::where('checklist_id',$request["id"])->select('profile_id')->get();
-        $clinker = LinkerCheckList::where("checklist_id",$clist->id)->get();
+        $profileLinker = $clist->profiles();
+        $clinker = $clist->tasks();
         $profile_id=[];
         $dep = array();
         foreach($profileLinker as $p){
@@ -96,8 +82,8 @@ class ChecklistTemplateController extends Controller
 
     public function destroy(Request $request){
         $clist = ChecklistTemplate::findOrFail($request["id"]);
-        LinkerChecklist::where("checklist_id",$clist->id)->delete();
-        ProfileLinker::where("checklist_id",$clist->id)->delete();
+        $clist->tasks()->detach();
+        $clist->profiles()->detach();
         if($clist->delete()){
             return json_encode(array('success'=>"true"));
         } 

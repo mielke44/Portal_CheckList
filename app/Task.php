@@ -10,4 +10,7 @@ class Task extends Model
     protected $fillable = [
         'name', 'description', 'type', 'resp', 'limit'
     ];
+    public function checklists() {
+        return $this->belongsToMany(ChecklistTemplate::class, 'linker_checklist');
+    }
 }

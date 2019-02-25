@@ -24,19 +24,22 @@
                         </v-layout>
                     </div>
                     <v-container grid-list-xs>
-                        <v-layout row wrap>
-                            <v-flex xs3 class='font-weight-bold'>
+                        <v-layout class="pb-2" row wrap>
+                            <v-flex xs3 fill-height class='font-weight-bold'>
                                 Perfil:
                             </v-flex>
-                            <v-flex xs12 v-for='pf in l.profile'>
-                                @{{pf.name}}
-                            </v-flex>
+                            <v-layout row wrap>
+                                <v-flex xs9 v-for='pf in l.profile'>
+                                    @{{pf.name}}
+                                </v-flex>
+                            </v-layout>
                         </v-layout>
-                        <v-layout row wrap>
+                        <v-divider></v-divider>
+                        <v-layout class="pt-2" row wrap>
                             <v-flex xs3 class='font-weight-bold' v-if="l.dependences.length>0">
                                 Tarefas:
                             </v-flex>
-                            <v-flex xs9>
+                            <v-flex class="pa-0 ma-0" xs9>
                                 <v-layout row wrap>
                                     <template v-for="d in l.dependences">
                                         <v-flex xs6>

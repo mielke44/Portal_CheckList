@@ -24,31 +24,19 @@ class CommentController extends Controller
             $receiver = array ('admin'=> [$emp->gestor],
             'emp'=> [$emp->id]);
             //if(Checklist::findOrFail($Check->checklist_id)->gestor!=$emp->gestor)array_push($receiver['admin'],Checklist::findOrFail($Check->checklist_id)->gestor);
-        }else if(strlen($Check['resp'])>1){
+        }else if(strlen($Check['resp'])>5){
             $receiver = array('admin'=>[],'emp'=>[Checklist::findOrFail($Check->checklist_id)->employee_id]);
+            array_push($receiver['admin'],$emp->gestor);
             foreach(Admin::where('group',$Check['resp'][5])->get() as $adm){
                 array_push($receiver['admin'],$adm->id);
-            }
-            /*
-            foreach(Group::all() as $grp){
-                if(in_array($grp->lists,$task->id)){
-                    $receiver = array('admin'=>[],'emp'=>[Checklist::findOrFail($Check->checklist_id)->employee_id]);
-                    foreach(Admin::where('group',$grp->id)->get() as $adm){
-                        array_push($receiver['admin'],$adm->id);
-                    }
-                }
-            }
-            */
-            array_push($receiver['admin'],$emp->gestor);
+            }           
         }
         else{
+            if($Check['resp']!=$emp->gestor)array_push($receiver['admin'],$emp->gestor);
             $receiver = array ('admin'=> [$Check['resp']],
             'emp'=> [Checklist::findOrFail($Check->checklist_id)->employee_id]);
-            if($Check['resp']!=$emp->gestor)array_push($receiver['admin'],$emp->gestor);
         }
-
-
-        if($r['comment_id']==''){
+        if(!isset($r['comment_id'])){
             $comment = new Comment();
             $text = 'Adicionou uma comentário na tarefa: '.$task->name;
             $name = Auth::user()->name;
@@ -88,21 +76,17 @@ class CommentController extends Controller
         }
     }
 
-
     public function list(Request $r){
-            $comments = Comment::where('check_id',$r["check_id"])->get();
-            $auth_id = Auth::user()->id;
-            foreach($comments as $c){
-                $c->writer_name = Admin::find($c->writer)->name;
-                $c->editable = $auth_id==$c->writer?true:false;
-            }
-
-            return json_encode($comments);
+        $comments = Comment::where('check_id',$r["check_id"])->get();
+        $auth_id = Auth::user()->id;
+        foreach($comments as $c){
+            $c->writer_name = Admin::find($c->writer)->name;
+            $c->editable = $auth_id==$c->writer?true:false;
+        }
+        return json_encode($comments);
     }
 
-
-    public function destroy(Request $request)
-    {
+    public function destroy(Request $request){
         $comment = Comment::findOrFail($request["id"]);
         if($comment->delete()) return json_encode(array('success'=>"true"));
         else return json_encode(array('error'=>"true"));

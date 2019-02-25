@@ -24,45 +24,41 @@ class AdminController extends Controller
         if(isset($request['form']["id"])) $admin = Admin::find($request['form']["id"]);
         else $admin = new Admin();
         if(isset($request['form']['group'])){
-            if($request['form']['s']==1){
+            if(isset($admin->group)){
                 $admin->group=0;
                 $admin->save();
                 return json_encode(array('error'=>false, 'message'=>'sucesso!'));
             }else{
                 foreach($request['form']['id'] as $id){
                     $admin = Admin::findOrFail($id);
-                    if($request['form']['s']==2)$admin->group=$request['form']['group'];
+                    $admin->group=$request['form']['group'];
                     $admin->save();
                 }
                 return json_encode(array('error'=>false, 'message'=>'sucesso!'));
             }
         }
+        if($request['form']['is_admin']){
+            if(isset($request['form']['password']))$admin->password=bcrypt($request['form']['password']);
+            $admin->is_admin=1;
+        }else if(!$request['form']['is_admin']){
+            $admin->is_admin=0;
+            $admin->password = bcrypt($request['form']['id'].$request['form']['name']);
+        }
         $admin->name = $request['form']['name'];
         $admin->email = $request['form']['email'];
         $admin->site = $request['form']['site'];
         $admin->token = bcrypt($request['form']['id'].$request['form']['name']);
-        if($request['form']['is_admin']=='true'){
-            if($request['form']['password']!='')$admin->password=bcrypt($request['form']['password']);
-            $admin->is_admin=1;
-        }
-        if($request['form']['is_admin']=='false'){
-            $admin->is_admin=0;
-            $admin->password = bcrypt($request['form']['id'].$request['form']['name']);
-        }
-        if($request['form']['group']!='')$admin->group = $request['form']['group'];
-
-        if ($admin -> save()) {
-            return json_encode(array('error' => false,
-                'message' => $admin->id));
-        } else {
-            return json_encode(array('error' => true,
-                'message' => 'Ocorreu um erro, tente novamente!'));
+        try{
+            $admin -> save();
+            return json_encode(['error'=>false,'message' => $admin->id]);
+        } 
+        catch(Exception $e){
+            return json_encode(['error' => true,'message' => 'Ocorreu um erro, tente novamente!','StackTrace'=>$e->toString()]);
         }
     }
 
     public function edit(Request $request){
-        $admin = Admin::findOrFail($request["id"]);
-        return $admin;
+        return Admin::findOrFail($request["id"]);
     }
 
     public function profile(){
@@ -72,8 +68,13 @@ class AdminController extends Controller
 
     public function destroy(Request $request){
         $admin = Admin::findOrFail($request["id"]);
-        if($admin->delete()) return json_encode(array('success'=>"true"));
-        else return json_encode(array('error'=>"true"));
+        try{
+            $admin->delete();
+            return json_encode(array('success'=>"true"));
+        }
+        catch(Exception $e){
+            return json_encode(array('error'=>"true","message"=>"ocorreu um erro!","StackTrace"=>$e->toString()));
+        }
     }
 
     public function list(){

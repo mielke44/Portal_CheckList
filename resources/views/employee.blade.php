@@ -338,8 +338,8 @@
                     dialog2: false,
                     dialog_comment: false,
                     dialog_responsavel: false,
-                    employees: [],
-                    dependencies: [],
+                    employees:[],
+                    dependencies:[],
                     profiles: [],
                     checklists: {},
                     tasks: {},
@@ -503,6 +503,7 @@
                             checklist_template_id: this.form.checklist_template_id,
                         },
                         error: (response) => {
+                            alert(JSON.stringify(response));
                             app.notify('Ocorreu um erro! Tente novamente!','error');
                         },
                         success: (response) => {
