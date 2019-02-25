@@ -21,10 +21,10 @@ class ChecklistTemplateController extends Controller
         foreach($clists as $c){
             $dep = array();
             $prof = array();
-            foreach($clists->profiles() as $pl)
-                array_push($prof,$pl->profile_id);
-            foreach($clists->tasks() as $cl)
-                array_push($dep,$cl->task_id);
+            foreach($c->profiles() as $pl)
+                array_push($prof,$pl['profile_id']);
+            foreach($c->tasks() as $cl)
+                array_push($dep,$cl['task_id']);
             $c->dependences = $dep;
             $c->profile = $prof;
         }
@@ -32,19 +32,19 @@ class ChecklistTemplateController extends Controller
     }
 
     public function store(Request $request){
-        if(isset($request["id"])) $clist = ChecklistTemplate::find($request["id"]);
+        if(!isset($request['id'])) $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
-        $clist->name = $request["name"];
-        if($clist->save()){
-            $clist->profiles()->detach();
-            $clist->tasks()->detach();
+        $clist->name=$request['name'];
+        try{
+            $clist->save();
             foreach($request['profile_id'] as $pid){
-                $clist->profiles()->attach($pid,['profile_id'=>$pid,'checklist_id'=>$clist->id]);
+                $clist->profiles()->attach($pid);
             }
             if(isset($request['tasks']))ChecklistTemplateController::taskDepAttach($clist,$request['task']);
-            return json_encode(array('success'=>"true"));
+            return json_encode(array('error'=>false));
+        }catch(Exception $e){
+            return json_encode(['error'=>true,'message'=>'Ocorreu um erro!','StackTrace'=>$e->toString()]);
         }
-        else return json_encode(array('error'=>"true"));
     }
 
     public static function taskDepAttach($clist,$task_array){

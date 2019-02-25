@@ -17,7 +17,7 @@ class DatabaseSeeder extends Seeder
         $this->call(Checklist_templateTableSeeder::class);
         $this->call(ProfileTableSeeder::class);
         $this->call(EmployeeTableSeeder::class);
-        $this->call(linker_checklistTableSeeder::class);
         $this->call(ProfileLinkerTableSeeder::class);
+        $this->call(GroupTableSeeder::class);
     }
 }

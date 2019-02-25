@@ -14,13 +14,13 @@ class ProfileLinkerTableSeeder extends Seeder
     {
         DB::table('profile_linker')->insert([
             'profile_id' => "1",
-            'checklist_id' => "1",
+            'checklist_template_id' => "1",
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);
         DB::table('profile_linker')->insert([
             'profile_id' => "2",
-            'checklist_id' => "1",
+            'checklist_template_id' => "1",
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);

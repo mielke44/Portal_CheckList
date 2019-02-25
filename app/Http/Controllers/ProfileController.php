@@ -24,7 +24,7 @@ class ProfileController extends Controller
         foreach($profile as $p){
             if(count($p->checklists())==0)$p->clist=0;
             foreach($p->checklists() as $l){
-                $p->clist = ChecklistTemplate::where("id",$l->checklist_id)->select("name")->get();
+                $p['clist'] = ChecklistTemplate::where("id",$l['checklist_id'])->select("name")->get();
             }
         }
         return json_encode($profile);
