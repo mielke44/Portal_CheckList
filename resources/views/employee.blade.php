@@ -318,7 +318,7 @@
 
     @section('l-js')
     <script>
-        Vue.component("page", {
+        vue_page = {
             props: {
                 screen: String
             },
@@ -466,61 +466,9 @@
                         site: '',
                     }
                 },
-                store: function () {
-                    if (this.$refs.form.validate()) {
-                        app.confirm("Criando/Alterando Registro!", "Confirmar ação deste Registro?",
-                            "green", () => {
-                                $.ajax({
-                                    url: "{{route('emp.store')}}",
-                                    method: "POST",
-                                    dataType: "json",
-                                    headers: app.headers,
-                                    data: this.form,
-                                    success: (response) => {
-                                        this.list();
-                                        this.form_view = false;
-                                        if (this.form.id == "") app.notify(
-                                            "Empregado adicionado",
-                                            "success");
-                                        else app.notify("Edição salva", "success");
-                                        if (this.form.id == "") app.notify(
-                                            "Empregado adicionado com sucesso!",
-                                            "success");
-                                        else app.notify("Edição salva", "success");
-                                    }
-                                });
-                            })
-                    }
-                },
-                checklistTT: function (id) {
-                    $.ajax({
-                        url: "{{route('checklist_store')}}",
-                        method: "POST",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: {
-                            employee_id: id,
-                            checklist_template_id: this.form.checklist_template_id,
-                        },
-                        error: (response) => {
-                            alert(JSON.stringify(response));
-                            app.notify('Ocorreu um erro! Tente novamente!','error');
-                        },
-                        success: (response) => {
-                            this.list_checklist(id);
-                            this.list();
-                        }
-                    });
-                },
-                list: function () {
-                    $.ajax({
-                        url: "{{route('emp.list')}}",
-                        method: "GET",
-                        dataType: "json",
-                    }).done(response => {
-                        this.employees = response;
-                    });
-                },
+
+
+
                 list_admin: function () {
                     $.ajax({
                         url: "{{route('admin.list')}}",
@@ -532,109 +480,6 @@
                         this.resp = this.resp.concat(response['default']);
                         this.list_group();
                     });
-                },
-                list_group: function(){
-                    $.ajax({
-                        url: "{{route('group.list')}}",
-                        method: "GET",
-                        dataType: "json",
-                    }).done(response => {
-                        for (r of response){
-                            r.id = 'group'+r.id;
-                        }
-                        this.resp = this.resp.concat(response);
-                    })
-                },
-                list_profile: function () {
-                    $.ajax({
-                        url: "{{route('profile.list')}}",
-                        method: "GET",
-                        dataType: "json",
-                    }).done(response => {
-                        this.profiles = response;
-                    });
-                },
-                list_ChecklistTemplate: function () {
-                    $.ajax({
-                        url: "{{route('checklist.list')}}",
-                        method: "GET",
-                        dataType: "json",
-                    }).done(response => {
-                        this.templates = response;
-                    });
-                },
-                list_checklist: function (employee_id) {
-                    $.ajax({
-                        url: "{{route('checklist.employee')}}",
-                        method: "GET",
-                        dataType: "json",
-                        data: {
-                            id: employee_id
-                        }
-                    }).done(response => {
-                        this.checklists[employee_id] = response;
-                        this.$forceUpdate();
-                    });
-                },
-                list_sites: function () {
-                    $.ajax({
-                        url: "{{route('site.list')}}",
-                        method: "GET",
-                        dataType: "json",
-                    }).done(response => {
-                        this.sites = response;
-                    });
-                },
-                list_comment: function (id) {
-                    $.ajax({
-                        url: "{{route('comment.list')}}",
-                        method: "GET",
-                        dataType: "json",
-                        data: {
-                            check_id: id,
-                        }
-                    }).done(response => {
-                        this.comments = response;
-                    });
-                },
-                list_tasks: function () {
-                    $.ajax({
-                        url: "{{route('task.list')}}",
-                        method: "GET",
-                        dataType: "json",
-                    }).done(response => {
-                        this.tasks = response;
-                    });
-                },
-                store_comment: function () {
-                    app.confirm("Escrevendo Comentário!", "Confirmar criação deste Comentário?", "green", () => {
-                        $.ajax({
-                            url: "{{route('comment.store')}}",
-                            method: "POST",
-                            dataType: "json",
-                            headers: app.headers,
-                            data: {
-                                comment: this.form.comment,
-                                comment_id: this.form.comment_id,
-                                check_id: this.check_tree_selected.id
-                            },
-                            success: (response) => {
-                                if (response['st'] == 'add') app.notify(
-                                    "Comentário adicionado",
-                                    "success");
-                                else if (response['st'] == 'edit') app.notify(
-                                    "comentário editado com sucesso!", "success");
-                                this.list_comment(this.check_tree_selected.id);
-                                this.dialog_comment = false;
-
-                            }
-                        });
-                    })
-                },
-                getSiteName: function (id) {
-                    for (i = 0; i < this.sites.length; i++) {
-                        if (this.sites[i].id == id) return this.sites[i].complete_name;
-                    }
                 },
                 edit: function (id) {
                     $.ajax({
@@ -692,114 +537,12 @@
                             });
                         });
                 },
-                destroy_comment: function (id) {
-                    app.confirm("Deletar esse comentário?",
-                        "Após deletado esse cometário não poderá ser recuperado.", "red", () => {
-                            $.ajax({
-                                url: "{{route('comment.remove')}}",
-                                method: "DELETE",
-                                dataType: "json",
-                                headers: app.headers,
-                                data: {
-                                    id: id
-                                },
-                                success: (response) => {
-                                    this.list_comment(this.check_tree_selected.id);
-                                    app.notify("Comentário removido", "error");
-                                }
-                            });
-                        });
 
 
-                },
-                destroy_checklist: function (id) {
-                    app.confirm("Remover lista de tarefa?",
-                        "Todas as informações dessa lista serão deletadas.", "red", () => {
-                            $.ajax({
-                                url: "{{route('checklist.employee.remove')}}",
-                                method: "DELETE",
-                                dataType: "json",
-                                headers: app.headers,
-                                data: {
-                                    checklist_id: id
-                                },
-                                success: (response) => {
-                                    this.list_checklist(this.employee_selected.id);
-                                    this.list();
-                                    app.notify("Lista de tarefas removida", "error");
-                                }
-                            });
-                        })
 
-                },
-                updateCheck: function (change_type, check_id, data,id) {
-                    this.dialog_responsavel = false;
-                    form_data = {
-                        check_id: check_id
-                    };
-                    switch (change_type) {
-                        case "RESP":
-                            form_data.resp = this.form.resp;
-                            this.check_tree_selected.resp = this.form.resp;
-                            break;
-                        case "STATUS":
-                            form_data.status = data.status ? 1 : 0;
-                            break;
-                    }
-                    $.ajax({
-                        url: "{{route('check.edit')}}",
-                        method: "POST",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: form_data
-                    }).done(response => {
-                        if(response['error']==false)app.notify("Tarefa modificada!", "success");
-                        this.list_checklist(id);
-                    });
-                },
-                count_check: function (check_id, check_status,id) {
-                    if (check_status) {
-                        this.employee_selected.check_true_size++;
-                    } else if (!status) {
-                        this.employee_selected.check_true_size--;
-                    }
-                    this.updateCheck("STATUS", check_id, {
-                        status: check_status
-                    },id);
-
-                },
                 remove(item) {
                     const index = this.friends.indexOf(item.name)
                     if (index >= 0) this.friends.splice(index, 1)
-                },
-                getTemplate(id) {
-                    for (t of this.templates) {
-                        if (t.id == id) return t;
-                    }
-                    return null;
-                },
-                getTask: function (id) {
-                    for (j = 0; j < this.tasks.length; j++) {
-                        if (id == this.tasks[j].id) return this.tasks[j]
-                    }
-                    return null;
-                },
-                getEmployee: function (id) {
-                    for (j = 0; j < this.employees.length; j++) {
-                        if (id == this.employees[j].id) return this.employees[j];
-                    }
-                    return null;
-                },
-                getCheckByTask: function (id) {
-                    for (j = 0; j < this.checklist_selected.checks.length; j++) {
-                        if (id == this.checklist_selected.checks[j].task_id) return this.checklist_selected.checks[j]
-                    }
-                    return null;
-                },
-                siteName: function (id) {
-                    site = this.sites.find(s => s.id == id);
-                    if (site) return site.complete_name;
-                    else return "";
                 },
                 searching: function (search) {
                     this.search = search;
@@ -817,7 +560,7 @@
                 this.list_tasks();
                 this.list();
             }
-        });
+        };
     </script>
 
 

@@ -113,7 +113,7 @@
 
 @section('l-js')
 <script>
-    Vue.component("page", {
+    vue_page = {
         props: {
             screen: String
         },
@@ -336,6 +336,6 @@
                 app.screen = 3
             }, 1);
         }
-    });
+    };
 </script>
 @endsection
