@@ -10,44 +10,70 @@
 <v-container grid-list-lg>
     <!-- LISTA -->
     <v-layout row wrap v-if="!form_view">
-        <v-flex class='text-xs-right'>
-            <v-btn color="primary" @click="add()">Adicionar Perfil</v-btn>
+        <v-flex xs12 class='text-xs-right'>
+            <v-form ref='form_profile'>
+                <v-transition>
+                <v-text-field v-show='view.new_profile.show' v-model='view.new_profile.name' placeholder="Nome do perfil"
+                    solo  :rules='view.new_profile.rules'>
+                    <template slot='append'>
+                        <v-btn color="success" fab small dark @click='store(0)'>
+                            <v-icon>check</v-icon>
+                        </v-btn>
+                        <v-btn color="red" fab small dark @click='view.new_profile.show=false'>
+                            <v-icon>close</v-icon>
+                        </v-btn>
+                    </template>
+                </v-text-field>
+            </v-transition>
+            </v-form>
+            <v-btn v-show='!view.new_profile.show' color="primary" @click="add()">+ Adicionar Perfil</v-btn>
         </v-flex>
-        <v-flex xs12>
-            <v-expansion-panel>
-                <v-expansion-panel-content v-for='(p,i) in profile' v-if='search_data[i]'>
-                    <div slot="header">
-                        <v-layout row wrap fill-height align-center>
-                            <v-flex xs6 class='font-weight-bold'>
-                                @{{p.name}}
-                            </v-flex>
-                        </v-layout>
-                    </div>
-                    <v-container grid-list-xs>
-                        <v-layout row wrap>
-                            <v-flex xs3 class='font-weight-bold' v-if="p.clist.length>0">
-                                Lista de tarefas relacionadas:
-                            </v-flex>
-                            <v-flex xs9>
-                                <v-layout row wrap>
-                                    <v-flex xs12 v-for="d in p.clist">
-                                            @{{d.name}}
-                                    </v-flex>
-                                </v-layout>
-                            </v-flex>
-                            <v-flex xs12 class='text-xs-right'>
-                                <v-btn @click="edit(p.id)" color="yellow darken-2" outline>
-                                    <v-icon dark class='mr-2'>edit</v-icon> Editar
-                                </v-btn>
-                                <v-btn @click="destroy(p.id)" color="red" outline>
-                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                </v-btn>
-                            </v-flex>
-                        </v-layout>
-                    </v-container>
-                </v-expansion-panel-content>
-                <v-expansion-panel-content v-if='profile.length==0'><div slot="header">Nenhum perfil foi criado</div></v-expansion-panel-content>
-            </v-expansion-panel>
+
+        <v-flex>
+            <v-card height="100%">
+                <v-toolbar color="primary" dark class='headline'>
+                    Lista
+                </v-toolbar>
+                <v-list row wrap>
+                    <v-item-group v-model='view.selected_profile'>
+                        <v-item v-for="p in profiles">
+                            <v-list-tile xs12 slot-scope="{ active, toggle }" @click="toggle">
+                                <v-list-title-title :class="active?'red--text':''">
+                                    @{{p.name}}
+                                </v-list-title-title>
+                            </v-list-tile>
+                        </v-item>
+                    </v-item-group>
+                </v-list>
+
+            </v-card>
+        </v-flex>
+        <v-flex v-if='view.selected_profile > -1' xs8>
+            <v-card height="100%">
+                <v-toolbar color="primary" class='headline' dark>
+                    @{{selected_profile.name}}
+                </v-toolbar>
+                <v-container>
+                    <v-layout row wrap>
+                        <v-flex xs12>
+                            <v-text-field label='Nome do perfil' v-model='selected_profile.name' :rules='view.new_profile.rules' ref='profile_name'></v-text-field>
+                        </v-flex>
+                        <v-flex xs12>
+                            <p class='grey--text'>Lista de tarefas</p>
+                            <v-divider></v-divider>
+                        </v-flex>
+                        <v-flex xs12 class='text-xs-right'>
+                            <v-btn color="red" dark @click='remove'>
+                                <v-icon class='mr-2'>delete_forever</v-icon> Excluir
+                            </v-btn>
+                            <v-btn color="green" dark v-if='view.need_save' @click='store(selected_profile.id)'><v-icon class='mr-2' >save</v-icon>Salvar</v-btn>
+                            <v-btn color="info" dark>+ Cria lista de tarefas</v-btn>
+
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+
+            </v-card>
         </v-flex>
     </v-layout>
     <v-layout row wrap v-if="form_view">
@@ -72,128 +98,108 @@
 @endsection
 
 @section('l-js')
+<script src='{{asset("sources/profiles.js")}}'></script>
 <script>
-    Vue.component("page", {
-        props: {
-            screen: String
-        },
+    vue_page = {
+        mixins: [sources_profiles],
         data() {
             return {
-                profile: [
-                ],
                 form_view: false,
                 form_texts: {
                     title: "",
                     button: ""
-                },
-                rules: {
-                    name: [
-                        v => !!v || 'Campo obrigtório',
-                        v => (v && v.length <= 25) || 'Máximo 25 caracteres'
-                    ]
                 },
                 form: {
                     id: "",
                     name: '',
                     checklists: ''
                 },
-                search:'',
+                view: {
+                    selected_profile: -1,
+                    new_profile: {
+                        show: false,
+                        name: '',
+                        rules: [
+                            v => !!v || 'Campo obrigtório',
+                        ]
+                    },
+                    need_save: false,
+                }
             }
         },
-        computed:{
+        computed: {
             search_data: function () {
-                    var array = [];
-                    for (p of this.profile) {
-                        array.push(app.search_text(this.search,p.name));
-                    }
-                    return array;
+                var array = [];
+                for (p of this.profiles) {
+                    array.push(this.search_text(this.search, p.name));
                 }
+                return array;
+            },
+            selected_profile: function () {
+                Vue.nextTick(()=>{this.view.need_save = false});
+                return this.profiles[this.view.selected_profile];
+            }
+
+        },
+        watch: {
+            "view.selected_profile":function(){
+                if(this.view.need_save){
+                    this.list_profiles();
+                }
+            },
+            "selected_profile.name": function () {
+                this.view.need_save = true;
+            },
         },
         methods: {
             add: function () {
-
-                this.form_view = true;
-                this.form_texts.title = "Criar perfil";
-                this.form_texts.button = "Criar";
-                this.form = {
-                    id: "",
-                    name: '',
-                    type: '',
-                    dependences: ''
-                }
-            },
-            store: function () {
-                if (this.$refs.form.validate()) {
-                    app.confirm("Criando/alterando Registro!", "Confirmar ação deste Registro?", "green", () => {
-                    $.ajax({
-                        url: "{{route('profile.store')}}",
-                        method: "POST",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: this.form,
-                        success: (response) => {
-                            this.list();
-                            this.form_view = false;
-                            if(this.form.id=="")app.notify("Perfil criado com sucesso!","success");
-                            else app.notify("Edição salva","success");
-                        }
-                    });
-                })
-                }
-            },
-            list: function () {
-                $.ajax({
-                    url: "{{route('profile.list')}}",
-                    method: "GET",
-                    dataType: "json",
-                }).done(response => {
-                    this.profile = response;
-
+                this.view.new_profile.show = true;
+                Vue.nextTick(() => {
+                    this.$refs["profile_name"].focus();
                 });
+
             },
-            edit: function (id) {
-                $.ajax({
-                    url: "{{route('profile.edit')}}",
-                    method: "GET",
-                    dataType: "json",
-                    data: {
-                        id: id
-                    },
-                }).done(response => {
-                    this.form_texts.title = "Editar Perfil";
-                    this.form_texts.button = "Salvar";
-                    this.form = response;
-                    this.form_view = true;
-                });
-            },
-            destroy: function (id) {
-                app.confirm("Deletar Registro!", "Deseja deletar este Registro?", "red", () => {
-                $.ajax({
-                    url: "{{route('profile.destroy')}}",
-                    method: "DELETE",
-                    dataType: "json",
-                    headers: app.headers,
-                    data: {
-                        id: id
-                    },
-                    success: (response) => {
-                        this.list();
-                        app.notify("Perfil removido","error");
+            store: function (id) {
+                if (id == 0) {
+                    if (this.$refs.form_profile.validate()) {
+                        profile = {
+                            name: this.view.new_profile.name
+                        };
+                        this.view.new_profile.name = '';
+                        this.view.new_profile.show = false;
+                        this.store_profile(profile, (r) => {
+                            this.list_profiles();
+                            this.notify("Perfil criado com sucesso!", "success");
+                        });
                     }
-                });
-            })
+                }
+                else{
+                    if(this.$refs.profile_name.validate()){
+                        this.view.need_save = false;
+                        this.store_profile(this.selected_profile,()=>{
+
+                            this.notify("Perfil salvo", "success");
+
+                        });
+                    }
+                }
             },
-            mounted: function(){
-                app.setMenu('profile');
+            remove: function () {
+                this.confirm("Profile", "Deseja deletar esse perfil?", "red", () => {
+                    this.delete_profile(this.selected_profile.id, () => {
+                        this.list_profiles();
+                        this.notify("Perfil removido", "error");
+                    })
+                })
             },
             searching: function (search) {
-                    this.search = search;
-                },
+                this.search = search;
+            },
         },
         mounted() {
-            this.list();
-
+            this.list_profiles();
+            this.setMenu('profile');
         }
-    });
+    };
 </script>
 @endsection

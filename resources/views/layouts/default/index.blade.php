@@ -116,11 +116,17 @@
                 </template>
                 <v-list-tile class="pa-0">
                     <v-flex xs6>
-                        <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=notifications.length'><v-icon>expand_more</v-icon></v-btn>
-                        <v-btn class="pa-0 ma-0" color="white" v-if="tam!=3" depressed block @click='tam=3'><v-icon>expand_less</v-icon></v-btn>
+                        <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=notifications.length'>
+                            <v-icon>expand_more</v-icon>
+                        </v-btn>
+                        <v-btn class="pa-0 ma-0" color="white" v-if="tam!=3" depressed block @click='tam=3'>
+                            <v-icon>expand_less</v-icon>
+                        </v-btn>
                     </v-flex>
                     <v-flex xs6>
-                        <v-btn class="pa-0 ma-0" color="white" depressed block @click="clearnot"><v-icon>delete</v-icon></v-btn>
+                        <v-btn class="pa-0 ma-0" color="white" depressed block @click="clearnot">
+                            <v-icon>delete</v-icon>
+                        </v-btn>
                     </v-flex>
                 </v-list-tile>
             </v-list>
@@ -145,9 +151,7 @@
 </v-toolbar>
 
 <v-content>
-    <page inline-template ref='page'>
-        <div style="height:100%">@yield('l-content')</div>
-    </page>
+    <div style="height:100%">@yield('l-content')</div>
 </v-content>
 
 <!-- COPONENTES -->
@@ -185,8 +189,11 @@
 @section('js')
 @yield("l-js")
 <script src='{{asset("vuetify/theme.js")}}'></script>
+<script src='{{route('get_routes')}}'></script>
+<script src='{{asset("sources/notifications.js")}}'></script>
 <script>
     app = new Vue({
+        mixins: [vue_page,sources_notifications],
         el: '#app',
         created() {
             this.$vuetify.theme = $THEME_VUETIFY;
@@ -210,68 +217,58 @@
                     value: "",
                     model: false
                 },
-                menu: [
-                        {
-                            id: 'dash',
-                            icon: "dashboard",
-                            text: "Dashboard",
-                            visible_external: false,
-                            link: function () {
-                                window.location = '{{route("dashboard")}}'
-                            }
-                        },
-                        {
-                            id: 'employee',
-                            icon: "face",
-                            text: "Empregados",
-                            visible_external: false,
-                            link: function () {
-                                window.location = '{{route("employee")}}'
-                            }
-                        },
-                        {
-                            id: 'yourchecklist',
-                            icon: "event_note",
-                            text: "Suas tarefas",
-                            visible_external: true,
-                            link: function () {
-                                window.location = '{{route("emp.yourchecklist.view")}}'
-                            }
-                        },
-                        {
-                            id: 'profile',
-                            icon: "portrait",
-                            text: "Perfis",
-                            visible_external: false,
-                            link: function () {
-                                window.location = '{{route("profile")}}'
-                            }
-                        },
-                        {
-                            id: 'checklist',
-                            icon: "list_alt",
-                            text: "Lista de tarefas",
-                            visible_external: false,
-                            link: function () {
-                                window.location = '{{route("checklist")}}'
-                            }
-                        },
-                        {
-                            id: 'task',
-                            icon: "list",
-                            text: "Tarefas",
-                            visible_external: false,
-                            link: function () {
-                                window.location = '{{route("task")}}'
-                            }
-                        },
-                        {
+                menu: [{
+                        id: 'dash',
+                        icon: "dashboard",
+                        text: "Dashboard",
+                        visible_external: false,
+                        link: function () {
+                            window.location = routes.dashboard
+                        }
+                    },
+                    {
+                        id: 'employee',
+                        icon: "face",
+                        text: "Empregados",
+                        visible_external: false,
+                        link: function () {
+                            window.location = routes.employees
+                        }
+                    },
+                    {
+                        id: 'yourchecklist',
+                        icon: "event_note",
+                        text: "Suas tarefas",
+                        visible_external: true,
+                        link: function () {
+                            window.location = routes.emp_yourchecklist_view
+                        }
+                    },
+                    {
+                        id: 'profile',
+                        icon: "portrait",
+                        text: "Perfis",
+                        visible_external: false,
+                        link: function () {
+                            window.location = routes.profile
+                        }
+                    },
+                    {
+                        id: 'task',
+                        icon: "list",
+                        text: "Tarefas",
+                        visible_external: false,
+                        link: function () {
+                            window.location = routes.task
+                        }
+                    },
+                    {
                         id: 'admin',
                         icon: "supervisor_account",
                         text: "Gestores e Responsáveis",
                         visible_external: false,
                         link: function () {
-                            window.location = '{{route("admin")}}'
+                            window.location = routes.admin
                         }
                     }
                 ],
@@ -299,7 +296,14 @@
                     title: '',
                     text: '',
                     action: () => {},
-                }
+                },
+                tasks:[],
+                employees:[],
+                checklists:[],
+                checklists_template: [],
+                profiles: [],
+                search:''
+
             }
         },
         computed: {
@@ -323,18 +327,7 @@
                 if (this.snackbar_notify.color == null) this.snackbar_notify.color = "black";
                 this.snackbar_notify.color = color;
             },
-            clearnot: function(){
-                $.ajax({
-                    url: "{{route('clrnot')}}",
-                    method: 'POST',
-                    datatype: 'json',
-                    headers : app.headers,
-                }).done(response => {
-                    if(response['error'])app.notify('Ocorreu um erro! Tente Novamente!','error');
-                    app.notify('notificações excluidas!','success');
-                    this.list_notifications();
-                })
-            },
+
             confirm: function (title, text, color, action) {
                 this.dialog_confirm.model = true;
                 this.dialog_confirm.title = title;
@@ -342,51 +335,16 @@
                 this.dialog_confirm.color = color;
                 this.dialog_confirm.action = action;
             },
-            getUser: function (callback) {
+            getUser: function () {
                 $.ajax({
-                    url: "{{route('getuser')}}",
+                    url: routes.getuser,
                     method: 'GET',
                 }).done(response => {
                     this.user = response;
-                    callback();
                 });
             },
             searching: function () {
                 this.$refs.page.searching(this.search.value);
-            },
-            list_notifications: function () {
-                $.ajax({
-                    url: "{{route('getnoti')}}",
-                    method: 'GET',
-                    dataType: "json",
-                }).done(response => {
-                    this.notifications = response;
-                });
-            },
-            get_not_source: function (id) {
-                $.ajax({
-                    url: "{{route('updnot')}}",
-                    method: 'POST',
-                    dataType: "json",
-                    headers: app.headers,
-                    data: {
-                        id: id
-                    },
-                }).done(response => {
-                    this.list_notifications();
-                    window.location = '{{route("emp.yourchecklist.view")}}';
-                });
-            },
-            update: function () {
-                $.ajax({
-                    url: "{{route('getflagnoti')}}",
-                    method: 'GET',
-                    dataType: "json",
-                }).done(response => {
-                    if (JSON.stringify(response) == "true") {
-                        this.list_notifications()
-                    };
-                });
             },
             setMenu: function (id) {
                 for (i = 0; i < this.menu.length; i++) {
@@ -402,16 +360,12 @@
             }
         },
         mounted() {
-            this.list_notifications();
+            this.getUser();
+            //this.list_notifications();
             this.more[0].link = () => {
-                location.href = "{{route('admin.profile')}}";
+                location.href = routes.admin_profile
             };
-            this.getUser(() => {
-                setTimeout(() => {
-                    if (this.$refs.page.hasOwnProperty("mounted")) this.$refs.page.mounted()
-                }, 50);
-            });
-            setInterval(() => this.update(), 5000);
+            //setInterval(() => this.update(), 5000);
 
         }
     });

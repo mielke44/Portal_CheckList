@@ -73,7 +73,7 @@
 
 @section('l-js')
 <script>
-    Vue.component("page", {
+    vue_page = {
         props: {
             screen: String
         },
@@ -97,7 +97,7 @@
         },
 
 
-    });
+    };
 </script>
 <style>
     .v-card--reveal {

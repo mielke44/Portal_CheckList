@@ -206,7 +206,7 @@
 
 @section('l-js')
 <script>
-    Vue.component("page", {
+    vue_page =  {
         props: {
             screen: String
         },
@@ -514,6 +514,6 @@
             this.admin_list();
             this.list();
         }
-    });
+    };
 </script>
 @endsection
