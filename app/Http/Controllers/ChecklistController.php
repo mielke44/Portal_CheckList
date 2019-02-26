@@ -39,7 +39,6 @@ class ChecklistController extends Controller
             CheckController::createCheck($checklist['id'],$request);
             event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,3));
         }
-        
         return json_encode(array('success'=>"true"));
     }
 
@@ -52,7 +51,7 @@ class ChecklistController extends Controller
         }
     }
 
-    public static function completeCheckList($id){ 
+    public static function completeCheckList($id){
         $checklist = Checklist::findOrFail($id);
         $checks = Check::where('checklist_id',$checklist->id)->get();
         $i = 0;

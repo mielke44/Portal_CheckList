@@ -19,8 +19,7 @@ class SendNotification
         //
     }
 
-    public function CheckUpdate(CheckUpdateEvent $event)
-    {
+    public function CheckUpdate(CheckUpdateEvent $event){
         if(count($event->getReceiver()['admin'])>0)foreach($event->getReceiver()['admin'] as $rec){
             
             $flag = new Flag();
@@ -54,15 +53,17 @@ class SendNotification
         $notification->check_id = $event->getCheck()->id;
         $notification->status = 'pending';
 
-        /*------------------------/
-        |   Notification Types:   |  
-        |  -1 = ExpireCheckLimit  | 
-        |  0 = CheckUpdateStatus  |
-        |  1 = CommentUpdate      |
-        |  2 = ResponsibleUpdate  |
-        |  3 = ChecklistUpdate    |
-        |  4 = ChecklistComplete  |
-        |  5 = CheckLimitWarning  |
+          /*------------------------/|      
+         /                         / |
+        /*------------------------/  |
+        |   Notification Types:   |  |
+        |  -1 = ExpireCheckLimit  |  |
+        |  0 = CheckUpdateStatus  |  |
+        |  1 = CommentUpdate      |  |
+        |  2 = ResponsibleUpdate  |  |
+        |  3 = ChecklistUpdate    |  |
+        |  4 = ChecklistComplete  | / 
+        |  5 = CheckLimitWarning  |/  
         /------------------------*/
 
         if ($notification-> save()) {
@@ -112,7 +113,7 @@ class SendNotification
         |   2:ResponsibleUpdate;  |
         |   3:ChecklistUpdate;    |
         |   4:ChecklistComplete;  |
-        |   5:CheckLimitWarning)  |
+        |   5:CheckLimitWarning;  |
         /------------------------*/
 
         if ($notification-> save()) {
@@ -150,7 +151,7 @@ class SendNotification
         |   2:ResponsibleUpdate;  |
         |   3:ChecklistUpdate;    |
         |   4:ChecklistComplete;  |
-        |   5:CheckLimitWarning)  |
+        |   5:CheckLimitWarning;  |
         /------------------------*/
 
         if ($notification-> save()) {
