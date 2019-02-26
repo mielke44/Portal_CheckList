@@ -58,8 +58,8 @@ Route::get('task/tree', "TaskController@tree")->name('task_tree');
 
 //checklistsTemplates
 Route::get('checklist/', "ChecklistTemplateController@index")->name('checklist');
-Route::post('checklist/store', "ChecklistTemplateController@store")->name('checklist_store');
-Route::get('checklist/edit', "ChecklistTemplateController@edit")->name('checklist_edit');
+Route::post('checklist/store', "ChecklistTemplateController@store")->name('template_store');
+Route::get('checklist/edit', "ChecklistTemplateController@edit")->name('template_edit');
 Route::delete('checklist/destroy', "ChecklistTemplateController@destroy")->name('template_destroy');
 
 //Profiles
@@ -68,7 +68,7 @@ Route::post('profile/store', "ProfileController@store")->name('profile_store');
 Route::get('profile/list', "ProfileController@list")->name('profile_list');
 Route::get('profile/edit', "ProfileController@edit")->name('profile_edit');
 Route::delete('profile/destroy', "ProfileController@destroy")->name('profile_destroy');
-Route::get('profile/checklist',"ProfileController@getCheckLists")->name('profile_checklists');
+Route::get('profile/checklist',"ProfileController@getCheckLists")->name('template_list');
 
 //Groups
 Route::post('Group/store', "GroupController@store")->name('group_store');

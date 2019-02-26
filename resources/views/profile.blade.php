@@ -77,13 +77,12 @@
                                 ref='template_name'></v-text-field>
                             <Tree :data="view.new_template.tasks" draggable="draggable" ref='tree'>
                                 <div slot-scope="{data, store}" @click="store.toggleOpen(data)">
-                                    <b v-if="data.children && data.children.length"
-                                            >@{{data.open ? '-' : '+'}}&nbsp;</b><span>@{{data.text}}</span>
+                                    <b v-if="data.children && data.children.length">@{{data.open ? '-' : '+'}}&nbsp;</b><span>@{{data.text}}</span>
                                 </div>
                             </Tree>
-                            <v-autocomplete no-data-text='Nenhuma tarefa encontrada' v-model="view.new_template.task_selected" :items="models.task.list"
-                                :item-text="'name'" :item-value="'id'" color='primary' prepend-icon="list"
-                                placeholder="Adicionar tarefa" @change='add_task()'>
+                            <v-autocomplete no-data-text='Nenhuma tarefa encontrada' v-model="view.new_template.task_selected"
+                                :items="models.task.list" :item-text="'name'" :item-value="'id'" color='primary'
+                                prepend-icon="list" placeholder="Adicionar tarefa" @change='add_task()'>
                             </v-autocomplete>
                         </v-flex>
                         <v-flex xs12 class='text-xs-right'>
@@ -245,22 +244,25 @@
             searching: function (search) {
                 this.search = search;
             },
-            add_task: function(){
-                task = this.get_model(this.models.task,this.view.new_template.task_selected);
+            add_task: function () {
+                task = this.get_model(this.models.task, this.view.new_template.task_selected);
                 this.view.new_template.tasks.push({
                     text: task.name,
                     task_id: task.id,
-                    children:[]
+                    children: []
                 })
                 this.view.new_template.task_selected = -1;
             },
-            add_template: function(){
-                this.store_model(this.models.template,{
-                    name: this.view.new_template.name,
-                    tasks: this.$refs.tree.getPureData()
-                },()=>{
-                    this.view.new_template.show = false;
-                })
+            add_template: function () {
+                if (this.$refs.template_name.validate()) {
+                    this.store_model(this.models.template, {
+                        name: this.view.new_template.name,
+                        tasks: this.$refs.tree.getPureData(),
+                        profile_id: this.selected_profile.id
+                    }, () => {
+                        this.view.new_template.show = false;
+                    })
+                }
             }
         },
         mounted() {

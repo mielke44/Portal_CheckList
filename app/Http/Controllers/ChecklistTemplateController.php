@@ -23,15 +23,16 @@ class ChecklistTemplateController extends Controller
     }
 
     public function store(Request $request){
-        if(!isset($request['id'])) $clist = ChecklistTemplate::find($request["id"]);
+        if(isset($request['id'])) $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
         $clist->name=$request['name'];
+
         try{
             $clist->save();
-            foreach($request['profile_id'] as $pid){
-                $clist->profiles()->attach($pid,['profile_id'=>$pid,'checklist_template_id'=>$clist->id]);
-            }
-            if(isset($request['tasks']))ChecklistTemplateController::taskDepAttach($clist,$request['task']);
+            $pid = $request['profile_id'];
+            $clist->profiles()->attach($pid,['profile_id'=>$pid,'checklist_template_id'=>$clist->id]);
+
+            if(isset($request['tasks']))ChecklistTemplateController::taskDepAttach($clist,$request['tasks']);
             return json_encode(['error'=>false,'message'=>'Profile: '.$pid.'-- Template: '.$clist->id]);
         }catch(Exception $e){
             return json_encode(['error'=>true,'message'=>'Ocorreu um erro!','StackTrace'=>$e->toString()]);
@@ -44,11 +45,17 @@ class ChecklistTemplateController extends Controller
             //    {task_id,children = [dep]}
             //   ]
         foreach($task_array as $task){
-            if($task['children']->count()==0)$clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_id'=>$clist->id]);
+            if(!isset($task['children']))$clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_template_id'=>$clist->id]);
+
             else{
-                foreach($task['dep'] as $dep)
+                foreach($task['children'] as $dep){
                     $clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_template_id'=>$clist->id,'task_id_below'=>$dep['task_id']]);
-            ChecklistTemplateController::taskDepAttach($clist,$task['children']);
+
+                    ChecklistTemplateController::taskDepAttach($clist,$task['children']);
+                }
+
+
+
             }
         }
     }
@@ -77,7 +84,7 @@ class ChecklistTemplateController extends Controller
         $clist->profiles()->detach();
         if($clist->delete()){
             return json_encode(array('success'=>"true"));
-        } 
+        }
         else return json_encode(array('error'=>"true"));
     }
 }
