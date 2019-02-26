@@ -3,6 +3,7 @@
 @section('css')
 @yield("l-css")
 <link href="{{asset('css/extras.css')}}" rel="stylesheet">
+
 @endsection
 
 @section('vuetify-app-content')
@@ -191,9 +192,10 @@
 <script src='{{asset("vuetify/theme.js")}}'></script>
 <script src='{{route('get_routes')}}'></script>
 <script src='{{asset("sources/notifications.js")}}'></script>
+<script src='{{asset("sources/models.js")}}'></script>
 <script>
     app = new Vue({
-        mixins: [vue_page,sources_notifications],
+        mixins: [vue_page,sources_model,sources_notifications],
         el: '#app',
         created() {
             this.$vuetify.theme = $THEME_VUETIFY;

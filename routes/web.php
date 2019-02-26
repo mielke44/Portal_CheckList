@@ -59,10 +59,10 @@ Route::get('task/tree', "TaskController@tree")->name('task_tree');
 
 //checklistsTemplates
 Route::get('checklist/', "ChecklistTemplateController@index")->name('checklist');
-Route::post('checklist/store', "ChecklistTemplateController@store")->name('checklist_store');
-Route::get('checklist/list', "ChecklistTemplateController@list")->name('checklist_list');
+Route::post('checklist/store', "ChecklistTemplateController@store")->name('template_store');
+Route::get('checklist/list', "ChecklistTemplateController@list")->name('template_list');
 Route::get('checklist/edit', "ChecklistTemplateController@edit")->name('checklist_edit');
-Route::delete('checklist/destroy', "ChecklistTemplateController@destroy")->name('checklist_destroy');
+Route::delete('checklist/destroy', "ChecklistTemplateController@destroy")->name('template_destroy');
 
 //Profiles
 Route::get('profile/', "ProfileController@index")->name('profile');
