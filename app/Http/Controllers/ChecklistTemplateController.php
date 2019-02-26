@@ -16,19 +16,10 @@ class ChecklistTemplateController extends Controller
         return view("checklist");
     }
 
-    public function list(){
-        $clists = ChecklistTemplate::all();
-        foreach($clists as $c){
-            $dep = array();
-            $prof = array();
-            foreach($c->profiles() as $pl)
-                array_push($prof,$pl['profile_id']);
-            foreach($c->tasks() as $cl)
-                array_push($dep,$cl['task_id']);
-            $c->dependences = $dep;
-            $c->profile = $prof;
-        }
-        return json_encode($clists);
+    public static function listTasks($clist){
+        $dep = array();
+        foreach($clist->tasks()->get() as $tl)array_push($dep,$tl->id);
+        return json_encode($dep);
     }
 
     public function store(Request $request){
@@ -38,10 +29,10 @@ class ChecklistTemplateController extends Controller
         try{
             $clist->save();
             foreach($request['profile_id'] as $pid){
-                $clist->profiles()->attach($pid);
+                $clist->profiles()->attach($pid,['profile_id'=>$pid,'checklist_template_id'=>$clist->id]);
             }
             if(isset($request['tasks']))ChecklistTemplateController::taskDepAttach($clist,$request['task']);
-            return json_encode(array('error'=>false));
+            return json_encode(['error'=>false,'message'=>'Profile: '.$pid.'-- Template: '.$clist->id]);
         }catch(Exception $e){
             return json_encode(['error'=>true,'message'=>'Ocorreu um erro!','StackTrace'=>$e->toString()]);
         }
@@ -49,15 +40,15 @@ class ChecklistTemplateController extends Controller
 
     public static function taskDepAttach($clist,$task_array){
             //$task = [
-            //    {task_id,[{task_id,[dep]}]},
-            //    {task_id,[dep]}
+            //    {task_id, children = [task_id,children = []]},
+            //    {task_id,children = [dep]}
             //   ]
         foreach($task_array as $task){
-            if($task['dep']->count()==0)$clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_id'=>$clist->id]);
+            if($task['children']->count()==0)$clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_id'=>$clist->id]);
             else{
                 foreach($task['dep'] as $dep)
-                    $clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_id'=>$clist->id,'task_id_below'=>$dep['task_id']]);
-            ChecklistTemplateController::taskDepAttach($clist,$task['dep']);
+                    $clist->tasks()->attach($task['task_id'],['task_id'=>$task['task_id'],'checklist_template_id'=>$clist->id,'task_id_below'=>$dep['task_id']]);
+            ChecklistTemplateController::taskDepAttach($clist,$task['children']);
             }
         }
     }
