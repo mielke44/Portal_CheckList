@@ -6,7 +6,7 @@ sources_model = {
         }
     },
     methods:{
-        list_model: function (model,request,calback) {
+        list_model: function (model,request,callback) {
             $.ajax({
                 url: model.routes.list,
                 method: "GET",

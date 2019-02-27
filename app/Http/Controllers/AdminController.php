@@ -51,7 +51,7 @@ class AdminController extends Controller
         try{
             $admin -> save();
             return json_encode(['error'=>false,'message' => $admin->id]);
-        } 
+        }
         catch(Exception $e){
             return json_encode(['error' => true,'message' => 'Ocorreu um erro, tente novamente!','StackTrace'=>$e->toString()]);
         }
@@ -78,12 +78,7 @@ class AdminController extends Controller
     }
 
     public function list(){
-        $user = Auth::user();
-        $admin_list = User::where('is_admin',1)->get();
-        $resp_list = User::where('is_admin',0)->get();
-        $default = array('id'=>0,'name'=>'Contratado');
-        $f = array('admin_list'=>$admin_list,'resp_list'=>$resp_list,'user'=>$user, 'default'=>$default);
-        return json_encode($f);
+        return json_encode(User::all());
     }
 
 }

@@ -1,21 +1,17 @@
 sources_groups = {
     data(){
         return{
-            groups:[]
+            models:{
+                group:{
+                    routes:{
+                        list: routes.group_list,
+                        store: routes.group_store,
+                        destroy: routes.group_destroy
+                    },
+                    list:[],
+                }
+            }
+
         }
     },
-    methods:{
-        list_group: function(){
-            $.ajax({
-                url: "{{route('group.list')}}",
-                method: "GET",
-                dataType: "json",
-            }).done(response => {
-                for (r of response){
-                    r.id = 'group'+r.id;
-                }
-                this.resp = this.resp.concat(response);
-            })
-        },
-    }
 }
