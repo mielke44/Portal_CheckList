@@ -26,6 +26,8 @@ class ChecklistTemplateController extends Controller
     public function store(Request $request){
         if(isset($request['id'])) $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
+        $clist->tasks()->detach();
+        $clist->profiles()->detach();
         $clist->name=$request['name'];
         try{
             $clist->save();
