@@ -18,6 +18,7 @@ class CreateLinkerChecklistTable extends Migration
             $table->String('task_id')->references('id')->on('task');
             $table->String('checklist_template_id')->references('id')->on('checklist_template');
             $table->String('task_id_below')->references('id')->on('task')->nullable();
+            $table->integer('level')->nullable();
             $table->timestamps();
         });
     }
