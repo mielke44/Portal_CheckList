@@ -46,7 +46,12 @@ class ProfileController extends Controller
     public function destroy(Request $request){
         $profile= Profile::findOrFail($request["id"]);
         $emp = Employee::where('profile_id',$profile->id);
-        $profile->checklists()->detach();
+        foreach($profile->checklists()->get() as $clinker){
+            $clinker->tasks()->detach();
+            $clinker->profiles()->detach();
+            $clinker->delete();
+
+        }
         if($profile->delete()){
             foreach($emp as $e)$e->profile_id = null;
             return json_encode(['error'=>false]);

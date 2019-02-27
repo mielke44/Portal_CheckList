@@ -229,7 +229,6 @@
                 this.form_texts.title = "Criar tarefa";
                 this.form_texts.button = "Criar";
                 this.form = {
-                    id: "",
                     name: '',
                     description: '',
                     type: '',

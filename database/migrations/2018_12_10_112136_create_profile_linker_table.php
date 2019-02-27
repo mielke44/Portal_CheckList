@@ -15,8 +15,8 @@ class CreateProfileLinkerTable extends Migration
     {
         Schema::create('profile_linker', function (Blueprint $table){
             $table->increments('id');
-            $table->integer('profile_id');
-            $table->integer('checklist_template_id');
+            $table->integer('profile_id')->references('id')->on('profiles')->onDelete('cascade');
+            $table->integer('checklist_template_id')->references('id')->on('checklist_template')->onDelete('cascade');;
             $table->timestamps();
         });
     }
