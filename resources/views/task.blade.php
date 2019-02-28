@@ -9,7 +9,7 @@
 
 <v-container grid-list-lg>
     <!-- LISTA -->
-    <v-layout row wrap v-if="!form_view">
+    <v-layout row wrap v-if="!view.form.show">
         <v-flex>
             <table align='right'>
                 <tr>
@@ -21,7 +21,7 @@
         </v-flex>
         <v-flex xs12>
             <v-expansion-panel>
-                <v-expansion-panel-content v-for='(t,i) in pagination_result'>
+                <v-expansion-panel-content v-for='(t,i) in models.task.list'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs6>
@@ -77,7 +77,7 @@
     </v-layout>
 
     <!-- FORM VIEW-->
-    <v-layout row wrap v-if="form_view">
+    <v-layout row wrap v-if="view.form.show">
         <v-flex s12>
             <v-card>
                 <v-container grid-list-xs>
@@ -87,29 +87,34 @@
                                 Criar Tarefa
                             </v-flex>
                             <v-flex xs12>
-                                <v-text-field v-model="form.name" label="Tarefa" required :rules="rules.name" counter='25'></v-text-field>
+                                <v-text-field v-model="view.form.data.name" label="Tarefa" required :rules="rules.name" counter='25'></v-text-field>
 
                             </v-flex>
                             <v-flex xs12>
-                                <v-textarea v-model="form.description" label="Descrição" :rules="rules.description"
+                                <v-textarea v-model="view.form.data.description" label="Descrição" :rules="rules.description"
                                     required counter='300'></v-textarea>
 
                             </v-flex>
                             <v-flex xs12>
-                                <v-autocomplete v-model="form.resp" :items="user_resp_array" item-text="name"
+                                <v-autocomplete v-model="view.form.data.resp" :items="user_resp_array" item-text="name"
                                     item-value="id" label="Responsável padrão" hide-no-data hide-selected></v-autocomplete>
                             </v-flex>
                             <v-flex xs12>
-                                <v-select v-model="form.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
+                                <v-select v-model="view.form.data.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
                                     label="Tipo de tarefa" persistent-hint single-line required></v-select>
 
                             </v-flex>
                             <v-flex xs12 shrink class="pl-2">
-                                <v-text-field suffix="Dias" placeholder='Limite de tempo' v-model="form.limit"
+                                <v-text-field suffix="Dias" placeholder='Limite de tempo' v-model="view.form.data.limit"
                                     single-line type="number"></v-text-field>
                             </v-flex>
-                            <v-flex xs12>
-                                <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
+                            <v-flex xs12 class='text-xs-right'>
+                                <v-btn @click="view.form.show=false" color="red" dark>
+                                    <v-icon class='mr-2'>close</v-icon>Voltar
+                                </v-btn>
+                                <v-btn @click="store" color="green" dark>
+                                    <v-icon class='mr-2'>save</v-icon>Salvar
+                                </v-btn>
                             </v-flex>
                         </v-layout>
                     </v-form>
@@ -135,11 +140,11 @@
         mixins: [sources_tasks, sources_users],
         data() {
             return {
-                resp: [],
-                form_view: false,
-                form_texts: {
-                    title: "",
-                    button: ""
+                view: {
+                    form:{
+                        show: false,
+                        data:{}
+                    }
                 },
                 rules: {
                     name: [
@@ -156,15 +161,6 @@
                     resp: [
                         v => !!v || 'Campo obrigtório'
                     ],
-                },
-                form: {
-                    name: '',
-                    description: '',
-                    type: '',
-                    dependences2: [],
-                    resp: "",
-                    limit: 10,
-
                 },
                 types: [{
                         text: "Solicitação",
@@ -225,10 +221,8 @@
         },
         methods: {
             add: function () {
-                this.form_view = true;
-                this.form_texts.title = "Criar tarefa";
-                this.form_texts.button = "Criar";
-                this.form = {
+                this.view.form.show = true;
+                this.view.form.data = {
                     name: '',
                     description: '',
                     type: '',
@@ -239,32 +233,22 @@
             store: function () {
                 if (this.$refs.form.validate()) {
                     app.confirm("Criando/Alterando Registro!", "Confirmar ação neste Registro?", "green", () => {
-                        this.store_model(this.models.task, this.form, (response) => {
-                            this.form_view = false;
-                            if (this.form.id == "") app.notify("Tarefa criada",
+                        this.store_model(this.models.task, this.view.form.data, (response) => {
+                            this.view.form.show = false;
+                            if (this.view.form.data.id == "") app.notify("Tarefa criada",
                                 "success");
                             else app.notify("Edição salva", "success");
+                            this.list_model(this.models.task);
                         })
                     })
                 }
             },
             edit: function (task_id) {
-                $.ajax({
-                    url: "",
-                    method: "GET",
-                    dataType: "json",
-                    data: {
-                        id: task_id
-                    },
-                }).done(response => {
-                    this.form_texts.title = "Editar tarefa";
-                    this.form_texts.button = "Salvar";
-                    this.form = response;
-                    if (response.resp.length == 1) {
-                        this.form.resp = parseInt(this.form.resp);
-                    }
-                    this.form_view = true;
-                });
+                this.view.form.data = this.get_model(this.models.task, task_id);
+                if (this.view.form.data.resp.length == 1) {
+                    this.view.form.data.resp = parseInt(this.view.form.data.resp);
+                }
+                this.view.form.show = true;
             },
             destroy: function (task_id) {
                 app.confirm("Remover Registro!", "Deseja remover este Registro?", "red", () => {

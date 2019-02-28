@@ -35,23 +35,29 @@
                 <v-toolbar color="primary" dark class='headline'>
                     Lista
                 </v-toolbar>
-                <v-list row wrap>
+                <v-list row wrap class='pb-0'>
                     <v-item-group v-model='view.selected_profile'>
-                        <v-item v-for="p in models.profile.list">
-                            <v-list-tile xs12 slot-scope="{ active, toggle }">
-                                <v-list-tile-content @click="toggle">
-                                    <v-list-title-title :class="active?'red--text':''">
-                                        @{{p.name}}
-                                    </v-list-title-title>
-                                </v-list-tile-content>
-                                <v-list-tile-action>
-                                    <v-btn color="primary" fab flat small @click='remove(p.id)'>
-                                        <v-icon>delete_outline</v-icon>
-                                    </v-btn>
-                                </v-list-tile-action>
-                            </v-list-tile>
-                        </v-item>
+                        <template v-for="(p,i) in models.profile.list">
+                            <v-item>
+                                <v-list-tile xs12 slot-scope="{ active, toggle }">
+                                    <v-list-tile-content @click="toggle">
+                                        <v-list-title-title :class="active?'red--text':''">
+                                            @{{p.name}}
+                                        </v-list-title-title>
+                                    </v-list-tile-content>
+                                    <v-list-tile-action>
+                                        <v-btn color="primary" fab flat small @click='remove(p.id)'>
+                                            <v-icon>delete_outline</v-icon>
+                                        </v-btn>
+                                    </v-list-tile-action>
+                                </v-list-tile>
+
+                            </v-item>
+                            <v-divider></v-divider>
+                        </template>
                     </v-item-group>
+                    <v-container v-if='models.profile.list.length==0'>Nenhum perfil foi criado</v-container>
+
                 </v-list>
 
             </v-card>
@@ -68,19 +74,22 @@
                             <v-text-field label='Nome do perfil' v-model='selected_profile.name' :rules='view.new_profile.rules'
                                 ref='profile_name'></v-text-field>
                         </v-flex>
-                        <v-flex xs12 v-if='!view.new_template.show'>
+                        <v-flex xs12>
                             <p class='grey--text'>Lista de tarefas</p>
                             <v-list style='max-height:200px;overflow:auto'>
                                 <template v-for='t in models.template.list'>
                                     <v-list-tile>
                                         <v-list-tile-content>
-                                            <v-list-tile-title>@{{t.name}}</v-list-tile-title>
+                                            <v-list-tile-title @click='edit_template(t.id)' style='cursor:pointer'>@{{t.name}}</v-list-tile-title>
                                         </v-list-tile-content>
-                                        <v-list-tile-action>
+                                        <div style='position:absolute;right:0'>
+                                            <v-btn color="primary" dark fab small flat @click='edit_template(t.id)'>
+                                                <v-icon>visibility</v-icon>
+                                            </v-btn>
                                             <v-btn color="primary" dark fab small flat @click='destroy_template(t.id)'>
                                                 <v-icon> delete_outline</v-icon>
                                             </v-btn>
-                                        </v-list-tile-action>
+                                        </div>
                                     </v-list-tile>
                                     <v-divider></v-divider>
                                 </template>
@@ -89,60 +98,15 @@
                                 </template>
                             </v-list>
                         </v-flex>
-                        <template v-else>
-                            <v-flex xs12 class='headline'>
-
-                                Nova lista de tarefas
-                                <v-divider class='mt-2 mb-2'></v-divider>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-text-field label='Nome da lista de tarefas' v-model='view.new_template.name' :rules='view.new_template.rules'
-                                    ref='template_name'></v-text-field>
-                            </v-flex>
-                            <template v-if='view.new_template.tasks.length>0'>
-                                <v-flex xs12>
-                                    Depedências
-                                </v-flex>
-                                <v-flex xs12>
-                                    Arraste as tarefas dentro de outras para criar dependências
-                                </v-flex>
-                                <v-flex xs12>
-                                    <Tree :data="view.new_template.tasks" draggable="draggable" ref='tree'>
-                                        <div slot-scope="{data, store}" class='text-truncate'>
-                                            <table v-if='!data.isDragPlaceHolder'>
-                                                <tr>
-                                                    <td>
-                                                        <v-icon v-if="data.children && data.children.length" @click="store.toggleOpen(data)">@{{data.open
-                                                            ? 'expand_more' : 'expand_less'}}</v-icon>
-                                                        <v-icon v-else color='grey'>drag_indicator</v-icon>
-                                                    </td>
-                                                    <td>@{{data.text}}</td>
-                                                    <td>
-                                                        <v-icon color='red' @click='store.deleteNode(data)' class='ml-2'>delete_outline</v-icon>
-                                                    </td>
-                                                </tr>
-                                            </table>
-                                        </div>
-                                    </Tree>
-                                </v-flex>
-
-                            </template>
-                            <v-flex xs12>
-                                <v-autocomplete no-data-text='Nenhuma tarefa encontrada' v-model="view.new_template.task_selected"
-                                    :items="models.task.list" :item-text="'name'" :item-value="'id'" color='primary'
-                                    prepend-icon="list" placeholder="Adicionar tarefa" @change='add_task()'>
-                                </v-autocomplete>
-                            </v-flex>
-                        </template>
                         <v-flex xs12 class='text-xs-right'>
                             <v-btn color="green" dark v-if='view.need_save' @click='store(selected_profile.id)'>
                                 <v-icon class='mr-2'>save</v-icon>Salvar
                             </v-btn>
-                            <v-btn v-if='!view.new_template.show' color="info" dark @click='view.new_template.show=true'>+
-                                Cria lista de tarefas</v-btn>
-                            <v-btn v-else color="green" dark @click='add_template()'>
-                                <v-icon class='mr-2'>save</v-icon>Salvar lista de tarefas
+                            <v-btn color="info" dark @click='clear_new_template();view.new_template.show=true'>
+                                <v-icon class='mr-2'>playlist_add</v-icon>
+                                Cria lista de tarefas
                             </v-btn>
+
                         </v-flex>
                     </v-layout>
                 </v-container>
@@ -168,6 +132,68 @@
     </v-layout>
 </v-container>
 
+<v-dialog v-model="view.new_template.show" max-width="500px" scrollable transition="dialog-transition">
+    <v-card>
+        <v-toolbar color="primary headline" dark class='headline'>
+            @{{view.new_template.editing?"Editar lista de tarefas":"Nova lista de tarefas"}}
+        </v-toolbar>
+        <v-card-text>
+            <v-container grid-list-xs>
+                <v-layout row wrap>
+                    </v-flex>
+                    <v-flex xs12>
+                        <v-text-field label='Nome da lista de tarefas' v-model='view.new_template.name' :rules='view.new_template.rules'
+                            ref='template_name'></v-text-field>
+                    </v-flex>
+                    <template v-if='view.new_template.tasks.length>0'>
+                        <v-flex xs12>
+                            <p class='headline'>Tarefas</p>
+                        </v-flex>
+                        <v-flex xs12>
+                            <Tree :data="view.new_template.tasks" draggable="draggable" ref='tree'>
+                                <div slot-scope="{data, store}" class='text-truncate'>
+                                    <table v-if='!data.isDragPlaceHolder'>
+                                        <tr>
+                                            <td>
+                                                <v-icon v-if="data.children && data.children.length" @click="store.toggleOpen(data)">@{{data.open
+                                                    ? 'expand_more' : 'expand_less'}}</v-icon>
+                                                <v-icon v-else color='grey'>drag_indicator</v-icon>
+                                            </td>
+                                            <td @click="store.toggleOpen(data)">@{{data.text}}</td>
+                                            <td>
+                                                <v-icon color='red' @click='store.deleteNode(data)' class='ml-2'>delete_outline</v-icon>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </Tree>
+                        </v-flex>
+                        <v-flex xs12 class='text-xs-center'>
+                            <v-chip>Arraste as tarefas dentro de outras para criar dependências</v-chip>
+                        </v-flex>
+                    </template>
+                    <v-flex xs12>
+                        <v-autocomplete no-data-text='Nenhuma tarefa encontrada' v-model="view.new_template.task_selected"
+                            :items="models.task.list" :item-text="'name'" :item-value="'id'" color='primary'
+                            prepend-icon="add_box" placeholder="Adicionar tarefa" @change='add_task()'>
+                        </v-autocomplete>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+        </v-card-text>
+
+        <v-divider></v-divider>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn color="red" outline dark @click='clear_new_template()'>
+                <v-icon class='mr-2'>close</v-icon>Cancelar
+            </v-btn>
+            <v-btn color="green" outline dark @click='add_template()'>
+                <v-icon class='mr-2'>save</v-icon>Confimar
+            </v-btn>
+        </v-card-actions>
+    </v-card>
+</v-dialog>
 
 
 @endsection
@@ -207,6 +233,7 @@
                     },
                     need_save: false,
                     new_template: {
+                        editing: false,
                         show: false,
                         name: '',
                         task_selected: '',
@@ -232,7 +259,7 @@
                     this.view.new_template.show = false;
                     this.clear_new_template();
                 });
-                if (this.view.selected_profile != -1) {
+                if (this.view.selected_profile > -1) {
                     this.list_model(this.models.template, {
                         id: this.models.profile.list[this.view.selected_profile].id
                     });
@@ -285,6 +312,7 @@
             },
             remove: function (id) {
                 this.confirm("Profile", "Deseja deletar esse perfil?", "red", () => {
+                    if (this.models.profile.list.length == 1) this.view.selected_profile = -1;
                     this.destroy_model(this.models.profile, id, () => {
                         this.list_model(this.models.profile);
                         this.notify("Perfil removido", "error");
@@ -303,39 +331,33 @@
                         children: []
                     })
                     this.view.new_template.task_selected = -1;
-                }
-                else this.notify('A tarefa já foi adicionada na lista','red',2000);
+                } else this.notify('A tarefa já foi adicionada na lista', 'red', 2000);
 
             },
             check_task: function (id, data) {
-                if(typeof data == 'undefined'){
-                    if(this.view.new_template.tasks.length>0)data = this.$refs.tree.getPureData();
+                if (typeof data == 'undefined') {
+                    if (this.view.new_template.tasks.length > 0) data = this.$refs.tree.getPureData();
                     else return true;
 
                 }
-                check = true;
-                data.forEach(n=>{
-                    if (n.task_id == id) {
-                        check = false;
-                        return;
-                    }
+                for(n of data){
+                    if (n.task_id == id)return false ;
                     if (typeof n.children != 'undefined') {
-                        if (!this.check_task(id, n.children)){
-                            check = false;
-                            return;
-                        }
+                        if (!this.check_task(id, n.children))return false;
                     }
-                });
-                return check;
+                }
+                return true;
 
             },
             add_template: function () {
                 if (this.$refs.template_name.validate()) {
-                    this.store_model(this.models.template, {
+                    data = {
                         name: this.view.new_template.name,
                         tasks: this.$refs.tree.getPureData(),
                         profile_id: this.selected_profile.id
-                    }, () => {
+                    }
+                    if (this.view.new_template.editing) data.id = this.view.new_template.id;
+                    this.store_model(this.models.template, data, () => {
                         this.view.new_template.show = false;
                         this.clear_new_template();
                         this.list_model(this.models.template, {
@@ -355,8 +377,22 @@
                 });
 
             },
+            edit_template: function (id) {
+                this.view.new_template.editing = true;
+                this.view.new_template.show = true;
+                this.view.new_template.id = id;
+                this.template_tree(id, (r) => {
+                    this.view.new_template.tasks = r;
+                })
+                this.view.new_template.name = this.get_model(this.models.template, id).name
+
+            },
             clear_new_template: function () {
+                this.view.new_template.editing = false;
+                this.view.new_template.show = false;
+                this.view.new_template.task_selected = '';
                 this.view.new_template.name = '';
+                this.view.new_template.id = '';
                 this.view.new_template.tasks = []
             }
         },

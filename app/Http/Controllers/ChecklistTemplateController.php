@@ -54,14 +54,8 @@ class ChecklistTemplateController extends Controller
 
     public function returnChecklist(Request $r){
         $clist = ChecklistTemplate::find($r['id']);
-        $tasks=[];
-        $linkers_root = DB::table('linker_checklist')->where('checklist_template_id',$clist->id)->where('task_id_below',null)->get();
-        foreach($linkers_root as $linker){
-            $a1 = ['name' =>Task::find($linker->task_id)['name'],'task_id'=>$linker->task_id,'children'=>[]];
-            $a1['children']=ChecklistTemplateController::returnFormDep($clist,$linker->task_id);
-            array_push($tasks,$a1);
-        }
-        return json_encode($tasks);
+
+        return json_encode(ChecklistTemplateController::returnFormDep($clist,null));
     }
 
 
@@ -69,11 +63,12 @@ class ChecklistTemplateController extends Controller
         $tasks=[];
         $linkers_root = DB::table('linker_checklist')->where('checklist_template_id',$clist->id)->where('task_id_below',$task_id)->get();
         foreach($linkers_root as $linker){
-            $a1 = ['name' =>Task::find($linker->task_id_below)['name'],'task_id'=>$linker->task_id_below,'children'=>[]];
+            $a1 = ['text' =>Task::find($linker->task_id)['name'],'task_id'=>$linker->task_id,'children'=>[]];
             $a1['children']=ChecklistTemplateController::returnFormDep($clist,$linker->task_id);
+            //if(count($a1['children'])==0)unset($a1['children']);
             array_push($tasks,$a1);
         }
-        return json_encode($tasks);
+        return $tasks;
     }
 
     public function edit(Request $request){

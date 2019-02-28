@@ -62,7 +62,7 @@ Route::get('checklist/', "ChecklistTemplateController@index")->name('checklist')
 Route::post('checklist/store', "ChecklistTemplateController@store")->name('template_store');
 Route::get('checklist/edit', "ChecklistTemplateController@edit")->name('template_edit');
 Route::delete('checklist/destroy', "ChecklistTemplateController@destroy")->name('template_destroy');
-Route::get('checklist/array/{id}',"ChecklistTemplateController@returnChecklist")->name('template_array');
+Route::get('checklist/array',"ChecklistTemplateController@returnChecklist")->name('template_array');
 
 //Profiles
 Route::get('profile/', "ProfileController@index")->name('profile');

@@ -1,3 +1,5 @@
+
+
 sources_checklists_template = {
     data() {
         return {
@@ -13,5 +15,18 @@ sources_checklists_template = {
             }
         }
     },
-
+    methods:{
+        template_tree(id,callback){
+            $.ajax({
+                url: routes.template_array,
+                method: "GET",
+                dataType: "json",
+                data: {
+                    id:id
+                }
+            }).done(response => {
+                callback(response);
+            });
+        }
+    }
 }

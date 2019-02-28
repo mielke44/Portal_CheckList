@@ -1,0 +1,50 @@
+[
+    {
+        "type": "Directory",
+        "name": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\resources\\views",
+        "parent_id": null,
+        "fsPath": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\resources\\views",
+        "workspaceRoot": null,
+        "workspacePath": null,
+        "id": "KAUjkniTSpJm5tWX",
+        "label": "Views"
+    },
+    {
+        "type": "Directory",
+        "name": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\app\\Http\\Controllers",
+        "parent_id": null,
+        "fsPath": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\app\\Http\\Controllers",
+        "workspaceRoot": null,
+        "workspacePath": null,
+        "id": "N8rKQIt3PgmCT1uU"
+    },
+    {
+        "type": "Directory",
+        "name": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\public\\sources",
+        "parent_id": null,
+        "fsPath": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\public\\sources",
+        "workspaceRoot": null,
+        "workspacePath": null,
+        "id": "YOpL9W5tADzSnj2F",
+        "label": "Sources JS"
+    },
+    {
+        "type": "File",
+        "name": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\routes\\web.php",
+        "parent_id": null,
+        "fsPath": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\routes\\web.php",
+        "workspaceRoot": null,
+        "workspacePath": null,
+        "id": "oKIuqveGAMxTCsdj"
+    },
+    {
+        "type": "Directory",
+        "name": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\app",
+        "parent_id": null,
+        "fsPath": "c:\\Users\\chris\\Documents\\Github\\Portal_CheckList2\\app",
+        "workspaceRoot": null,
+        "workspacePath": null,
+        "id": "T9odvOFkR5hzisVA",
+        "label": "Models"
+    }
+]
