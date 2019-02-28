@@ -21,33 +21,20 @@ class AdminController extends Controller
     }
 
     public function store(Request $request){
-        if(isset($request['form']["id"])) $admin = Admin::find($request['form']["id"]);
+        if(isset($request["id"])) $admin = Admin::find($request["id"]);
         else $admin = new Admin();
-        if(isset($request['form']['group'])){
-            if(isset($admin->group)){
-                $admin->group=0;
-                $admin->save();
-                return json_encode(array('error'=>false, 'message'=>'sucesso!'));
-            }else{
-                foreach($request['form']['id'] as $id){
-                    $admin = Admin::findOrFail($id);
-                    $admin->group=$request['form']['group'];
-                    $admin->save();
-                }
-                return json_encode(array('error'=>false, 'message'=>'sucesso!'));
-            }
+        $admin->is_admin = $request['is_admin'];
+        if($admin->is_admin == 1){
+            if(isset($request['password']))$admin->password=bcrypt($request['password']);
         }
-        if($request['form']['is_admin']){
-            if(isset($request['form']['password']))$admin->password=bcrypt($request['form']['password']);
-            $admin->is_admin=1;
-        }else if(!$request['form']['is_admin']){
-            $admin->is_admin=0;
-            $admin->password = bcrypt($request['form']['id'].$request['form']['name']);
+        else{
+            if($admin->password == '') $admin->password = bcrypt($request['id'].$request['name']);
         }
-        $admin->name = $request['form']['name'];
-        $admin->email = $request['form']['email'];
-        $admin->site = $request['form']['site'];
-        $admin->token = bcrypt($request['form']['id'].$request['form']['name']);
+        $admin->group = $request['group'];
+        $admin->name = $request['name'];
+        $admin->email = $request['email'];
+        $admin->site = $request['site'];
+        $admin->token = bcrypt($request['id'].$request['name']);
         try{
             $admin -> save();
             return json_encode(['error'=>false,'message' => $admin->id]);

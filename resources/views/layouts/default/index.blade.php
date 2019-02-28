@@ -185,6 +185,46 @@
     </v-card>
 </v-dialog>
 
+<v-dialog v-model="dialog_user.show" max-width="500px" transition="dialog-transition">
+    <v-card>
+        <v-toolbar color="primary" dark class='headline'>
+            Usuário
+        </v-toolbar>
+        <v-card-text>
+            <v-container grid-list-xs>
+                <v-form ref='form_user'>
+                    <v-layout row wrap>
+                        <v-flex xs12>
+                            <v-text-field label="Nome" v-model="dialog_user.user.name" :rules='dialog_user.rules.name'></v-text-field>
+                        </v-flex>
+                        <v-flex xs12>
+                            <v-text-field label="E-mail" v-model="dialog_user.user.email" :rules='dialog_user.rules.email'></v-text-field>
+                        </v-flex>
+                        <v-flex xs12>
+                            <v-select :items="dialog_user.types" v-model="dialog_user.user.is_admin" label="Tipo"
+                                item-value="id" item-text="name"></v-select>
+                        </v-flex>
+                        <v-flex xs12>
+                            <v-select :items="models.site.list" v-model="dialog_user.user.site" label="Site" item-value="id"
+                                item-text="complete_name" :rules='dialog_user.rules.site'></v-select>
+                        </v-flex>
+                        <v-flex xs12>
+                            <v-select :items="models.group.list" v-model="dialog_user.user.group" label="Grupo"
+                                item-value="id" item-text="name"></v-select>
+                        </v-flex>
+                    </v-layout>
+                </v-form>
+            </v-container>
+        </v-card-text>
+        <v-card-actions>
+            <v-spacer></v-spacer>
+            <v-btn dark color="green" @click="store_user()">
+                <v-icon class='mr-2'>save</v-icon>Salvar
+            </v-btn>
+        </v-card-actions>
+    </v-card>
+</v-dialog>
+
 @endsection
 
 @section('js')
@@ -195,7 +235,7 @@
 <script src='{{asset("sources/models.js")}}'></script>
 <script>
     app = new Vue({
-        mixins: [vue_page,sources_model,sources_notifications],
+        mixins: [vue_page, sources_model, sources_notifications],
         el: '#app',
         created() {
             this.$vuetify.theme = $THEME_VUETIFY;
@@ -277,7 +317,9 @@
                 more: [{
                         icon: "account_box",
                         text: "Seu Perfil",
-                        link: function () {}
+                        link: () => {
+                            this.show_user(this.user);
+                        }
                     },
                     {
                         icon: "exit_to_app",
@@ -299,12 +341,53 @@
                     text: '',
                     action: () => {},
                 },
-                tasks:[],
-                employees:[],
-                checklists:[],
+                dialog_user: {
+                    show: false,
+                    user: {},
+                    types: [{
+                        id: 1,
+                        name: 'Gestor'
+                    }, {
+                        id: 0,
+                        name: 'Responsável'
+                    }],
+                    rules: {
+                        name: [
+                            v => !!v || 'Campo obrigatório',
+                            v => (v && v.length <= 25) || 'Máximo 25 caracteres'
+                        ],
+                        email: [
+                            v => !!v || 'E-mail é obrigatório!',
+                            v => /.+@.+/.test(v) || 'E-mail deve ser válido!'
+                        ],
+                        password: [
+                            v => {
+                                if ((v && v.length >= 6) || v == "" || v == null) return true;
+                                else return 'Mínimo 6 caracteres';
+                            }
+                        ],
+                        passwordc: [
+                            v => {
+                                if ((this.form.password != '' && v != '') || this.form.password == null)
+                                    return true;
+                                else return 'Campo obrigatório!';
+                            },
+                            v => {
+                                if (v == this.form.password || this.form.password == null) return true;
+                                else return 'Senhas não estão iguais!';
+                            },
+                        ],
+                        site: [
+                            v => !!v || 'Campo obrigatório!',
+                        ],
+                    },
+                },
+                tasks: [],
+                employees: [],
+                checklists: [],
                 checklists_template: [],
                 profiles: [],
-                search:''
+                search: ''
 
             }
         },
@@ -359,14 +442,35 @@
                 if (text.toLowerCase().indexOf(search.toLowerCase()) > -1 || search == '') {
                     return true;
                 } else return false;
-            }
+            },
+            show_user: function (user) {
+                if (typeof user == 'undefined') {
+                    user = {
+                        name: '',
+                        is_admin: 0,
+                        email: '',
+                        site: '',
+                        group: 0,
+                    }
+                }
+                this.dialog_user.show = true;
+                this.dialog_user.user = Object.assign({}, user);
+            },
+            store_user: function () {
+                if (this.$refs.form_user.validate()) {
+                    this.store_model(this.models.user, this.dialog_user.user, () => {
+                        this.notify('Usuário salvo!', 'green');
+                        this.dialog_user.show = false;
+                        this.list_model(this.models.user);
+                    });
+                }
+
+            },
         },
         mounted() {
             this.getUser();
             //this.list_notifications();
-            this.more[0].link = () => {
-                location.href = routes.admin_profile
-            };
+
             //setInterval(() => this.update(), 5000);
 
         }

@@ -45,7 +45,7 @@ Route::delete('comment/delete', "CommentController@destroy")->name('comment_remo
 Route::get('Admin/', "AdminController@index")->name('admin');
 Route::post('Admin/store', "AdminController@store")->name('admin_store');
 Route::get('Admin/edit', "AdminController@edit")->name('admin_edit');
-Route::delete('Admin/destroy', "AdminController@destroy")->name('admin_remove');
+Route::delete('Admin/destroy', "AdminController@destroy")->name('admin_destroy');
 Route::get('Admin/list', "AdminController@list")->name('admin_list');
 Route::get('Admin/profile', "AdminController@profile")->name('admin_profile');
 
@@ -75,7 +75,7 @@ Route::get('profile/checklist',"ProfileController@getCheckLists")->name('templat
 //Groups
 Route::post('Group/store', "GroupController@store")->name('group_store');
 Route::get('Group/list', "GroupController@list")->name('group_list');
-Route::delete('Group/destroy', "GroupController@destroy")->name('group_delete');
+Route::delete('Group/destroy', "GroupController@destroy")->name('group_destroy');
 
 //Sites
 Route::get('site/list', "SiteController@list")->name('site_list');

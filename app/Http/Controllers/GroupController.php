@@ -7,23 +7,27 @@ use App\Group;
 use App\Admin;
 use App\Check;
 use App\Task;
+use App\User;
 
 class GroupController extends Controller
 {
     public function store(Request $r){
-        if($r['form']['id']==''){
+        if($r['id']==''){
             $group = new Group;
         }else{
-            $group = Group::findOrFail($r['form']['id']);
+            $group = Group::findOrFail($r['id']);
         }
-        $group->name = $r['form']['name'];
+        $group->name = $r['name'];
         if($group->save()){
-            if(isset($r['form']['team']))
-                foreach($r['form']['team'] as $t){
+            User::where('group',$group->id)->update(['group'=>0]);
+            if(isset($r['team'])){
+                foreach($r['team'] as $t){
                     $user = Admin::findOrFail($t);
                     $user->group = $group->id;
                     $user->save();
                 }
+            }
+
             return json_encode(array('error' => false, 'message'=>'success!'));
         }else{
             return json_encode(array('error'=>true, 'message'=> 'Ocorreu um erro, tente novemente!'));

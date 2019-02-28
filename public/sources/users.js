@@ -24,7 +24,7 @@ sources_users = {
     },
     computed:{
         user_resp_array() {
-            var array = []
+            var array = [];
             array.push({
                 id: 0,
                 name: "Contratado"
@@ -40,6 +40,29 @@ sources_users = {
                     id: "group"+g.id,
                     name: g.name
                 })
+            }
+            return array;
+        },
+        user_admin(){
+            var array = [];
+            for(u of this.models.user.list){
+                if(u.is_admin == 1)array.push(u);
+            }
+            return array;
+        },
+    },
+    methods:{
+        user_site(site){
+            var array = [];
+            for(u of this.models.user.list){
+                if(u.site == site)array.push(u);
+            }
+            return array;
+        },
+        user_group(id){
+            var array = [];
+            for(u of this.models.user.list){
+                if(u.group == id)array.push(u);
             }
             return array;
         }
