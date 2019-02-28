@@ -32,20 +32,33 @@
             </v-list>
 
         </v-toolbar>
-
+        <v-divider></v-divider>
         <v-list class="pt-0" dense>
-            <v-divider></v-divider>
-
-            <v-list-tile v-if="user.is_admin>0 || item.visible_external" v-for="(item,i) in menu" :key="item.title"
-                @click="item.link">
-                <v-list-tile-action>
-                    <v-icon :color="(i==screen) ? 'black': 'white'">@{{ item.icon }}</v-icon>
-                </v-list-tile-action>
-
-                <v-list-tile-content>
-                    <v-list-tile-title :class="(i==screen) ? 'black--text': 'white--text'">@{{ item.text }}</v-list-tile-title>
-                </v-list-tile-content>
-            </v-list-tile>
+            <template v-if="user.is_admin>0 || item.visible_external" v-for="(item,i) in menu">
+                <v-list-group active-class="black--text" :key="item.title" :prepend-icon="item.icon" v-if='typeof item.submenu != "undefined"'>
+                    <v-list-tile avatar slot='activator'>
+                        <v-list-tile-content>
+                            <v-list-tile-title>@{{ item.text }}</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                    <v-list-tile v-for="(sub,i) in item.submenu" @click='location.href=sub.link'>
+                        <v-list-tile-action>
+                            <v-icon :class="(sub.link==window.location.href) ? 'black--text': 'white--text'">@{{sub.icon}}</v-icon>
+                        </v-list-tile-action>
+                        <v-list-tile-content>
+                            <v-list-tile-title :class="(sub.link==window.location.href) ? 'black--text': 'white--text'">@{{ sub.text }}</v-list-tile-title>
+                        </v-list-tile-content>
+                    </v-list-tile>
+                </v-list-group>
+                <v-list-tile v-else @click='location.href=item.link'>
+                    <v-list-tile-action>
+                        <v-icon :class="(item.link==window.location.href) ? 'black--text': 'white--text'">@{{item.icon}}</v-icon>
+                    </v-list-tile-action>
+                    <v-list-tile-content>
+                        <v-list-tile-title :class="(item.link==window.location.href) ? 'black--text': 'white--text'">@{{ item.text }}</v-list-tile-title>
+                    </v-list-tile-content>
+                </v-list-tile>
+            </template>
         </v-list>
         <v-footer height="auto" absolute color='primary'>
             <v-layout row wrap align-center>
@@ -233,9 +246,11 @@
 <script src='{{route('get_routes')}}'></script>
 <script src='{{asset("sources/notifications.js")}}'></script>
 <script src='{{asset("sources/models.js")}}'></script>
+<script src='{{asset("sources/users.js")}}'></script>
+<script src='{{asset("sources/sites.js")}}'></script>
 <script>
     app = new Vue({
-        mixins: [vue_page, sources_model, sources_notifications],
+        mixins: [vue_page, sources_model, sources_notifications,sources_users, sources_sites],
         el: '#app',
         created() {
             this.$vuetify.theme = $THEME_VUETIFY;
@@ -260,59 +275,48 @@
                     model: false
                 },
                 menu: [{
-                        id: 'dash',
                         icon: "dashboard",
                         text: "Dashboard",
                         visible_external: false,
-                        link: function () {
-                            window.location = routes.dashboard
-                        }
+                        link: routes.dashboard
                     },
                     {
-                        id: 'employee',
                         icon: "face",
                         text: "Empregados",
                         visible_external: false,
-                        link: function () {
-                            window.location = routes.employees
-                        }
+                        link: routes.employees
                     },
                     {
-                        id: 'yourchecklist',
                         icon: "event_note",
                         text: "Suas tarefas",
                         visible_external: true,
-                        link: function () {
-                            window.location = routes.emp_yourchecklist_view
-                        }
+                        link: routes.emp_yourchecklist_view
                     },
                     {
-                        id: 'profile',
-                        icon: "portrait",
-                        text: "Perfis",
+                        icon: "settings",
+                        text: "Configurações",
                         visible_external: false,
-                        link: function () {
-                            window.location = routes.profile
-                        }
-                    },
-                    {
-                        id: 'task',
-                        icon: "list",
-                        text: "Tarefas",
-                        visible_external: false,
-                        link: function () {
-                            window.location = routes.task
-                        }
-                    },
-                    {
-                        id: 'admin',
-                        icon: "supervisor_account",
-                        text: "Gestores e Responsáveis",
-                        visible_external: false,
-                        link: function () {
-                            window.location = routes.admin
-                        }
+                        submenu: [{
+                                icon: "portrait",
+                                text: "Perfis",
+                                visible_external: false,
+                                link: routes.profile
+                            },
+                            {
+                                icon: "list",
+                                text: "Tarefas",
+                                visible_external: false,
+                                link: routes.task
+                            },
+                            {
+                                icon: "supervisor_account",
+                                text: "Gestores e Responsáveis",
+                                visible_external: false,
+                                link: routes.admin
+                            }
+                        ]
                     }
+
                 ],
                 more: [{
                         icon: "account_box",
@@ -469,10 +473,9 @@
         },
         mounted() {
             this.getUser();
-            //this.list_notifications();
-
-            //setInterval(() => this.update(), 5000);
-
+            this.list_model(this.models.site);
+            this.list_model(this.models.group);
+            this.list_model(this.models.user);
         }
     });
 </script>

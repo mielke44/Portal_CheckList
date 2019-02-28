@@ -213,11 +213,8 @@
 @endsection
 
 @section('l-js')
-<script src='{{asset("sources/users.js")}}'></script>
-<script src='{{asset("sources/sites.js")}}'></script>
 <script>
     vue_page = {
-        mixins: [sources_users, sources_sites],
         data() {
             return {
                 view: {
@@ -335,9 +332,6 @@
             }
         },
         mounted() {
-            this.list_model(this.models.site);
-            this.list_model(this.models.group);
-            this.list_model(this.models.user);
             this.prof_view2 = this.prof_view;
         }
     };
