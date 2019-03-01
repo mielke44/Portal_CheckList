@@ -32,14 +32,12 @@
 
         <v-flex>
             <v-card height="100%">
-                <v-toolbar color="primary" dark class='headline'>
-                    Lista
-                </v-toolbar>
-                <v-list row wrap class='pb-0'>
+                <v-list row wrap class='pa-0'>
+                    <v-subheader>Todos</v-subheader>
                     <v-item-group v-model='view.selected_profile'>
                         <template v-for="(p,i) in models.profile.list">
                             <v-item>
-                                <v-list-tile xs12 slot-scope="{ active, toggle }">
+                                <v-list-tile xs12 slot-scope="{ active, toggle }" @click=''>
                                     <v-list-tile-content @click="toggle">
                                         <v-list-title-title :class="active?'red--text':''">
                                             @{{p.name}}
@@ -66,7 +64,7 @@
         <v-flex v-if='view.selected_profile > -1' xs8>
             <v-card height="100%">
                 <v-toolbar color="primary" class='headline' dark>
-                    @{{selected_profile.name}}
+                    Informações do perfil
                 </v-toolbar>
                 <v-container>
                     <v-layout row wrap>
@@ -83,10 +81,10 @@
                                             <v-list-tile-title @click='edit_template(t.id)' style='cursor:pointer'>@{{t.name}}</v-list-tile-title>
                                         </v-list-tile-content>
                                         <div style='position:absolute;right:0'>
-                                            <v-btn color="primary" dark fab small flat @click='edit_template(t.id)'>
+                                            <v-btn color="primary" class='ma-0' dark fab small flat @click='edit_template(t.id)'>
                                                 <v-icon>visibility</v-icon>
                                             </v-btn>
-                                            <v-btn color="primary" dark fab small flat @click='destroy_template(t.id)'>
+                                            <v-btn color="primary" class='ma-0' dark fab small flat @click='destroy_template(t.id)'>
                                                 <v-icon> delete_outline</v-icon>
                                             </v-btn>
                                         </div>
@@ -340,10 +338,10 @@
                     else return true;
 
                 }
-                for(n of data){
-                    if (n.task_id == id)return false ;
+                for (n of data) {
+                    if (n.task_id == id) return false;
                     if (typeof n.children != 'undefined') {
-                        if (!this.check_task(id, n.children))return false;
+                        if (!this.check_task(id, n.children)) return false;
                     }
                 }
                 return true;

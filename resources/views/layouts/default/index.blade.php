@@ -35,7 +35,7 @@
         <v-divider></v-divider>
         <v-list class="pt-0" dense>
             <template v-if="user.is_admin>0 || item.visible_external" v-for="(item,i) in menu">
-                <v-list-group active-class="black--text" :key="item.title" :prepend-icon="item.icon" v-if='typeof item.submenu != "undefined"'>
+                <v-list-group active-class="black--text" :key="item.title" :prepend-icon="item.icon" v-if='typeof item.submenu != "undefined"' :value='submenu_selected(item.submenu)'>
                     <v-list-tile avatar slot='activator'>
                         <v-list-tile-content>
                             <v-list-tile-title>@{{ item.text }}</v-list-tile-title>
@@ -46,7 +46,8 @@
                             <v-icon :class="(sub.link==window.location.href) ? 'black--text': 'white--text'">@{{sub.icon}}</v-icon>
                         </v-list-tile-action>
                         <v-list-tile-content>
-                            <v-list-tile-title :class="(sub.link==window.location.href) ? 'black--text': 'white--text'">@{{ sub.text }}</v-list-tile-title>
+                            <v-list-tile-title :class="(sub.link==window.location.href) ? 'black--text': 'white--text'">@{{
+                                sub.text }}</v-list-tile-title>
                         </v-list-tile-content>
                     </v-list-tile>
                 </v-list-group>
@@ -55,7 +56,8 @@
                         <v-icon :class="(item.link==window.location.href) ? 'black--text': 'white--text'">@{{item.icon}}</v-icon>
                     </v-list-tile-action>
                     <v-list-tile-content>
-                        <v-list-tile-title :class="(item.link==window.location.href) ? 'black--text': 'white--text'">@{{ item.text }}</v-list-tile-title>
+                        <v-list-tile-title :class="(item.link==window.location.href) ? 'black--text': 'white--text'">@{{
+                            item.text }}</v-list-tile-title>
                     </v-list-tile-content>
                 </v-list-tile>
             </template>
@@ -250,7 +252,7 @@
 <script src='{{asset("sources/sites.js")}}'></script>
 <script>
     app = new Vue({
-        mixins: [vue_page, sources_model, sources_notifications,sources_users, sources_sites],
+        mixins: [vue_page, sources_model, sources_notifications, sources_users, sources_sites],
         el: '#app',
         created() {
             this.$vuetify.theme = $THEME_VUETIFY;
@@ -470,6 +472,15 @@
                 }
 
             },
+            submenu_selected(subs){
+                for (s of subs) {
+                    if (s.link == window.location.href){
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         },
         mounted() {
             this.getUser();
