@@ -52,24 +52,22 @@ class SendNotification
         $notification->type = $event->getType();
         $notification->check_id = $event->getCheck()->id;
         $notification->status = 'pending';
-
-          /*------------------------/|      
-         /                         / |
-        /*------------------------/  |
-        |   Notification Types:   |  |
-        |  -1 = ExpireCheckLimit  |  |
-        |  0 = CheckUpdateStatus  |  |
-        |  1 = CommentUpdate      |  |
-        |  2 = ResponsibleUpdate  |  |
-        |  3 = ChecklistUpdate    |  |
-        |  4 = ChecklistComplete  | / 
-        |  5 = CheckLimitWarning  |/  
+        
+        /*------------------------/
+        |   Notification Types:   |
+        |  -1 = ExpireCheckLimit  |
+        |  0 = CheckUpdateStatus  |
+        |  1 = CommentUpdate      |
+        |  2 = ResponsibleUpdate  |
+        |  3 = ChecklistUpdate    |
+        |  4 = ChecklistComplete  | 
+        |  5 = CheckLimitWarning  |
         /------------------------*/
 
-        if ($notification-> save()) {
+        if($notification-> save()) {
             return json_encode(array('error' => false,
                 'message' => $notification->id));
-        } else {
+        }else{
             return json_encode(array('error' => true,
                 'message' => 'Ocorreu um erro, tente novamente!'));
         }

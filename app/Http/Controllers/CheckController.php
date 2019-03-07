@@ -50,7 +50,7 @@ class CheckController extends Controller
                 else array_push($receiver['admin'],$Check['resp']);
                 array_push($receiver['emp'],$checklist->employee_id);
             }
-            
+
             //Alteração de estado da tarefa
             if(isset($request['status'])){
                 if($request['status']){
@@ -82,6 +82,7 @@ class CheckController extends Controller
                     }
                 }
             }
+
             $text = 'Alterou o estado da tarefa: '.$task->name;
             $name = Auth::user()->name;
             $type = 0;

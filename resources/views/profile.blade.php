@@ -397,7 +397,6 @@
         mounted() {
             this.list_model(this.models.profile);
             this.list_model(this.models.task);
-            this.setMenu('profile');
         }
     };
 </script>

@@ -1,7 +1,16 @@
 sources_comments = {
     data(){
         return{
-            comments:[]
+            models:{
+                comment:{
+                    routes:{
+                        list: routes.comment_list,
+                        store: routes.comment_store,
+                        destroy: routes.comment_destroy
+                    },
+                    list:[]
+                }
+            }
         }
     },
     methods:{

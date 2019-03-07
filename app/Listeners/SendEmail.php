@@ -20,6 +20,7 @@ class SendEmail
     {
         //
     }
+
     public function handleCheck(CheckUpdateEvent $event)
     {
         $data=array();
@@ -42,8 +43,7 @@ class SendEmail
         }
     }
 
-    public function handleChecklist(ChecklistUpdateEvent $event)
-    {
+    public function handleChecklist(ChecklistUpdateEvent $event){
         $data=array(
                     0=>Admin::findOrFail($event->getReceiver()['admin'][0])['email'],
                     1=>Employee::findOrFail($event->getReceiver()['emp'][0])['email']);
@@ -62,8 +62,7 @@ class SendEmail
         }
     }
 
-    public function handleEmployee(NewEmployeeEvent $event)
-    {
+    public function handleEmployee(NewEmployeeEvent $event){
         $data=array(0=>$event->getEmployee()['email']);
         if($event->getReason()=='new'){
             $demo=array(

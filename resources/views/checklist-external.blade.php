@@ -145,6 +145,7 @@
 @section('l-js')
 <script>
     vue_page = {
+        mixins: [sources_checks, sources_employees, sources_tasks, source_comments],
         props: {
             screen: String
         },
@@ -162,7 +163,6 @@
                     comment_id: '',
                 },
                 search:'',
-
             }
         },
         computed:{
@@ -180,60 +180,9 @@
             },
         },
         methods: {
-            store: function () {
-                if (this.$refs.form.validate()) {
-                    $.ajax({
-                        url: "{{route('profile.store')}}",
-                        method: "POST",
-                        dataType: "json",
-                        headers: app.headers,
-                        data: this.form,
-                        success: (response) => {
-                            this.list();
-                            this.form_view = false;
-                            if (this.form.id == "") app.notify("Perfil criado com sucesso!",
-                                "success");
-                            else app.notify("Edição salva", "success");
-                        }
-                    });
-                }
-            },
-            list: function () {
-                $.ajax({
-                    url: "{{route('emp.yourchecklist')}}",
-                    method: "GET",
-                    dataType: "json",
-                }).done(response => {
-                    this.checks = response['checks'];
-                    this.editable = response['editable'];
-                });
-            },
-            list_tasks: function () {
-                $.ajax({
-                    url: "{{route('task.list')}}",
-                    method: "GET",
-                    dataType: "json",
-                }).done(response => {
-                    this.tasks = response;
-                    this.list();
-                });
-            },
-            list_comment: function (id) {
-                this.comments = [];
-                $.ajax({
-                    url: "{{route('comment.list')}}",
-                    method: "GET",
-                    dataType: "json",
-                    data: {
-                        check_id: id,
-                    }
-                }).done(response => {
-                    this.comments = response;
-                });
-            },
             store_comment: function () {
                 $.ajax({
-                    url: "{{route('comment.store')}}",
+                    url: "route('comment.store')",
                     method: "POST",
                     dataType: "json",
                     headers: app.headers,
@@ -256,7 +205,7 @@
                 app.confirm("Deletar esse comentário?",
                     "Após deletado esse cometário não poderá ser recuperado.", "yellow darken-3", () => {
                         $.ajax({
-                            url: "{{route('comment.remove')}}",
+                            url: "route('comment.remove')",
                             method: "DELETE",
                             dataType: "json",
                             headers: app.headers,
@@ -276,7 +225,7 @@
                 };
                 form_data.status = status ? 1 : 0;
                 $.ajax({
-                    url: "{{route('check.edit')}}",
+                    url: "route('check.edit')",
                     method: "POST",
                     dataType: "json",
                     headers: app.headers,
@@ -285,16 +234,15 @@
                     app.notify("Tarefa modificada!", "success");
                 });
             },
-            mounted: function(){
-                app.setMenu('yourchecklist');
-            },
             searching: function (search) {
                     this.search = search;
-                },
+            },
         },
         mounted() {
-            this.list_tasks();
-
+            this.list_model(this.models.task);
+            this.list_model(this.models.employees);
+            this.list_model(this.models.checks);
+            this.list_model(this.models.comment);
         }
     };
 </script>
