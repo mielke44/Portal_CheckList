@@ -21,12 +21,17 @@ class TaskController extends Controller
 
     public function list(){
         $tasks = Task::all();
+
         foreach($tasks as  $t){
-            if(strlen($t->resp)>4){
-                try{$t->resp_name=Group::findOrFail($t->resp[5].$t->resp[6])->name;}
-                catch(Exception $e){$t->resp_name=Group::findOrFail($t->resp[5])->name;}
-            }else $t->resp_name = Admin::findOrFail($t->resp)->name;
+            if(strstr($t->resp,"group")){
+                $t->resp_name=Group::find(str_replace("group","",$t->resp))->name;
+            }
+            else {
+                if($t->resp==0) $t->resp_name = "Contratado";
+                else $t->resp_name = Admin::find($t->resp)->name;
+            }
         }
+
         return json_encode($tasks);
     }
 

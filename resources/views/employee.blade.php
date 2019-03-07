@@ -216,8 +216,9 @@
                                                 <td>
                                                     <v-icon v-if="data.children && data.children.length" @click="store.toggleOpen(data)">@{{data.open
                                                         ? 'expand_more' : 'expand_less'}}</v-icon>
-                                                    <v-icon v-else color='grey'>drag_indicator</v-icon>
                                                 </td>
+                                            <td v-if='check_get(data.task_id).status==1' ><v-icon color='green'>check</v-icon></td>
+                                            <td v-if='check_get(data.task_id).status==0' ><v-icon color='primary'>priority_high</v-icon></td>
                                             <td @click="store.toggleOpen(data)" >@{{data.text}} </td>
                                             <td class='grey--text'>(@{{check_get_status(data.task_id)}})</td>
 
