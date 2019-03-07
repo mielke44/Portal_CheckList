@@ -12,7 +12,7 @@
     <v-layout row wrap>
         <v-flex xs12>
             <v-expansion-panel v-model='model_checks' readonly>
-                <v-expansion-panel-content v-for='(c,i) in models.check.list' v-if='search_data[i]'>
+                <v-expansion-panel-content v-for='(c,i) in models.check.list'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs1>
@@ -21,7 +21,7 @@
                                 <v-checkbox v-else-if="c.status==-2" color="primary" v-model="c.status"
                                     indeterminate disabled></v-checkbox>
                                 <v-checkbox v-else color="primary" v-model="c.status"
-                                    @change="updateCheck(c.id,c.status)"></v-checkbox>
+                                    @change="updateCheck(c)"></v-checkbox>
                             </v-flex>
                             <v-flex xs1>
                                 <template v-if="c.status==-2">
@@ -32,7 +32,7 @@
                                 </template>
                             </v-flex>
                             <v-flex xs5 @click='model_checks=model_checks==i?-1:i'>
-                                @{{tasks.find(t=>t.id==c.task_id).name}}
+                                @{{get_model(models.task,c.task_id).name}}
                             </v-flex>
                             <v-flex xs5 @click='model_checks=model_checks==i?-1:i'>
                                 @{{c.user}}
@@ -43,7 +43,7 @@
                         <v-layout row wrap>
                             <v-flex xs6>
                                 <p class='font-weight-bold'>Descrição</p>
-                                @{{tasks.find(t=>t.id==c.task_id).description}}
+                                @{{get_model(models.task,c.task_id).description}}
                             </v-flex>
                             <v-flex xs6>
                                 <v-layout row wrap>
@@ -103,7 +103,7 @@
                         </v-layout>
                     </v-container>
                 </v-expansion-panel-content>
-                <v-expansion-panel-content v-if='checks.length==0'>
+                <v-expansion-panel-content v-if='models.check.list.length==0'>
                     <div slot="header">Nenhuma tarefa está desiginada para você</div>
                 </v-expansion-panel-content>
             </v-expansion-panel>
@@ -171,13 +171,7 @@
             }
         },
         computed:{
-            search_data: function () {
-                    var array = [];
-                    for (c of this.checks) {
-                        array.push(app.search_text(this.search,this.tasks.find(t=>t.id==c.task_id).name));
-                    }
-                    return array;
-                }
+
         },
         watch: {
             model_checks: function (val) {
@@ -224,20 +218,8 @@
                         });
                     });
             },
-            updateCheck: function (check_id, status) {
-                form_data = {
-                    check_id: check_id
-                };
-                form_data.status = status ? 1 : 0;
-                $.ajax({
-                    url: "route('check.edit')",
-                    method: "POST",
-                    dataType: "json",
-                    headers: app.headers,
-                    data: form_data
-                }).done(response => {
-                    app.notify("Tarefa modificada!", "success");
-                });
+            updateCheck: function (check) {
+                this.store_model(this.models.check,check);
             },
             searching: function (search) {
                     this.search = search;
@@ -246,9 +228,8 @@
         mounted() {
             this.list_model(this.models.task);
             this.list_model(this.models.employee);
-            this.list_model(this.models.check,{});
+            this.list_model(this.models.check,{'your': 1});
             this.list_model(this.models.comment);
-            alert(model.check.list);
         }
     };
 </script>

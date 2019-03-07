@@ -4,6 +4,7 @@ sources_checks = {
             models:{
                 check:{
                     routes:{
+                        store: routes.check_store,
                         list: routes.check_list,
                         destroy: routes.check_destroy
                     },

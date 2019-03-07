@@ -36,8 +36,9 @@ Route::get('employee/listyourchecklist', "CheckController@listYourChecks")->name
 
 
 //Check
-Route::post('employee/checkedit', "CheckController@store")->name('check_edit');
+Route::post('employee/checkedit', "CheckController@store")->name('check_store');
 Route::get('employee/check', "CheckController@list")->name('check_list');
+
 
 //Comment
 Route::post('comment/store', "CommentController@store")->name('comment_store');
