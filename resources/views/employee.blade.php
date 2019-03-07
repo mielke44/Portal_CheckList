@@ -9,323 +9,171 @@
 
 <v-container grid-list-lg>
     <!-- LISTA -->
-    <v-layout row wrap v-if="!form_view">
-        <v-flex xs3 class='text-xs-left'>
+    <v-layout row wrap>
+        <v-flex xs12 md4 class='text-xs-left'>
             <v-select solo append-icon="filter_list" v-model="filtro.type" :items="filtros" item-text="name" item-value="name"
-                label="Filtros" persistent-hint :rules='rules.profile' ></v-select>
+                label="Filtros" persistent-hint :rules='rules.profile'></v-select>
         </v-flex>
-        <v-flex>
+        <v-flex xs12 md5>
             <v-select v-model="filtro.site" :items="sites" item-text="complete_name" item-value="id" label="Site" solo
-                v-if='filtro.type=="Site"' ></v-select>
-                <v-select v-model="filtro.profile" :items="profiles" item-text="name" item-value="id" label="Perfil" solo
-                v-if='filtro.type=="Perfil"' ></v-select>
+                v-if='filtro.type=="Site"'></v-select>
+            <v-select v-model="filtro.profile" :items="models.profile.list" item-text="name" item-value="id" label="Perfil"
+                solo v-if='filtro.type=="Perfil"'></v-select>
         </v-flex>
-        <v-flex class='text-xs-right'>
+        <v-flex xs12 md3 class='text-xs-right'>
             <v-btn @click="add()" color="primary">Adicionar empregado</v-btn>
         </v-flex>
-        <v-flex xs12>
-            <v-expansion-panel v-model='model_employee'>
-                <template v-for='(em,i) in employees' >
-                <v-expansion-panel-content v-show='search_data[i]'>
-                    <div slot="header">
-                        <v-layout row wrap fill-height align-center>
-                            <v-flex xs6>
-                                @{{em.name}}
-                            </v-flex>
-                            <v-flex xs3>
-                                <p>@{{em.profile}}</p>
-                                <p class='caption'>@{{siteName(em.site)}}</p>
-                            </v-flex>
-                            <v-flex xs3 class='text-xs-right'>
-                                <a @click=''>
-                                    <span class='mr-2'>@{{em.check_true_size}}/@{{em.check_size}}</span>
-                                    <v-progress-circular rotate="-90" :value="em.check_true_size/em.check_size*100"
-                                        color="primary" class='mr-2' width='7'></v-progress-circular>
-                                </a>
-                            </v-flex>
-                        </v-layout>
-                    </div>
-                    <v-container grid-list-xs>
-                        <v-layout row wrap>
-                            <v-layout row wrap>
-                                <v-flex xs12 v-if="checklists.hasOwnProperty(em.id)">
-                                    <template v-if='checklists[em.id].length==0'>
-                                        Nenhuma lista de tarefas foi adicionado para esse empregado.
-                                    </template>
-                                    <v-tabs v-model="model_tab_checklist" slider-color="black">
-                                        <template>
-                                            <v-tab v-for="c in checklists[em.id]">@{{getTemplate(c.checklist_template_id).name}}
-                                                <v-icon @click='destroy_checklist(c.id)' class='ml-2 body-1'>clear</v-icon>
-                                            </v-tab>
-                                            <v-tab-item v-for="c in checklists[em.id]">
-                                                <v-container grid-list-xs>
-                                                    <v-layout row wrap>
-                                                        <v-flex xs5>
-                                                            <v-treeview :items="c.tree" open-all :active.sync='task_tree_active'
-                                                                activatable active-class='extra-treeview'>
-                                                                <template slot='prepend' slot-scope="{item}">
-                                                                    <div>
-                                                                        <v-checkbox v-if="item.status==-1" color="primary" v-model="item.status"
-                                                                            indeterminate disabled></v-checkbox>
-                                                                        <v-checkbox v-if="item.status==-2" color="primary" v-model="item.status"
-                                                                            indeterminate disabled></v-checkbox>
-                                                                        <v-checkbox v-else color="primary" v-model="item.status"
-                                                                            @change="count_check(item.check_id,item.status,em.id)"></v-checkbox>
-                                                                    </div>
-                                                                </template>
-                                                                <template v-if="item.status==-1" slot='append' slot-scope="{item}">
-                                                                    <v-icon color="red">warning</v-icon>
-                                                                </template>
-                                                                <template v-if="item.status==-2" slot='append' slot-scope="{item}">
-                                                                    <v-icon @click="app.notify('Esta tarefa depende de outra!','error')" color="green">error_outline</v-icon>
-                                                                </template>
-                                                            </v-treeview>
-                                                        </v-flex>
-                                                        <v-divider inset vertical></v-divider>
-                                                        <template v-if='task_tree_selected!=0'>
-                                                            <v-flex xs6>
-                                                                <v-layout row wrap>
-                                                                    <v-flex xs12 class='headline'>
-                                                                        @{{task_tree_selected.name}}
-                                                                    </v-flex>
-                                                                    <v-flex xs12 class='font-weight-bold' color='red' v-if="check_tree_selected.status==-1">
-                                                                        Expirou dia: @{{check_tree_selected.limit}}
-                                                                    </v-flex>
-                                                                    <v-flex xs12 class='font-weight-bold' v-else>
-                                                                        Expira dia: @{{check_tree_selected.limit}}
-                                                                    </v-flex>
-                                                                    <v-flex xs12>
-                                                                        <p class='body-2'>@{{task_tree_selected.description}}</p>
-                                                                        <p class='caption mt-2'>Responsável:
-                                                                            @{{resp.find(r=>r.id==check_tree_selected.resp).name}}
-                                                                            <a class='ml-2' @click='dialog_responsavel=true;form.resp=parseInt(check_tree_selected.resp)'>
-                                                                                <v-icon class='body-1' color='primary'>edit</v-icon>
-                                                                            </a>
-                                                                        </p>
-                                                                        <v-divider class='mt-2'></v-divider>
-                                                                    </v-flex>
-                                                                    <v-flex xs12>
-                                                                        <v-layout v-if='comments.length>0' row wrap>
-                                                                            <template v-for='c in comments'>
-                                                                                <v-flex xs2>
-                                                                                    <v-avatar color="grey darken-4"
-                                                                                        size='40'>
-                                                                                        <span class="white--text headline">
-                                                                                            @{{c.writer_name[0]}}</span>
-                                                                                    </v-avatar>
-                                                                                </v-flex>
-                                                                                <v-flex xs10>
-                                                                                    <v-layout row wrap>
-                                                                                        <v-flex class='font-weight-bold'
-                                                                                            xs12>
-                                                                                            @{{c.writer_name}}
-                                                                                        </v-flex>
-                                                                                        <v-flex xs12 class='caption'
-                                                                                            v-html="c.comment" style="white-space: pre-line;">
-                                                                                        </v-flex>
-                                                                                        <v-flex xs12 class='caption grey--text'>@{{c.created_at}}
-                                                                                            <template v-if='c.editable'>
-                                                                                                -
-                                                                                                <a class='ml-2' @click='dialog_comment=true;form.comment=c.comment;form.comment_id=c.id'>
-                                                                                                    <v-icon class='body-1'
-                                                                                                        color='primary'>edit</v-icon>
-                                                                                                </a>
-                                                                                                <a class='ml-2' @click='destroy_comment(c.id)'>
-                                                                                                    <v-icon class='body-1'
-                                                                                                        color='primary'>delete</v-icon>
-                                                                                                </a>
-                                                                                            </template>
-                                                                                        </v-flex>
-                                                                                    </v-layout>
-                                                                                    <v-divider></v-divider>
-                                                                                </v-flex>
-                                                                            </template>
-                                                                        </v-layout>
-                                                                        <template v-else>
-                                                                            Nenhum comentário para essa tarefa.
-                                                                        </template>
-                                                                        <v-divider class='mt-2 mb-2'></v-divider>
-                                                                    </v-flex>
-                                                                    <v-flex xs12 class='text-xs-center'>
-                                                                        <v-btn outline color="blue" dark @click='dialog_comment=true;form.comment="";form.comment_id=""'>+
-                                                                            Adicionar comentário</v-btn>
-                                                                    </v-flex>
-                                                                </v-layout>
-                                                            </v-flex>
-                                                        </template>
-                                                    </v-layout>
-                                                </v-container>
-                                            </v-tab-item>
-                                        </template>
-                                    </v-tabs>
-                                </v-flex>
-                                <v-flex xs12 v-else>
-                                    Caregando...
-                                </v-flex>
-                            </v-layout>
-                            <v-flex xs12 class='text-xs-right'>
-                                <v-btn @click="form.id=em.id; popup(em.id)" slot="activator" color="green" outline>
-                                    <v-icon dark class='mr-2'>assignment_ind</v-icon> Dados
-                                </v-btn>
-                                <v-btn @click="destroy(em.id)" color="red" outline>
-                                    <v-icon dark class='mr-2'>delete</v-icon> Remover
-                                </v-btn>
-                                <v-btn @click="form.id=em.id; popup2(em.id)" color="blue" outline>
-                                    <v-icon dark class='mr-2'>list</v-icon> Lista de tarefas
-                                </v-btn>
-                            </v-flex>
-                        </v-layout>
-                    </v-container>
-                </v-expansion-panel-content>
-            </template>
-            </v-expansion-panel>
+        <v-flex>
+            <v-card height="100%">
+                <v-list row wrap class='pa-0'>
+                    <v-item-group v-model='view.selected_employee'>
+                        <template v-for="(e,i) in models.employee.list">
+                            <v-item>
+                                <v-list-tile xs12 slot-scope="{ active, toggle }" @click=''>
+                                    <v-list-tile-content @click="toggle">
+                                        <v-list-title-title :class="active?'red--text':''">
+                                            @{{e.name}}
+                                        </v-list-title-title>
+                                    </v-list-tile-content>
+                                    <div style='display:absolute;right:0'>
+                                        <v-btn color="primary" flat fab small class='ma-0' @click='destroy_user(adm.id)'>
+                                            <v-icon> delete_outline</v-icon>
+                                        </v-btn>
+                                    </div>
+                                </v-list-tile>
 
-            <!--POPUP 1 EMPLOYEE DATA-->
-            <v-dialog v-model="dialog" max-width="500" r>
-                <v-card>
-                    <v-card-title>
-                        <p style="width:100%" class="headline text-xs-center">Dados de Empregados</p>
-                    </v-card-title>
-                    <v-card-text>
-                        <v-layout row wrap>
-                            <v-flex xs6>Nome:</v-flex>
-                            <v-flex xs6 class='font-weight-bold'>@{{form.name}}</v-flex>
-                            <v-flex xs6>Perfil:</v-flex>
-                            <v-flex xs6 class='font-weight-bold'>@{{form.profile}}</v-flex>
-                            <v-flex xs6>CPF:</v-flex>
-                            <v-flex xs6 class='font-weight-bold'>@{{form.cpf}}</v-flex>
-                            <v-flex xs6>E-mail:</v-flex>
-                            <v-flex xs6 class='font-weight-bold'>@{{form.email}}</v-flex>
-                            <v-flex xs6>Telefone:</v-flex>
-                            <v-flex xs6 class='font-weight-bold'>@{{form.fone}}</v-flex>
-                            <v-flex xs6>Gestor</v-flex>
-                            <v-flex xs6 class='font-weight-bold'>@{{gestor_name}}</v-flex>
-                            <v-flex xs6>Data admissão</v-flex>
-                            <v-flex xs6 class='font-weight-bold'>@{{form.created_at}}</v-flex>
-                        </v-layout>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue" @click=" edit(form.id)" outline dark>
-                            <v-icon class='mr-2'>edit</v-icon>Editar
-                        </v-btn>
-                        <v-btn color="red" @click="dialog = false" outline dark>
-                            <v-icon class='mr-2'>close</v-icon>Fechar
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+                            </v-item>
+                            <v-divider></v-divider>
+                        </template>
+                    </v-item-group>
+                    <v-container v-if='models.profile.list.length==0'>Nenhum empregado criado</v-container>
 
-            <!--POPUP 2 CHECKLIST DETAILS-->
-            <v-dialog v-model="dialog2" max-width="700" r>
-                <v-card>
-                    <v-card-title>
-                        <p style="width:100%" class="headline text-xs-center">Criar Lista de Tarefa</p>
-                        <h2 style="width:100%" class="subheading text-xs-center">Ao criar uma lista, o criador é considerado gerenciador desta lista</h2>
-                    </v-card-title>
-                    <v-card-text>
-                        <v-flex xs6>Lista de tarefas:</v-flex>
-                        <v-select v-model="form.checklist_template_id" :items="templates" item-text="name" item-value="id"
-                            label="Lista de tarefas" persistent-hint :rules='rules.profile' required></v-select>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="blue" @click="checklistTT(form.id); dialog2 = false" outline>
-                            <v-icon dark class='mr-2'>add_circle_outline</v-icon>Criar
-                        </v-btn>
-                        <v-btn color="red" @click="dialog2 = false" outline>
-                            <v-icon dark class='mr-2'>close</v-icon>Fechar
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+                </v-list>
 
-            <!--POPUP 3 CHECK MENU/RESP-->
-            <v-dialog v-model="dialog_responsavel" max-width="600" v-if='task_tree_selected!=0'>
-                <v-card>
-                    <v-card-text>
-                        <v-autocomplete v-model="form.resp" :items="resp" color="black" hide-no-data hide-selected
-                            item-text="name" item-value="id" label="Responsável" prepend-icon="assignment_ind"></v-autocomplete>
-                        <v-divider></v-divider>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="red" @click="updateCheck('RESP',check_tree_selected.id,null)" outline>Salvar</v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+            </v-card>
+        </v-flex>
+        <v-flex v-if='view.selected_employee > -1' xs8>
+            <v-card height="100%">
+                <v-toolbar color="primary" class='headline' dark>
+                    @{{selected_employee.name}}
+                </v-toolbar>
+                <v-container>
+                    <v-layout row wrap>
+                        <v-flex xs6>
+                            Email:
+                        </v-flex>
+                        <v-flex xs6>
+                            @{{selected_employee.email}}
+                        </v-flex>
+                        <v-flex xs6>
+                            Site:
+                        </v-flex>
+                        <v-flex xs6>
+                            @{{get_model(models.site,selected_employee.site).name}}
+                        </v-flex>
+                        <v-flex xs6>
+                            CPF:
+                        </v-flex>
+                        <v-flex xs6>
+                            @{{selected_employee.cpf}}
+                        </v-flex>
+                        <v-flex xs6>
+                            Gestor:
+                        </v-flex>
+                        <v-flex xs6>
+                            @{{get_model(models.user,selected_employee.gestor).name}}
+                        </v-flex>
+                        <v-flex xs6>
+                            Telefone:
+                        </v-flex>
+                        <v-flex xs6>
+                            @{{selected_employee.fone}}
+                        </v-flex>
+                        <v-flex xs6>
+                            Perfil:
+                        </v-flex>
+                        <v-flex xs6>
+                            @{{get_model(models.profile,selected_employee.id).name}}
+                        </v-flex>
+                        <v-flex xs12>
+                            <p class='grey--text'>Lista de tarefas</p>
+                        </v-flex>
+                        <v-flex xs12 class='text-xs-right'>
+                            <v-btn color="yellow darken-3" dark @click='edit'>
+                                <v-icon class='mr-2'>edit</v-icon>
+                                Editar
+                            </v-btn>
+                            <v-btn color="info" dark @click=''>
+                                <v-icon class='mr-2'>playlist_add</v-icon>
+                                Adicionar a lista de tarefas
+                            </v-btn>
 
-            <!--POPUP 3 CHECK MENU/COMMENT-->
-            <v-dialog v-model="dialog_comment" max-width="600" r>
-                <v-card>
-                    <v-card-title>
-                        <p style="width:100%" class="headline text-xs-center font-weight-bold">Comentario</p>
-                    </v-card-title>
-                    <v-card-text>
-                        <v-layout row wrap>
-                            <v-flex xs12>
-                                <v-textarea height=100 v-model="form.comment" :rules="rules.comment" label="Comentário"
-                                    required counter='300'></v-textarea>
-                            </v-flex>
-                        </v-layout>
-                        <v-layout row wrap>
-                        </v-layout>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="red" @click="dialog_comment = false" outline>
-                            <v-icon dark class='mr-2'>close</v-icon>Fechar
-                        </v-btn>
-                        <v-btn color="blue" @click="store_comment()" outline>
-                            <v-icon dark class='mr-2'>add_comment</v-icon>Comentar
-                        </v-btn>
-                    </v-card-actions>
-                </v-card>
-            </v-dialog>
+                        </v-flex>
+                    </v-layout>
+                </v-container>
+
+            </v-card>
         </v-flex>
     </v-layout>
 
 
     <!-- EDIT/FORM -->
-    <v-layout row wrap v-if="form_view">
-        <v-flex xs12 sm6 offset-sm3>
-            <v-card>
+    <v-dialog row wrap v-model="view.form.show" scrollable>
+        <v-card>
+            <v-toolbar color="primary" class='headline' dark>
+                Empregado
+            </v-toolbar>
+            <v-card-text>
                 <v-container grid-list-xs>
-                    <div class='display-2'>@{{form_texts.title}}</div>
                     <v-form ref='form'>
-                        <v-card-text>
-                            <v-text-field v-model="form.name" :rules="rules.name" label="Name" required></v-text-field>
-                            <v-text-field v-model="form.email" :rules="rules.email" label="E-mail" required></v-text-field>
-                            <v-select v-model="form.site" :items="sites" item-text="complete_name" item-value="id"
-                                :rules="rules.site" label="Site" persistent-hint required></v-select>
-                            <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="form.cpf" :rules="rules.cpf"
-                                label="CPF" required></v-text-field>
-                            <v-autocomplete v-model="form.resp" :items="resp" color="black" hide-no-data hide-selected
-                                item-text="name" item-value="id" label="Gestor" prepend-icon="assignment_ind"></v-autocomplete>
-                            <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="form.fone"
-                                :rules="rules.fone" label="Telefone Celular" required></v-text-field>
-                            <v-select v-model="form.profile_id" :items="profiles" item-text="name" item-value="id"
-                                label="Perfil" persistent-hint :rules='rules.profile' required></v-select>
-                            <v-btn @click="store" color="primary">@{{form_texts.button}}</v-btn>
-                        </v-card-text>
+                        <v-text-field v-model="view.form.data.name" :rules="rules.name" label="Name" required></v-text-field>
+                        <v-text-field v-model="view.form.data.email" :rules="rules.email" label="E-mail" required></v-text-field>
+                        <v-autocomplete v-model="view.form.data.site" :items="models.site.list" item-text="complete_name" item-value="id"
+                            :rules="rules.site" label="Site" persistent-hint required></v-autocomplete>
+                        <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="view.form.data.cpf"
+                            :rules="rules.cpf" label="CPF" required></v-text-field>
+                        <v-autocomplete v-model="view.form.data.gestor" :items="models.user.list" color="black" hide-no-data
+                            hide-selected item-text="name" item-value="id" label="Gestor" prepend-icon="assignment_ind"></v-autocomplete>
+                        <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="view.form.data.fone"
+                            :rules="rules.fone" label="Telefone Celular" required></v-text-field>
+                        <v-autocomplete v-model="view.form.data.profile_id" :items="models.profile.list" item-text="name" item-value="id"
+                            label="Perfil" persistent-hint :rules='rules.profile' required></v-autocomplete>
+
                     </v-form>
                 </v-container>
-            </v-card>
-        </v-flex>
-    </v-layout>
+            </v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-spacer></v-spacer>
+                <v-btn color="red" outline dark @click='view.form.show=false'>
+                    <v-icon class='mr-2'>close</v-icon>Cancelar
+                </v-btn>
+                <v-btn color="green" outline dark @click=''>
+                    <v-icon class='mr-2'>save</v-icon>Salvar
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 
     @endsection
 
     @section('l-js')
+    <script src='{{asset("sources/profiles.js")}}'></script>
+    <script src='{{asset("sources/checklists_template.js")}}'></script>
+    <script src='{{asset("sources/tasks.js")}}'></script>
+    <script src='{{asset("sources/employees.js")}}'></script>
+    <script src='{{asset("plugins/nestable/nestable.js")}}'></script>
+
     <script>
         vue_page = {
-            props: {
-                screen: String
+            mixins: [sources_profiles, sources_checklists_template, sources_tasks, sources_employees],
+            components: {
+                Tree: vueDraggableNestedTree.DraggableTree
             },
             data() {
                 return {
                     commentedit: -1,
-                    filtros: ['Site', 'Gestor', 'Perfil' ,'Todos'],
+                    filtros: ['Site', 'Gestor', 'Perfil', 'Todos'],
                     filtro: {
                         type: 'Gestor',
                         site: '',
@@ -338,8 +186,8 @@
                     dialog2: false,
                     dialog_comment: false,
                     dialog_responsavel: false,
-                    employees:[],
-                    dependencies:[],
+                    employees: [],
+                    dependencies: [],
                     profiles: [],
                     checklists: {},
                     tasks: {},
@@ -395,9 +243,20 @@
 
                     },
                     search: '',
+
+                    view: {
+                        selected_employee: -1,
+                        form: {
+                            show: false,
+                            data: {},
+                        }
+                    }
                 }
             },
             computed: {
+                selected_employee: function () {
+                    return this.models.employee.list[this.view.selected_employee];
+                },
                 task_tree_selected: function () {
                     if (this.task_tree_active.length == 0) return 0;
                     this.list_comment(this.getCheckByTask(this.task_tree_active[0]).id);
@@ -417,28 +276,25 @@
                     var array = [];
                     this.model_employee = null;
                     for (e of this.employees) {
-                        switch(this.filtro.type){
+                        switch (this.filtro.type) {
                             case 'Gestor':
-                                if(e.gestor==app.user.id){
-                                    array.push(app.search_text(this.search,e.name));
-                                }
-                                else array.push(false);
-                            break;
+                                if (e.gestor == app.user.id) {
+                                    array.push(app.search_text(this.search, e.name));
+                                } else array.push(false);
+                                break;
                             case 'Site':
-                                if(e.site==this.filtro.site){
-                                    array.push(app.search_text(this.search,e.name));
-                                }
-                                else array.push(false);
-                            break;
+                                if (e.site == this.filtro.site) {
+                                    array.push(app.search_text(this.search, e.name));
+                                } else array.push(false);
+                                break;
                             case 'Perfil':
-                                if(e.profile_id==this.filtro.profile){
-                                    array.push(app.search_text(this.search,e.name));
-                                }
-                                else array.push(false);
-                            break;
+                                if (e.profile_id == this.filtro.profile) {
+                                    array.push(app.search_text(this.search, e.name));
+                                } else array.push(false);
+                                break;
                             case 'Todos':
-                                array.push(app.search_text(this.search,e.name));
-                            break;
+                                array.push(app.search_text(this.search, e.name));
+                                break;
                         }
                     }
                     return array;
@@ -455,23 +311,18 @@
             },
             methods: {
                 add: function () {
-                    this.form_view = true;
-                    this.form_texts.title = "Criar Empregado";
-                    this.form_texts.button = "Criar";
-                    this.form = {
-                        id: "",
-                        name: '',
-                        type: '',
-                        dependences: '',
-                        site: '',
-                    }
+                    this.view.form.data = {}
+                    Vue.nextTick(()=>{
+                        this.$refs.form.reset();
+                    });
+                    this.view.form.show = true;
                 },
-
+                store: function () {},
 
 
                 list_admin: function () {
                     $.ajax({
-                        url: "{{route('admin.list')}}",
+                        url: "route('admin.list')",
                         method: "GET",
                         dataType: "json",
                     }).done(response => {
@@ -481,26 +332,13 @@
                         this.list_group();
                     });
                 },
-                edit: function (id) {
-                    $.ajax({
-                        url: "{{route('emp.edit')}}",
-                        method: "GET",
-                        dataType: "json",
-                        data: {
-                            id: id
-                        },
-                    }).done(response => {
-                        this.form_texts.title = "Editar Perfil";
-                        this.form_texts.button = "Salvar";
-                        this.form = response;
-                        this.gestor_name = response['gestor_name'];
-                        this.form_view = true;
-                        this.dialog = false;
-                    });
+                edit: function () {
+                    this.view.form.data = Object.assign({}, this.selected_employee);
+                    this.view.form.show = true;
                 },
                 popup: function (id) {
                     $.ajax({
-                        url: "{{route('emp.edit')}}",
+                        url: "route('emp.edit')",
                         method: "GET",
                         dataType: "json",
                         data: {
@@ -523,7 +361,7 @@
                     app.confirm("Deletar esse empregado?",
                         "Todas as informações desse empregado serão deletadas.", "red", () => {
                             $.ajax({
-                                url: "{{route('emp.remove')}}",
+                                url: "route('emp.remove')",
                                 method: "DELETE",
                                 dataType: "json",
                                 headers: app.headers,
@@ -547,18 +385,10 @@
                 searching: function (search) {
                     this.search = search;
                 },
-                mounted: function () {
-                    app.setMenu('employee');
-                    this.filtro.site = parseInt(app.user.site);
-                }
             },
             mounted() {
-                this.list_profile();
-                this.list_ChecklistTemplate();
-                this.list_sites();
-                this.list_admin();
-                this.list_tasks();
-                this.list();
+                this.list_model(this.models.employee);
+                this.list_model(this.models.profile);
             }
         };
     </script>

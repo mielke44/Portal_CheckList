@@ -286,7 +286,7 @@
                         icon: "face",
                         text: "Empregados",
                         visible_external: false,
-                        link: routes.employees
+                        link: routes.employee
                     },
                     {
                         icon: "event_note",
