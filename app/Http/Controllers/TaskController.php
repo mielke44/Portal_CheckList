@@ -20,6 +20,7 @@ class TaskController extends Controller
     }
 
     public function list(){
+
         $tasks = Task::all();
 
         foreach($tasks as  $t){
@@ -50,7 +51,7 @@ class TaskController extends Controller
 
     public function edit(Request $request){
         $task = Task::findOrFail($request["id"]);
-        if(strlen($task->resp)>4){
+        if(strlen($task->resp)==7){
             try{$task->resp_name=Group::findOrFail($task->resp[5].$task->resp[6])->name;}
             catch(Exception $e){$task->resp_name=Group::findOrFail($task->resp[5])->name;}
         }else $task->resp_name = Admin::findOrFail($task->resp)->name;
