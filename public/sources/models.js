@@ -49,6 +49,13 @@ sources_model = {
                 if(model.list[i].id == id)return model.list[i];
             }
             return null;
+        },
+        group_model: function(model,field,id){
+            var array = [];
+            for(i=0;i<model.list.length;i++){
+                if(model.list[i][field] == id)return array.push(model.list[i]);
+            }
+            return array;
         }
     }
 }

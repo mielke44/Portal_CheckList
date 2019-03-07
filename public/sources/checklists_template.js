@@ -18,7 +18,7 @@ sources_checklists_template = {
     methods:{
         template_tree(id,callback){
             $.ajax({
-                url: routes.template_array,
+                url: routes.template_tree,
                 method: "GET",
                 dataType: "json",
                 data: {
@@ -27,6 +27,6 @@ sources_checklists_template = {
             }).done(response => {
                 callback(response);
             });
-        }
+        },
     }
 }
