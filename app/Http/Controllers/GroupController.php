@@ -18,6 +18,7 @@ class GroupController extends Controller
             $group = Group::findOrFail($r['id']);
         }
         $group->name = $r['name'];
+        $group->email = $r['email'];
         if($group->save()){
             User::where('group',$group->id)->update(['group'=>0]);
             if(isset($r['team'])){

@@ -22,9 +22,9 @@ class TaskController extends Controller
     public function list(){
         $tasks = Task::all();
         foreach($tasks as  $t){
-            if($t->resp==='0')$t->resp_name='Contratado';
-            else if(strlen($t->resp)>5){
-                $t->resp_name=Group::findOrFail($t->resp[5])->name;
+            if(strlen($t->resp)>4){
+                try{$t->resp_name=Group::findOrFail($t->resp[5].$t->resp[6])->name;}
+                catch(Exception $e){$t->resp_name=Group::findOrFail($t->resp[5])->name;}
             }else $t->resp_name = Admin::findOrFail($t->resp)->name;
         }
         return json_encode($tasks);
@@ -45,9 +45,10 @@ class TaskController extends Controller
 
     public function edit(Request $request){
         $task = Task::findOrFail($request["id"]);
-        if(strlen($request['resp'])>1){
-            $task->resp='group'.Group::findOrFail($request['resp'][5])->id;
-        }
+        if(strlen($task->resp)>4){
+            try{$task->resp_name=Group::findOrFail($task->resp[5].$task->resp[6])->name;}
+            catch(Exception $e){$task->resp_name=Group::findOrFail($task->resp[5])->name;}
+        }else $task->resp_name = Admin::findOrFail($task->resp)->name;
         return json_encode($task);
     }
 

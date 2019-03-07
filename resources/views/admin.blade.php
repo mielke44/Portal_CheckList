@@ -158,6 +158,8 @@
                 <v-flex xs12>
                     <v-text-field v-model='view.group.form.data.name' :rules="rules.name" label='Nome do grupo'
                         required></v-text-field>
+                    <v-text-field v-model='view.group.form.data.email' :rules="rules.email" label='E-Mail do grupo'
+                        required></v-text-field>
                 </v-flex>
                 <v-flex xs12>
                     <v-list class='pa-0' style='max-height:300px;overflow:auto'>
@@ -235,6 +237,10 @@
                         name: [
                             v => !!v || 'Campo obrigatório',
                             v => (v && v.length <= 25) || 'Máximo 25 caracteres'
+                        ],
+                        email: [
+                            v => !!v || 'E-mail é obrigatório!',
+                            v => /.+@.+/.test(v) || 'E-mail deve ser válido!'
                         ],
                 },
                 search: '',

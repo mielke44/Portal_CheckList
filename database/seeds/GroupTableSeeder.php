@@ -14,6 +14,7 @@ class GroupTableSeeder extends Seeder
     {
         DB::table('group')->insert([
             'name' => "Mobile Apps",
+            'email' => "mobile.apps@t-systems.com.br",
             'created_at' => Carbon::now()
         ]);
     }
