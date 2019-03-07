@@ -20,10 +20,14 @@ class TaskController extends Controller
     }
 
     public function list(){
+        
         $tasks = Task::all();
         foreach($tasks as  $t){
-            if(strlen($t->resp)>4){
+            if(strlen($t->resp)==7){
                 try{$t->resp_name=Group::findOrFail($t->resp[5].$t->resp[6])->name;}
+                catch(Exception $e){$t->resp_name=Group::findOrFail($t->resp[5].$t->resp[6])->name;}
+            }else if(strlen($t->resp)==6){
+                try{$t->resp_name=Group::findOrFail($t->resp[5])->name;}
                 catch(Exception $e){$t->resp_name=Group::findOrFail($t->resp[5])->name;}
             }else $t->resp_name = Admin::findOrFail($t->resp)->name;
         }
@@ -45,7 +49,7 @@ class TaskController extends Controller
 
     public function edit(Request $request){
         $task = Task::findOrFail($request["id"]);
-        if(strlen($task->resp)>4){
+        if(strlen($task->resp)==7){
             try{$task->resp_name=Group::findOrFail($task->resp[5].$task->resp[6])->name;}
             catch(Exception $e){$task->resp_name=Group::findOrFail($task->resp[5])->name;}
         }else $task->resp_name = Admin::findOrFail($task->resp)->name;

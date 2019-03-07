@@ -12,7 +12,7 @@
     <v-layout row wrap>
         <v-flex xs12>
             <v-expansion-panel v-model='model_checks' readonly>
-                <v-expansion-panel-content v-for='(c,i) in checks' v-if='search_data[i]'>
+                <v-expansion-panel-content v-for='(c,i) in models.check.list' v-if='search_data[i]'>
                     <div slot="header">
                         <v-layout row wrap fill-height align-center>
                             <v-flex xs1>
@@ -248,6 +248,7 @@
             this.list_model(this.models.employee);
             this.list_model(this.models.check,{});
             this.list_model(this.models.comment);
+            alert(model.check.list);
         }
     };
 </script>

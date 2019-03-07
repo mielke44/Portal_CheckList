@@ -38,14 +38,15 @@ class CheckController extends Controller
             $text = '';
             $name = '';
 
-
             //Setando a array de destinatários
-            if($Check['resp']==='0'){
-                array_push($receiver['admin'],$checklist->gestor);
-                array_push($receiver['emp'],$checklist->employee_id);
-            }else if(strlen($Check['resp'])>5){
+            if(strlen($Check['resp'])==6){
                 $name=Group::findOrFail($Check['resp'][5])->name;
                 foreach(Admin::where('group',$Check['resp'][5])->get() as $adm){
+                    array_push($receiver['admin'],$adm->id);
+                }
+            }else if(strlen($Check['resp'])==7){
+                $name=Group::findOrFail($Check['resp'][5].$Check['resp'][6])->name;
+                foreach(Admin::where('group',$Check['resp'][5].$Check['resp'][6])->get() as $adm){
                     array_push($receiver['admin'],$adm->id);
                 }
             }else{
@@ -66,11 +67,17 @@ class CheckController extends Controller
                     if($checklist_template->tasks()->where('task_id',$superior_check->id)->count()==$tempstat){
                         $superior_check->status=0;
                         $superior_check->save();
-                        if($superior_check->resp==0)event(new CheckUpdateEvent($superior_check,"Está liberada pra ser concluída!","",array('employee'=>$superior_check->resp)));
-                        else if(strlen($superior_check->resp)!=1){
+                        if(strlen($superior_check->resp)==6){
                             $group = Group::findOrFail($request['resp'][5]);
                             $temparray=array('admin'=>[]);
                             foreach(Admin::where('group',$request['resp'][5])->get() as $adm){
+                                array_push($temparray['admin'],$adm->id);
+                            }
+                            event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",$temparray));
+                        }else if(strlen($superior_check->resp)==7){
+                            $group = Group::findOrFail($request['resp'][5].$request['resp'][6]);
+                            $temparray=array('admin'=>[]);
+                            foreach(Admin::where('group',$request['resp'][5].$request['resp'][6])->get() as $adm){
                                 array_push($temparray['admin'],$adm->id);
                             }
                             event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",$temparray));
@@ -100,15 +107,16 @@ class CheckController extends Controller
             }
         }else if($request['resp']!=''){
             //Alteração de responsável da tarefa
-            if($request['resp']==='0'){
-                $resp = Employee::findOrFail($checklist->employee_id);
-                array_push($receiver['admin'],$checklist->gestor,$resp->gestor);
-                array_push($receiver['emp'],$checklist->employee_id);
-                $name=$resp->name;
-            }else if(strlen($request['resp'])>1){
+            if(strlen($request['resp'])==6){
                 $group = Group::findOrFail($request['resp'][5]);
                 $name=$group->name;
                 foreach(Admin::where('group',$request['resp'][5])->get() as $adm){
+                    array_push($receiver['admin'],$adm->id);
+                }
+            }else if(strlen($request['resp'])==7){
+                $group = Group::findOrFail($request['resp'][5].$request['resp'][6]);
+                $name=$group->name;
+                foreach(Admin::where('group',$request['resp'][5].$request['resp'][6])->get() as $adm){
                     array_push($receiver['admin'],$adm->id);
                 }
             }else{
@@ -133,11 +141,12 @@ class CheckController extends Controller
 
     public static function createCheck($template_id,$Checklist_id){
         $user_id = Auth::user();
-
+        
         foreach(ChecklistTemplate::find($template_id)->tasks()->get() as $ct){
+            $receiver = array('admin'=>[],'emp'=>[]);
 
             $task =Task::findOrFail($ct["id"]);
-            //$text = 'foi selecionado como responsável da tarefa: '.$task->name;
+            $text = 'foi selecionado como responsável da tarefa: '.$task->name;
 
             $check = new Check();
             if($task->limit>0){
@@ -167,28 +176,31 @@ class CheckController extends Controller
 
             $check->task_id = $ct['id'];
             $check->checklist_id = $Checklist_id;
-            if($task->resp==='0'){
-                $check->resp = 0;
-                $name=Employee::findOrFail(Checklist::findOrFail($Checklist_id)['employee_id'])['name'];
-            }else if(strlen($task->resp)>5){
-                $check->resp = $task->resp;
-                $name=Group::findOrFail($check->resp[5])->name;
-                foreach(Admin::where('group',$task->resp[5])->get() as $adm)array_push($receiver['admin'],$adm->id);
+            $check->resp = $task->resp;
+            if(strlen($task->resp)==7){
+                    $name=Group::findOrFail($check->resp[5].$check->resp[6])->name;
+                    foreach(Admin::where('group',$task->resp[5].$task->resp[6])->get() as $adm)array_push($receiver['admin'],$adm->id);
+            }else if(strlen($task->resp)==6){
+                    $name=Group::findOrFail($check->resp[5])->name;
+                    foreach(Admin::where('group',$task->resp[5])->get() as $adm)array_push($receiver['admin'],$adm->id);
             }else{
                 $check->resp = $task->resp;
                 $name=Admin::findOrFail($check->resp)['name'];
-                //array_push($receiver['admin'],Admin::findOrFail($check->resp)['id']);
+                array_push($receiver['admin'],Admin::findOrFail($check->resp)['id']);
             }
             $type=2;
-            if($check->save()){
+            try{
+                $check->save();
+                if(isset(DB::table('linker_checklist')->where('check_id',$check->id)->get()['check_id_below'])){
+                    $check->status= -2;
+                    $check->save();
+                }
+            }
+            catch(Exception $e){
+                return json_encode(['error'=>false,'message'=>$e->toString()]);
             }
         }
-
-        return(json_encode(array('error'=> true,
-                                    'message'=>'Ocorreu um erro, tente novamente!')));
     }
-
-
 
     public function list(Request $r){
         $notification = Notification::findOrFail($r['not_id']);
@@ -227,9 +239,12 @@ class CheckController extends Controller
         date_default_timezone_set('America/Sao_Paulo');
         foreach(Check::where('status',0)->get() as $c){
             $receiver=array('admin'=>[],'emp'=>[Checklist::findOrFail($c->checklist_id)['employee_id']]);
-            if($c->resp==='0'){
-            }else if(strlen($c->resp)>5){
+            if(strlen($c->resp)==6){
                 foreach(Admin::where('group',$c->resp[5])->get() as $adm){
+                    array_push($receiver['admin'],$adm->id);
+                }
+            }else if(strlen($c->resp)==7){
+                foreach(Admin::where('group',$c->resp[5].$c->resp[6])->get() as $adm){
                     array_push($receiver['admin'],$adm->id);
                 }
             }else{
