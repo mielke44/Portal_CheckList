@@ -46,7 +46,7 @@
                             <v-divider></v-divider>
                         </template>
                     </v-item-group>
-                    <v-container v-if='models.profile.list.length==0'>Nenhum empregado criado</v-container>
+                    <v-container v-if='models.employee.list.length==0'>Nenhum empregado criado</v-container>
 
                 </v-list>
 
@@ -96,7 +96,25 @@
                             @{{get_model(models.profile,selected_employee.id).name}}
                         </v-flex>
                         <v-flex xs12>
-                            <p class='grey--text'>Lista de tarefas</p>
+                                <p class='grey--text'>Lista de tarefas</p>
+                                <v-list style='max-height:200px;overflow:auto'>
+                                    <template v-for='t in models.checklist.list'>
+                                        <v-list-tile>
+                                            <v-list-tile-content>
+                                                <v-list-tile-title @click='' style='cursor:pointer'>@{{get_model(models.template,t.checklist_template_id).name}}</v-list-tile-title>
+                                            </v-list-tile-content>
+                                            <div style='position:absolute;right:0'>
+                                                <v-btn color="primary" class='ma-0' dark fab small flat @click='destroy_checklist(t.id)'>
+                                                    <v-icon> delete_outline</v-icon>
+                                                </v-btn>
+                                            </div>
+                                        </v-list-tile>
+                                        <v-divider></v-divider>
+                                    </template>
+                                    <template v-if='models.checklist.list.length == 0'>
+                                        Nenhuma lista de tarefas foi adicionada para esse usuário
+                                    </template>
+                                </v-list>
                         </v-flex>
                         <v-flex xs12 class='text-xs-right'>
                             <v-btn color="yellow darken-3" dark @click='edit'>
@@ -170,7 +188,7 @@
             </v-container>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="green" outline dark @click=''>
+                <v-btn color="green" outline dark @click='add_checklist()'>
                     <v-icon class='mr-2'>save</v-icon>Adicionar
                 </v-btn>
             </v-card-actions>
@@ -182,13 +200,14 @@
     @section('l-js')
     <script src='{{asset("sources/profiles.js")}}'></script>
     <script src='{{asset("sources/checklists_template.js")}}'></script>
+    <script src='{{asset("sources/checklists.js")}}'></script>
     <script src='{{asset("sources/tasks.js")}}'></script>
     <script src='{{asset("sources/employees.js")}}'></script>
     <script src='{{asset("plugins/nestable/nestable.js")}}'></script>
 
     <script>
         vue_page = {
-            mixins: [sources_profiles, sources_checklists_template, sources_tasks, sources_employees],
+            mixins: [sources_profiles, sources_checklists_template, sources_tasks, sources_employees,sources_checklists],
             components: {
                 Tree: vueDraggableNestedTree.DraggableTree
             },
@@ -281,6 +300,7 @@
             },
             computed: {
                 selected_employee: function () {
+                    if(this.view.selected_employee != -1)this.list_model(this.models.checklist,{id:this.models.employee.list[this.view.selected_employee].id});
                     return this.models.employee.list[this.view.selected_employee];
                 },
                 task_tree_selected: function () {
@@ -358,13 +378,33 @@
                         "Deseja mesmo deletar esse empregado? Todas sas informações e listas de tarefas serão removidas",
                         "red", () => {
                             this.destroy_model(this.models.employee, id, () => {
-                                this.notify("Empregado deletado com sucesso", "red");
+                                this.notify("Empregado deletado", "red");
                                 this.list_model(this.models.employee);
                             });
                         });
 
                 },
+                add_checklist: function(){
+                    this.store_model(this.models.checklist,{
+                        employee_id: this.selected_employee.id,
+                        template_id: this.view.new_checklist.id
+                    },()=>{
+                        this.notify("Lista de tarefas adicionada","green");
+                        this.list_model(this.models.checklist,{id:this.selected_employee.id});
+                        this.view.new_checklist.show = false;
+                    });
+                },
+                destroy_checklist: function (id) {
+                    this.confirm("Confirmação",
+                        "Deseja mesmo deletar essa lista de tarefas?",
+                        "red", () => {
+                            this.destroy_model(this.models.checklist, id, () => {
+                                this.notify("lista de tarefaa deletada", "red");
+                                this.list_model(this.models.checklist,{id:this.selected_employee.id});
+                            });
+                        });
 
+                },
 
                 list_admin: function () {
                     $.ajax({

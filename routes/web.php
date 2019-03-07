@@ -26,10 +26,11 @@ Route::delete('employee/destroy', "EmployeeController@destroy")->name('employee_
 
 
 //Checklist
-Route::get('employee/checklist', "ChecklistController@index")->name('checklist_employee');
-Route::get('employee/checklist/complete/{id}', "ChecklistController@completeCheckList")->name('checklist_complete');
 Route::post('employee/checklist/store', "ChecklistController@store")->name('checklist_store');
-Route::delete('employee/checklist/destroy', "ChecklistController@destroy")->name('checklist_employee_remove');
+Route::get('employee/checklist', "ChecklistController@list")->name('checklist_list');
+Route::delete('employee/checklist/destroy', "ChecklistController@destroy")->name('checklist_destroy');
+
+Route::get('employee/checklist/complete/{id}', "ChecklistController@completeCheckList")->name('checklist_complete');
 Route::get('employee/yourchecklist', "CheckController@YourChecklist")->name('emp_yourchecklist_view');
 Route::get('employee/listyourchecklist', "CheckController@listYourChecks")->name('emp_yourchecklist');
 
