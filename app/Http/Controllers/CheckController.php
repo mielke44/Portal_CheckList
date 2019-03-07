@@ -203,11 +203,8 @@ class CheckController extends Controller
     }
 
     public function list(Request $r){
-        $notification = Notification::findOrFail($r['not_id']);
-        $notification->status = 'seen';
-        $notification->save();
-        $check = Check::findOrFail($notification->check_id);
-        return json_encode($check);
+        $checks = Check::where("checklist_id",$r['checklist_id'])->get();
+        return json_encode($checks);
     }
 
     public function listYourChecks(){

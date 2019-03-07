@@ -4,7 +4,7 @@ sources_checks = {
             models:{
                 check:{
                     routes:{
-                        list: routes.emp_yourchecklist,
+                        list: routes.check_list,
                         destroy: routes.check_destroy
                     },
                     list:[]
@@ -12,4 +12,19 @@ sources_checks = {
             }
         }
     },
+    methods:{
+        check_get(task_id){
+            for(c of this.models.check.list){
+                if(c.task_id == task_id)return c;
+            }
+            return null;
+        },
+        check_get_status(task_id){
+            status = this.check_get(task_id).status
+            if(status==0)return "Aberto";
+            else if(status==1)return "Concluído";
+            else if(status==-1)return "Expirado";
+            else if(status==-2)return "Bloqueado";
+        },
+    }
 }
