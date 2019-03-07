@@ -81,43 +81,46 @@
         <v-flex s12>
             <v-card>
                 <v-container grid-list-xs>
-                    <v-form ref='form'>
-                        <v-layout row wrap>
-                            <v-flex xs12 class='display-3'>
-                                Criar Tarefa
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-text-field v-model="view.form.data.name" label="Tarefa" required :rules="rules.name" counter='25'></v-text-field>
+                    <v-card-title primary-title class='display-3'>
+                        Criar Tarefa
+                    </v-card-title>
+                    <v-card-text>
+                        <v-form ref='form'>
+                            <v-layout row wrap>
+                                <v-flex xs12>
+                                    <v-text-field v-model="view.form.data.name" label="Tarefa" required :rules="rules.name"
+                                        counter='25'></v-text-field>
 
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-textarea v-model="view.form.data.description" label="Descrição" :rules="rules.description"
-                                    required counter='300'></v-textarea>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-textarea v-model="view.form.data.description" label="Descrição" :rules="rules.description"
+                                        required counter='300'></v-textarea>
 
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-autocomplete v-model="view.form.data.resp" :items="user_resp_array" item-text="name"
-                                    item-value="id" label="Responsável padrão" hide-no-data hide-selected></v-autocomplete>
-                            </v-flex>
-                            <v-flex xs12>
-                                <v-select v-model="view.form.data.type" :items="types" item-text="text" item-value="text" :rules="rules.type"
-                                    label="Tipo de tarefa" persistent-hint single-line required></v-select>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-autocomplete v-model="view.form.data.resp" :items="user_resp_array" item-text="name"
+                                        item-value="id" label="Responsável padrão" hide-no-data hide-selected></v-autocomplete>
+                                </v-flex>
+                                <v-flex xs12>
+                                    <v-select v-model="view.form.data.type" :items="types" item-text="text" item-value="text"
+                                        :rules="rules.type" label="Tipo de tarefa" persistent-hint single-line required></v-select>
 
-                            </v-flex>
-                            <v-flex xs12 shrink class="pl-2">
-                                <v-text-field suffix="Dias" placeholder='Limite de tempo' v-model="view.form.data.limit"
-                                    single-line type="number"></v-text-field>
-                            </v-flex>
-                            <v-flex xs12 class='text-xs-right'>
-                                <v-btn @click="view.form.show=false" color="red" dark>
+                                </v-flex>
+                                <v-flex xs12 shrink class="pl-2">
+                                    <v-text-field suffix="Dias" placeholder='Limite de tempo' v-model="view.form.data.limit"
+                                        single-line type="number"></v-text-field>
+                                </v-flex>
+                            </v-layout>
+                        </v-form>
+                    </v-card-text>
+                    <v-card-actions class='text-xs-right'>
+                            <v-btn @click="view.form.show=false" color="red" dark>
                                     <v-icon class='mr-2'>close</v-icon>Voltar
                                 </v-btn>
                                 <v-btn @click="store" color="green" dark>
                                     <v-icon class='mr-2'>save</v-icon>Salvar
                                 </v-btn>
-                            </v-flex>
-                        </v-layout>
-                    </v-form>
+                    </v-card-actions>
                 </v-container>
             </v-card>
         </v-flex>
@@ -141,9 +144,9 @@
         data() {
             return {
                 view: {
-                    form:{
+                    form: {
                         show: false,
-                        data:{}
+                        data: {}
                     }
                 },
                 rules: {

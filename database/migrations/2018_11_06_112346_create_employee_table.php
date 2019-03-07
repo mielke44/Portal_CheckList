@@ -18,10 +18,10 @@ class CreateEmployeeTable extends Migration
             $table->string('name');
             $table->string('email');
             $table->string('cpf');
-            $table->string('site');
+            $table->integer('site');
             $table->integer('profile_id');
             $table->string('fone');
-            $table->string('gestor');
+            $table->integer('gestor');
             $table->string('token');
             $table->timestamps();
         });

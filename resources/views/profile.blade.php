@@ -61,7 +61,7 @@
             </v-card>
         </v-flex>
 
-        <v-flex v-if='view.selected_profile > -1' xs8>
+        <v-flex v-if='view.selected_profile > -1' sl8 md8>
             <v-card height="100%">
                 <v-toolbar color="primary" class='headline' dark>
                     Informações do perfil
