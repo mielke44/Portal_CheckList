@@ -140,7 +140,7 @@
                         </v-btn>
                     </v-flex>
                     <v-flex xs6>
-                        <v-btn class="pa-0 ma-0" color="white" depressed block @click="clearnot">
+                        <v-btn class="pa-0 ma-0" color="white" depressed block @click="notif_clear">
                             <v-icon>delete</v-icon>
                         </v-btn>
                     </v-flex>

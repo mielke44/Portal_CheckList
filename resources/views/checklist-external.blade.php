@@ -143,11 +143,16 @@
 @endsection
 
 @section('l-js')
+<script src='{{asset("sources/comments.js")}}'></script>
+<script src='{{asset("sources/employees.js")}}'></script>
+<script src='{{asset("sources/tasks.js")}}'></script>
+<script src='{{asset("sources/checks.js")}}'></script>
+
 <script>
-    vue_page = {
-        mixins: [sources_checks, sources_employees, sources_tasks, source_comments],
-        props: {
-            screen: String
+        vue_page = {
+            mixins: [sources_checks, sources_employees, sources_tasks, sources_comments],
+            props: {
+                screen: String
         },
         data() {
             return {
@@ -240,8 +245,8 @@
         },
         mounted() {
             this.list_model(this.models.task);
-            this.list_model(this.models.employees);
-            this.list_model(this.models.checks);
+            this.list_model(this.models.employee);
+            this.list_model(this.models.check,{});
             this.list_model(this.models.comment);
         }
     };
