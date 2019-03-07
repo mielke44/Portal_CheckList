@@ -24,15 +24,14 @@ class ChecklistTemplateController extends Controller
     }
 
     public function store(Request $request){
+        $pid = $request['profile_id'];
         if(isset($request['id'])) $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
         $clist->tasks()->detach();
-        $clist->profiles()->detach();
         $clist->name=$request['name'];
+        $clist->profile_id = $pid;
         try{
             $clist->save();
-            $pid = $request['profile_id'];
-            $clist->profiles()->attach($pid,['profile_id'=>$pid,'checklist_template_id'=>$clist->id]);
             if(isset($request['tasks']))ChecklistTemplateController::taskDepAttach($clist,$request['tasks'],null);
             return json_encode(['error'=>false,'message'=>'Profile: '.$pid.'-- Template: '.$clist->id]);
         }catch(Exception $e){
@@ -73,29 +72,31 @@ class ChecklistTemplateController extends Controller
 
     public function edit(Request $request){
         $clist = ChecklistTemplate::findOrFail($request["id"]);
-        $profileLinker = $clist->profiles();
         $clinker = $clist->tasks();
         $profile_id=[];
         $dep = array();
-        foreach($profileLinker as $p){
-            array_push($profile_id,$p->profile_id);
-        }
         foreach($clinker as $cl){
             $taskdep = Task::find($cl->task_id);
             $dep[]=$taskdep->id;
         }
         $clist->dependences = $dep;
-        $clist->profile_id = $profile_id;
         return $clist;
     }
 
     public function destroy(Request $request){
         $clist = ChecklistTemplate::findOrFail($request["id"]);
         $clist->tasks()->detach();
-        $clist->profiles()->detach();
         if($clist->delete()){
             return json_encode(array('success'=>"true"));
         }
         else return json_encode(array('error'=>"true"));
+    }
+
+    public function getCheckLists(Request $r){
+        $checklists = ChecklistTemplate::where('profile_id',$r['id'])->get();
+        foreach($checklists as $clist){
+            $clist->tasks = ChecklistTemplateController::listTasks($clist);
+        }
+        return json_encode($checklists);
     }
 }

@@ -22,14 +22,6 @@ class ProfileController extends Controller
         return json_encode(Profile::all());
     }
 
-    public function getCheckLists(Request $r){
-        $checklists = Profile::find($r['id'])->checklists()->get();
-        foreach($checklists as $clist){
-            $clist->tasks = ChecklistTemplateController::listTasks($clist);
-        }
-        return json_encode($checklists);
-    }
-
     public function store(Request $request){
         if($request["id"] != "") $profile = Profile::find($request["id"]);
         else $profile = new Profile();
@@ -46,9 +38,8 @@ class ProfileController extends Controller
     public function destroy(Request $request){
         $profile= Profile::findOrFail($request["id"]);
         $emp = Employee::where('profile_id',$profile->id);
-        foreach($profile->checklists()->get() as $clinker){
+        foreach(ChecklistTemplate::where('profile_id',$profile->id)->get() as $clinker){
             $clinker->tasks()->detach();
-            $clinker->profiles()->detach();
             $clinker->delete();
 
         }
