@@ -160,7 +160,7 @@ class CheckController extends Controller
                 $check->limit = $date;
             }else $check->limit='Não há uma data para expirar!';
 
-            if(isset(DB::table('linkerChecklist')->where('checklist_id',$Checklist_id)->where('task_id',$task->id)->get()[0]->task_id_below)) $check->status=-2;
+            if(DB::table('linker_checklist')->where('checklist_template_id',$template_id)->where('task_id',$task->id)->get()[0]->task_id_below!='') $check->status=-2;
             else $check->status = 0;
 
             $check->task_id = $ct['id'];
@@ -180,7 +180,7 @@ class CheckController extends Controller
             $type=2;
             try{
                 $check->save();
-                if(isset(DB::table('linker_checklist')->where('check_id',$check->id)->get()['check_id_below'])){
+                if(isset(DB::table('linker_checklist')->where('task_id',$check->id)->get()['task_id_below'])){
                     $check->status= -2;
                     $check->save();
                 }
