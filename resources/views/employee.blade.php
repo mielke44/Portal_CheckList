@@ -96,25 +96,25 @@
                             @{{get_model(models.profile,selected_employee.id).name}}
                         </v-flex>
                         <v-flex xs12>
-                                <p class='grey--text'>Lista de tarefas</p>
-                                <v-list style='max-height:200px;overflow:auto'>
-                                    <template v-for='t in models.checklist.list'>
-                                        <v-list-tile>
-                                            <v-list-tile-content>
-                                                <v-list-tile-title @click='' style='cursor:pointer'>@{{get_model(models.template,t.checklist_template_id).name}}</v-list-tile-title>
-                                            </v-list-tile-content>
-                                            <div style='position:absolute;right:0'>
-                                                <v-btn color="primary" class='ma-0' dark fab small flat @click='destroy_checklist(t.id)'>
-                                                    <v-icon> delete_outline</v-icon>
-                                                </v-btn>
-                                            </div>
-                                        </v-list-tile>
-                                        <v-divider></v-divider>
-                                    </template>
-                                    <template v-if='models.checklist.list.length == 0'>
-                                        Nenhuma lista de tarefas foi adicionada para esse usuário
-                                    </template>
-                                </v-list>
+                            <p class='grey--text'>Lista de tarefas</p>
+                            <v-list style='max-height:200px;overflow:auto'>
+                                <template v-for='t in models.checklist.list'>
+                                    <v-list-tile>
+                                        <v-list-tile-content>
+                                            <v-list-tile-title @click='view_checklist(t.id,t.checklist_template_id)' style='cursor:pointer'>@{{get_model(models.template,t.checklist_template_id).name}}</v-list-tile-title>
+                                        </v-list-tile-content>
+                                        <div style='position:absolute;right:0'>
+                                            <v-btn color="primary" class='ma-0' dark fab small flat @click='destroy_checklist(t.id)'>
+                                                <v-icon> delete_outline</v-icon>
+                                            </v-btn>
+                                        </div>
+                                    </v-list-tile>
+                                    <v-divider></v-divider>
+                                </template>
+                                <template v-if='models.checklist.list.length == 0'>
+                                    Nenhuma lista de tarefas foi adicionada para esse usuário
+                                </template>
+                            </v-list>
                         </v-flex>
                         <v-flex xs12 class='text-xs-right'>
                             <v-btn color="yellow darken-3" dark @click='edit'>
@@ -195,19 +195,65 @@
         </v-card>
     </v-dialog>
 
+    <v-dialog v-model="view.checklist.show" scrollable max-width="500px" transition="dialog-transition" v-if='view.selected_employee !=-1'>
+        <v-card>
+            <v-toolbar color="primary headline" dark class='headline'>
+                @{{view.checklist.data.name}}
+            </v-toolbar>
+            <v-card-text>
+                <v-container grid-list-xs>
+                    <v-layout row wrap>
+                        </v-flex>
+                        <template v-if='view.checklist.data.tasks.length>0'>
+                            <v-flex xs12>
+                                <p class='headline'>Tarefas</p>
+                            </v-flex>
+                            <v-flex xs12>
+                                <Tree :data="view.checklist.data.tasks" ref='tree'>
+                                    <div slot-scope="{data, store}" class='text-truncate'>
+                                        <table v-if='!data.isDragPlaceHolder'>
+                                            <tr>
+                                                <td>
+                                                    <v-icon v-if="data.children && data.children.length" @click="store.toggleOpen(data)">@{{data.open
+                                                        ? 'expand_more' : 'expand_less'}}</v-icon>
+                                                    <v-icon v-else color='grey'>drag_indicator</v-icon>
+                                                </td>
+                                            <td @click="store.toggleOpen(data)" >@{{data.text}} </td>
+                                            <td class='grey--text'>(@{{check_get_status(data.task_id)}})</td>
+
+                                            </tr>
+                                        </table>
+                                        <v-divider></v-divider>
+                                    </div>
+                                </Tree>
+                            </v-flex>
+                        </template>
+                    </v-layout>
+                </v-container>
+            </v-card-text>
+
+            <v-divider></v-divider>
+            <v-card-actions>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
     @endsection
 
     @section('l-js')
     <script src='{{asset("sources/profiles.js")}}'></script>
     <script src='{{asset("sources/checklists_template.js")}}'></script>
     <script src='{{asset("sources/checklists.js")}}'></script>
+    <script src='{{asset("sources/checks.js")}}'></script>
     <script src='{{asset("sources/tasks.js")}}'></script>
     <script src='{{asset("sources/employees.js")}}'></script>
     <script src='{{asset("plugins/nestable/nestable.js")}}'></script>
 
     <script>
         vue_page = {
-            mixins: [sources_profiles, sources_checklists_template, sources_tasks, sources_employees,sources_checklists],
+            mixins: [sources_profiles, sources_checklists_template, sources_tasks, sources_employees,
+                sources_checklists,sources_checks
+            ],
             components: {
                 Tree: vueDraggableNestedTree.DraggableTree
             },
@@ -287,9 +333,17 @@
 
                     view: {
                         selected_employee: -1,
+                        checklist: {
+                            show: false,
+                            data: {
+                                name: "",
+                                tasks:[],
+                            }
+                        },
                         form: {
                             show: false,
-                            data: {},
+                            data: {
+                            },
                         },
                         new_checklist: {
                             id: "",
@@ -300,59 +354,10 @@
             },
             computed: {
                 selected_employee: function () {
-                    if(this.view.selected_employee != -1)this.list_model(this.models.checklist,{id:this.models.employee.list[this.view.selected_employee].id});
+                    if (this.view.selected_employee != -1) this.list_model(this.models.checklist, {
+                        id: this.models.employee.list[this.view.selected_employee].id
+                    });
                     return this.models.employee.list[this.view.selected_employee];
-                },
-                task_tree_selected: function () {
-                    if (this.task_tree_active.length == 0) return 0;
-                    this.list_comment(this.getCheckByTask(this.task_tree_active[0]).id);
-                    return this.getTask(this.task_tree_active[0]);
-                },
-                employee_selected: function () {
-                    if (this.model_employee == null) return 0;
-                    return this.employees[this.model_employee];
-                },
-                checklist_selected: function () {
-                    return this.checklists[this.employee_selected.id][this.model_tab_checklist];
-                },
-                check_tree_selected: function () {
-                    return this.getCheckByTask(this.task_tree_selected.id);
-                },
-                search_data: function () {
-                    var array = [];
-                    this.model_employee = null;
-                    for (e of this.employees) {
-                        switch (this.filtro.type) {
-                            case 'Gestor':
-                                if (e.gestor == app.user.id) {
-                                    array.push(app.search_text(this.search, e.name));
-                                } else array.push(false);
-                                break;
-                            case 'Site':
-                                if (e.site == this.filtro.site) {
-                                    array.push(app.search_text(this.search, e.name));
-                                } else array.push(false);
-                                break;
-                            case 'Perfil':
-                                if (e.profile_id == this.filtro.profile) {
-                                    array.push(app.search_text(this.search, e.name));
-                                } else array.push(false);
-                                break;
-                            case 'Todos':
-                                array.push(app.search_text(this.search, e.name));
-                                break;
-                        }
-                    }
-                    return array;
-                }
-            },
-            watch: {
-                model_employee: function (val) {
-                    if (val != null) {
-                        if (!this.checklists.hasOwnProperty(this.employees[val].id)) {
-                            this.list_checklist(this.employees[val].id);
-                        }
-                    }
                 },
             },
             methods: {
@@ -373,6 +378,10 @@
                     }
 
                 },
+                edit: function () {
+                    this.view.form.data = Object.assign({}, this.selected_employee);
+                    this.view.form.show = true;
+                },
                 destroy: function (id) {
                     this.confirm("Confirmação",
                         "Deseja mesmo deletar esse empregado? Todas sas informações e listas de tarefas serão removidas",
@@ -384,13 +393,15 @@
                         });
 
                 },
-                add_checklist: function(){
-                    this.store_model(this.models.checklist,{
+                add_checklist: function () {
+                    this.store_model(this.models.checklist, {
                         employee_id: this.selected_employee.id,
                         template_id: this.view.new_checklist.id
-                    },()=>{
-                        this.notify("Lista de tarefas adicionada","green");
-                        this.list_model(this.models.checklist,{id:this.selected_employee.id});
+                    }, () => {
+                        this.notify("Lista de tarefas adicionada", "green");
+                        this.list_model(this.models.checklist, {
+                            id: this.selected_employee.id
+                        });
                         this.view.new_checklist.show = false;
                     });
                 },
@@ -400,59 +411,21 @@
                         "red", () => {
                             this.destroy_model(this.models.checklist, id, () => {
                                 this.notify("lista de tarefaa deletada", "red");
-                                this.list_model(this.models.checklist,{id:this.selected_employee.id});
+                                this.list_model(this.models.checklist, {
+                                    id: this.selected_employee.id
+                                });
                             });
                         });
 
                 },
-
-                list_admin: function () {
-                    $.ajax({
-                        url: "route('admin.list')",
-                        method: "GET",
-                        dataType: "json",
-                    }).done(response => {
-                        this.resp = response['admin_list'];
-                        this.resp = this.resp.concat(response['resp_list']);
-                        this.resp = this.resp.concat(response['default']);
-                        this.list_group();
-                    });
-                },
-                edit: function () {
-                    this.view.form.data = Object.assign({}, this.selected_employee);
-                    this.view.form.show = true;
-                },
-                popup: function (id) {
-                    $.ajax({
-                        url: "route('emp.edit')",
-                        method: "GET",
-                        dataType: "json",
-                        data: {
-                            id: id
-                        },
-                    }).done(response => {
-                        this.form = response;
-                        this.gestor_name = response['gestor_name'];
-                        this.dialog = true;
-                    });
-                },
-                popup2: function (id) {
-                    this.dialog2 = true;
-                },
-                popup3: function (id) {
-                    this.dialog3 = true;
-                    this.list_comment(id);
-                },
-
-
-
-                remove(item) {
-                    const index = this.friends.indexOf(item.name)
-                    if (index >= 0) this.friends.splice(index, 1)
-                },
-                searching: function (search) {
-                    this.search = search;
-                },
+                view_checklist: function (id,template_id) {
+                    this.view.checklist.show = true;
+                    this.list_model(this.models.check,{checklist_id:id});
+                    this.view.checklist.data.name = this.get_model(this.models.template,template_id).name;
+                    this.template_tree(template_id, (r) => {
+                        this.view.checklist.data.tasks = r;
+                    })
+                }
             },
             mounted() {
                 this.list_model(this.models.employee);
