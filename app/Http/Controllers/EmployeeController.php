@@ -49,9 +49,9 @@ class EmployeeController extends Controller
         $Employee -> CPF = $request['cpf'];
         $Employee -> fone = $request['fone'];
         $Employee -> site = $request['site'];
-        $Employee -> gestor = $request['resp'];
+        $Employee -> gestor = $request['gestor'];
         if ($Employee -> save()) {
-            event( new NewEmployeeEvent($Employee, Auth::user(),$r));
+            //event( new NewEmployeeEvent($Employee, Auth::user(),$r));
             return json_encode(array('error' => false,
                 'message' => $Employee -> id));
         } else {

@@ -36,7 +36,7 @@
                                         </v-list-title-title>
                                     </v-list-tile-content>
                                     <div style='display:absolute;right:0'>
-                                        <v-btn color="primary" flat fab small class='ma-0' @click='destroy_user(adm.id)'>
+                                        <v-btn color="primary" flat fab small class='ma-0' @click='destroy(e.id)'>
                                             <v-icon> delete_outline</v-icon>
                                         </v-btn>
                                     </div>
@@ -103,7 +103,7 @@
                                 <v-icon class='mr-2'>edit</v-icon>
                                 Editar
                             </v-btn>
-                            <v-btn color="info" dark @click=''>
+                            <v-btn color="info" dark @click='view.new_checklist.show=true'>
                                 <v-icon class='mr-2'>playlist_add</v-icon>
                                 Adicionar a lista de tarefas
                             </v-btn>
@@ -128,16 +128,16 @@
                     <v-form ref='form'>
                         <v-text-field v-model="view.form.data.name" :rules="rules.name" label="Name" required></v-text-field>
                         <v-text-field v-model="view.form.data.email" :rules="rules.email" label="E-mail" required></v-text-field>
-                        <v-autocomplete v-model="view.form.data.site" :items="models.site.list" item-text="complete_name" item-value="id"
-                            :rules="rules.site" label="Site" persistent-hint required></v-autocomplete>
+                        <v-autocomplete v-model="view.form.data.site" :items="models.site.list" item-text="complete_name"
+                            item-value="id" :rules="rules.site" label="Site" persistent-hint required></v-autocomplete>
                         <v-text-field mask="###.###.###-##" return-masked-value="true" v-model="view.form.data.cpf"
                             :rules="rules.cpf" label="CPF" required></v-text-field>
-                        <v-autocomplete v-model="view.form.data.gestor" :items="models.user.list" color="black" hide-no-data
-                            hide-selected item-text="name" item-value="id" label="Gestor" prepend-icon="assignment_ind"></v-autocomplete>
+                        <v-autocomplete v-model="view.form.data.gestor" :items="models.user.list" color="black"
+                            hide-no-data hide-selected item-text="name" item-value="id" label="Gestor" prepend-icon="assignment_ind"></v-autocomplete>
                         <v-text-field mask="+##(##)#####-####" return-masked-value="true" v-model="view.form.data.fone"
                             :rules="rules.fone" label="Telefone Celular" required></v-text-field>
-                        <v-autocomplete v-model="view.form.data.profile_id" :items="models.profile.list" item-text="name" item-value="id"
-                            label="Perfil" persistent-hint :rules='rules.profile' required></v-autocomplete>
+                        <v-autocomplete v-model="view.form.data.profile_id" :items="models.profile.list" item-text="name"
+                            item-value="id" label="Perfil" persistent-hint :rules='rules.profile' required></v-autocomplete>
 
                     </v-form>
                 </v-container>
@@ -148,8 +148,30 @@
                 <v-btn color="red" outline dark @click='view.form.show=false'>
                     <v-icon class='mr-2'>close</v-icon>Cancelar
                 </v-btn>
-                <v-btn color="green" outline dark @click=''>
+                <v-btn color="green" outline dark @click='store'>
                     <v-icon class='mr-2'>save</v-icon>Salvar
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
+
+    <v-dialog v-model="view.new_checklist.show" scrollable max-width="500px" transition="dialog-transition" v-if='view.selected_employee !=-1'>
+        <v-card>
+            <v-toolbar color="primary" dark class='headline'>
+                Lista de tarefas
+            </v-toolbar>
+            <v-container grid-list-xs>
+                <v-layout row wrap>
+                    <v-flex xs12>
+                        <v-autocomplete v-model="view.new_checklist.id" :items="models.template.list" item-text="name"
+                            item-value="id" label="Modelo de lista de tarefa" persistent-hint required></v-autocomplete>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="green" outline dark @click=''>
+                    <v-icon class='mr-2'>save</v-icon>Adicionar
                 </v-btn>
             </v-card-actions>
         </v-card>
@@ -249,6 +271,10 @@
                         form: {
                             show: false,
                             data: {},
+                        },
+                        new_checklist: {
+                            id: "",
+                            show: false
                         }
                     }
                 }
@@ -312,12 +338,32 @@
             methods: {
                 add: function () {
                     this.view.form.data = {}
-                    Vue.nextTick(()=>{
+                    Vue.nextTick(() => {
                         this.$refs.form.reset();
                     });
                     this.view.form.show = true;
                 },
-                store: function () {},
+                store: function () {
+                    if (this.$refs.form.validate()) {
+                        this.store_model(this.models.employee, this.view.form.data, () => {
+                            this.list_model(this.models.employee);
+                            this.view.form.show = false;
+                            this.notify("Alterações foram salvas", "green");
+                        });
+                    }
+
+                },
+                destroy: function (id) {
+                    this.confirm("Confirmação",
+                        "Deseja mesmo deletar esse empregado? Todas sas informações e listas de tarefas serão removidas",
+                        "red", () => {
+                            this.destroy_model(this.models.employee, id, () => {
+                                this.notify("Empregado deletado com sucesso", "red");
+                                this.list_model(this.models.employee);
+                            });
+                        });
+
+                },
 
 
                 list_admin: function () {
@@ -357,24 +403,6 @@
                     this.dialog3 = true;
                     this.list_comment(id);
                 },
-                destroy: function (id) {
-                    app.confirm("Deletar esse empregado?",
-                        "Todas as informações desse empregado serão deletadas.", "red", () => {
-                            $.ajax({
-                                url: "route('emp.remove')",
-                                method: "DELETE",
-                                dataType: "json",
-                                headers: app.headers,
-                                data: {
-                                    id: id
-                                },
-                                success: (response) => {
-                                    this.list();
-                                    app.notify("Empregado removido", "error");
-                                }
-                            });
-                        });
-                },
 
 
 
@@ -389,6 +417,7 @@
             mounted() {
                 this.list_model(this.models.employee);
                 this.list_model(this.models.profile);
+                this.list_model(this.models.template);
             }
         };
     </script>

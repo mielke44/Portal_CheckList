@@ -55,17 +55,19 @@ Route::delete('task/destroy', "TaskController@destroy")->name('task_destroy');
 Route::get('task/tree', "TaskController@tree")->name('task_tree');
 
 //checklistsTemplates
+Route::get('template/checklist',"ChecklistTemplateController@list")->name('template_list');
 Route::post('template/store', "ChecklistTemplateController@store")->name('template_store');
 Route::get('template/edit', "ChecklistTemplateController@edit")->name('template_edit');
 Route::delete('template/destroy', "ChecklistTemplateController@destroy")->name('template_destroy');
-Route::get('template/array',"ChecklistTemplateController@returnChecklist")->name('template_array');
+Route::get('template/tree',"ChecklistTemplateController@tree")->name('template_tree');
+
 
 //Profiles
 
 Route::post('profile/store', "ProfileController@store")->name('profile_store');
 Route::get('profile/list', "ProfileController@list")->name('profile_list');
 Route::delete('profile/destroy', "ProfileController@destroy")->name('profile_destroy');
-Route::get('profile/checklist',"ProfileController@getCheckLists")->name('template_list');
+
 
 //Groups
 Route::post('Group/store', "GroupController@store")->name('group_store');

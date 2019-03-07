@@ -51,9 +51,16 @@ class ChecklistTemplateController extends Controller
         }
     }
 
-    public function returnChecklist(Request $r){
-        $clist = ChecklistTemplate::find($r['id']);
+    public function list(Request $r){
 
+        if(isset($r['id']))$clist = ChecklistTemplate::where("profile_id",$r['id'])->get();
+        else $clist = ChecklistTemplate::all();
+        return json_encode($clist);
+        //return json_encode(ChecklistTemplateController::returnFormDep($clist,null));
+    }
+
+    public function tree(Request $r){
+        $clist = ChecklistTemplate::find($r["id"]);
         return json_encode(ChecklistTemplateController::returnFormDep($clist,null));
     }
 
