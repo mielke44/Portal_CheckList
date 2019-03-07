@@ -19,26 +19,28 @@ use Carbon\Carbon;
 class ChecklistController extends Controller
 {
     public function list(Request $r){
-        $checklists = Checklist::where("employee_id",$r['id'])->select("checklist_template_id","id")->get();
+        $checklists = Checklist::where("employee_id",$r['id'])->get();
         return json_encode($checklists);
     }
-    
+
     public function store(Request $request){
         date_default_timezone_set('America/Sao_Paulo');
         $checklist = new Checklist();
         $checklist->gestor = Auth::user()->id;
         $checklist->employee_id = $request['employee_id'];
-        $checklist->checklist_template_id = $request['checklist_template_id'];
-        $ctemplate = ChecklistTemplate::findOrFail($checklist->checklist_template_id)['name']." ".explode(' ',Carbon::now()->toArray()['formatted']);
+        $checklist->checklist_template_id = $request['template_id'];
+        //$ctemplate = ChecklistTemplate::findOrFail($checklist->checklist_template_id)['name']." ".explode(' ',Carbon::now()->toArray()['formatted']);
+
         if($checklist->save()){
             $emp = Employee::findOrFail($checklist->employee_id);
-            $text = 'Teve uma nova lista de tarefas adicionada: '.$ctemplate.' com '.$ctemplate->withCount('tasks').' tarefas!';
+            //$text = 'Teve uma nova lista de tarefas adicionada: '.$ctemplate.' com '.$ctemplate->withCount('tasks').' tarefas!';
             $name = $emp->name;
             if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
             else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
-            CheckController::createCheck($checklist['id'],$request);
-            event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,3));
+            CheckController::createCheck($request['template_id'],$checklist['id']);
+            //event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,3));
         }
+
         return json_encode(array('success'=>"true"));
     }
 
@@ -71,9 +73,9 @@ class ChecklistController extends Controller
     }
 
     public function destroy(Request $r){
-        $checklist = Checklist::findOrFail($r->checklist_id);
+        $checklist = Checklist::findOrFail($r->id);
         $Checks = Check::where('checklist_id',$checklist->id)->get();
-        
+
         if($checklist->delete()){
             foreach($Checks as $c){
                 foreach(Comment::where("check_id",$c->id)->get() as $comment){

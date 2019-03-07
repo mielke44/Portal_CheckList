@@ -17,6 +17,9 @@ use App\Group;
 use DateTime;
 
 use App\Http\Controllers\ChecklistController;
+use App\ChecklistTemplate;
+use Carbon\Carbon;
+
 
 class CheckController extends Controller
 {
@@ -34,7 +37,7 @@ class CheckController extends Controller
             $checklist_template=ChecklistTemplate::find($checklist->checklist_template_id);
             $text = '';
             $name = '';
-            
+
 
             //Setando a array de destinatários
             if($Check['resp']==='0'){
@@ -128,13 +131,13 @@ class CheckController extends Controller
         }
     }
 
-    public static function createCheck($Checklist_id,Request $request){
+    public static function createCheck($template_id,$Checklist_id){
         $user_id = Auth::user();
-        
-        foreach(ChecklistTemplate::find($request['checklist_template_id'])->tasks() as $ct){
-            $receiver=array('admin'=>[],'emp'=>[Employee::findOrFail(Checklist::findOrFail($Checklist_id)['employee_id'])->id]);
-            $task =Task::findOrFail($ct['task_id']);
-            $text = 'foi selecionado como responsável da tarefa: '.$task->name;
+
+        foreach(ChecklistTemplate::find($template_id)->tasks()->get() as $ct){
+
+            $task =Task::findOrFail($ct["id"]);
+            //$text = 'foi selecionado como responsável da tarefa: '.$task->name;
 
             $check = new Check();
             if($task->limit>0){
@@ -162,7 +165,7 @@ class CheckController extends Controller
             if(isset($ct->task_id_below)) $check->status=-2;
             else $check->status = 0;
 
-            $check->task_id = $ct['task_id'];
+            $check->task_id = $ct['id'];
             $check->checklist_id = $Checklist_id;
             if($task->resp==='0'){
                 $check->resp = 0;
@@ -174,34 +177,18 @@ class CheckController extends Controller
             }else{
                 $check->resp = $task->resp;
                 $name=Admin::findOrFail($check->resp)['name'];
-                array_push($receiver['admin'],Admin::findOrFail($check->resp)['id']);
+                //array_push($receiver['admin'],Admin::findOrFail($check->resp)['id']);
             }
             $type=2;
             if($check->save()){
-                event(new CheckUpdateEvent($check, $text, $name, $type, $receiver));
-                if(Check::where("checklist_id",$Checklist_id)->where("task_id",$ct["task_id"])->count()==0){
-                    createCheckDep($c->id,$user->id,$Checklist_id);
-                }
             }
         }
+
         return(json_encode(array('error'=> true,
                                     'message'=>'Ocorreu um erro, tente novamente!')));
     }
 
-    public static function createCheckDep($task_id,$user_id,$checklist_id){
-        $dep = ChecklistTemplate::find(Checklist::find($checklist_id)->checklist_template_id)->tasks()->where('task_id',$task_id)->get();
-        foreach($dep as $d){
-            $check = new Check();
-            $check->resp = Task::findOrFail($d['task_id_below'])->resp;
-            $check->status = 0;
-            $check->task_id = $d['task_id_below'];
-            $check->checklist_id = $checklist_id;
-            $check->save();
-            if(ChecklistTemplate::find(Checklist::find($checklist_id)->checklist_template_id)->tasks()->where('task_id',$d['task_id_below'])->count()!=0){
-                createCheckDep($check->id,$user->id,$checklist_id);
-            }
-        }
-    }
+
 
     public function list(Request $r){
         $notification = Notification::findOrFail($r['not_id']);
