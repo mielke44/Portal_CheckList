@@ -130,7 +130,7 @@
     </v-layout>
 </v-container>
 
-<v-dialog v-model="view.new_template.show" max-width="500px" scrollable transition="dialog-transition">
+<v-dialog v-model="view.new_template.show" max-width="800px" scrollable transition="dialog-transition">
     <v-card>
         <v-toolbar color="primary headline" dark class='headline'>
             @{{view.new_template.editing?"Editar lista de tarefas":"Nova lista de tarefas"}}
@@ -358,9 +358,11 @@
                     this.store_model(this.models.template, data, () => {
                         this.view.new_template.show = false;
                         this.clear_new_template();
+                        this.notify("Lista de tarefas salva!","green");
                         this.list_model(this.models.template, {
                             id: this.selected_profile.id
                         });
+
                     })
                 }
             },

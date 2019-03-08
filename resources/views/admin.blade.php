@@ -34,6 +34,28 @@
         <!--VIEW FILTRO POS-->
         <v-flex xs12 class="pa-0 ma-0" v-if="view.filter_type==0">
             <v-card>
+                <v-subheader>Administradores</v-subheader>
+                <v-list class='pa-0'>
+                    <template v-for='adm in models.user.list' v-if='adm.is_admin == 2'>
+                        <v-list-tile avatar @click=''>
+                            <v-list-tile-avatar>
+                                <v-icon>person</v-icon>
+                            </v-list-tile-avatar>
+                            <v-list-tile-content @click='show_user(adm,site_name(adm.id))'>
+                                <v-list-tile-action>
+                                    @{{adm.name}}
+                                </v-list-tile-action>
+                            </v-list-tile-content>
+                            <div style='display:absolute;right:0'>
+                                <v-btn class='ma-0' color="primary" flat fab small @click='destroy_user(adm.id)'>
+                                    <v-icon> delete_outline</v-icon>
+                                </v-btn>
+                            </div>
+                        </v-list-tile>
+                        <v-divider></v-divider>
+                    </template>
+
+                </v-list>
                 <v-subheader>Gestores</v-subheader>
                 <v-list class='pa-0'>
                     <template v-for='adm in models.user.list' v-if='adm.is_admin == 1'>
@@ -105,6 +127,7 @@
                 </v-list>
             </v-card>
         </v-flex>
+
 
         <!--VIEW FILTRO SITE-->
         <v-flex xs12 class="pa-0 ma-0" v-if="view.filter_type==2">
@@ -234,14 +257,14 @@
                     }
                 },
                 rules: {
-                        name: [
-                            v => !!v || 'Campo obrigatório',
-                            v => (v && v.length <= 25) || 'Máximo 25 caracteres'
-                        ],
-                        email: [
-                            v => !!v || 'E-mail é obrigatório!',
-                            v => /.+@.+/.test(v) || 'E-mail deve ser válido!'
-                        ],
+                    name: [
+                        v => !!v || 'Campo obrigatório',
+                        v => (v && v.length <= 25) || 'Máximo 25 caracteres'
+                    ],
+                    email: [
+                        v => !!v || 'E-mail é obrigatório!',
+                        v => /.+@.+/.test(v) || 'E-mail deve ser válido!'
+                    ],
                 },
                 search: '',
             }
@@ -341,5 +364,6 @@
             this.prof_view2 = this.prof_view;
         }
     };
+
 </script>
 @endsection

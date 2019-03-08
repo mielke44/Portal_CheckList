@@ -34,8 +34,9 @@
         </v-toolbar>
         <v-divider></v-divider>
         <v-list class="pt-0" dense>
-            <template v-if="user.is_admin>0 || item.visible_external" v-for="(item,i) in menu">
-                <v-list-group active-class="black--text" :key="item.title" :prepend-icon="item.icon" v-if='typeof item.submenu != "undefined"' :value='submenu_selected(item.submenu)'>
+            <template v-if="user.is_admin>item.visible_external" v-for="(item,i) in menu">
+                <v-list-group active-class="black--text" :key="item.title" :prepend-icon="item.icon" v-if='typeof item.submenu != "undefined"'
+                    :value='submenu_selected(item.submenu)'>
                     <v-list-tile avatar slot='activator'>
                         <v-list-tile-content>
                             <v-list-tile-title>@{{ item.text }}</v-list-tile-title>
@@ -279,41 +280,41 @@
                 menu: [{
                         icon: "dashboard",
                         text: "Dashboard",
-                        visible_external: false,
+                        visible_external: 0,
                         link: routes.dashboard
                     },
                     {
                         icon: "face",
                         text: "Empregados",
-                        visible_external: false,
+                        visible_external: 0,
                         link: routes.employee
                     },
                     {
                         icon: "event_note",
                         text: "Suas tarefas",
-                        visible_external: true,
+                        visible_external: -1,
                         link: routes.emp_yourchecklist_view
                     },
                     {
                         icon: "settings",
                         text: "Configurações",
-                        visible_external: false,
+                        visible_external: 1,
                         submenu: [{
                                 icon: "portrait",
-                                text: "Perfis",
-                                visible_external: false,
+                                text: "Perfis e Lista de Tarefas",
+                                visible_external: 1,
                                 link: routes.profile
                             },
                             {
                                 icon: "list",
                                 text: "Tarefas",
-                                visible_external: false,
+                                visible_external: 1,
                                 link: routes.task
                             },
                             {
                                 icon: "supervisor_account",
                                 text: "Gestores e Responsáveis",
-                                visible_external: false,
+                                visible_external: 1,
                                 link: routes.admin
                             }
                         ]
@@ -351,6 +352,9 @@
                     show: false,
                     user: {},
                     types: [{
+                        id: 2,
+                        name: 'Administrador'
+                    }, {
                         id: 1,
                         name: 'Gestor'
                     }, {
@@ -458,6 +462,7 @@
                         site: '',
                         group: 0,
                     }
+                    this.$refs.form_user.reset();
                 }
                 this.dialog_user.show = true;
                 this.dialog_user.user = Object.assign({}, user);
@@ -472,9 +477,9 @@
                 }
 
             },
-            submenu_selected(subs){
+            submenu_selected(subs) {
                 for (s of subs) {
-                    if (s.link == window.location.href){
+                    if (s.link == window.location.href) {
                         return true;
                     }
                 }

@@ -32,11 +32,11 @@ class ChecklistController extends Controller
         //$ctemplate = ChecklistTemplate::findOrFail($checklist->checklist_template_id)['name']." ".explode(' ',Carbon::now()->toArray()['formatted']);
 
         if($checklist->save()){
-            $emp = Employee::findOrFail($checklist->employee_id);
+            //$emp = Employee::findOrFail($checklist->employee_id);
             //$text = 'Teve uma nova lista de tarefas adicionada: '.$ctemplate.' com '.$ctemplate->withCount('tasks').' tarefas!';
-            $name = $emp->name;
-            if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
-            else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
+            //$name = $emp->name;
+            // if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
+            // else $receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
             CheckController::createCheck($request['template_id'],$checklist['id']);
             //event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,3));
         }

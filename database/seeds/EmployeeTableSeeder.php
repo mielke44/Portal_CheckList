@@ -12,8 +12,10 @@ class EmployeeTableSeeder extends Seeder
      */
     public function run()
     {
+
+        /*
         DB::table('employees')->insert([
-            'name' => "Joãozinho",
+            'name' => "",
             'email' => "joao@teste.com",
             'cpf' => "123.123.123-12",
             'site' => "12",
@@ -24,5 +26,6 @@ class EmployeeTableSeeder extends Seeder
             'created_at' => Carbon::now()
             //'created_at' => new DateTime()
         ]);
+        */
     }
 }

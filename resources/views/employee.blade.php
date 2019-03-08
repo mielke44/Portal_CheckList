@@ -11,7 +11,7 @@
     <!-- LISTA -->
     <v-layout row wrap>
         <v-flex xs12 md4 class='text-xs-left'>
-            <v-select solo append-icon="filter_list" v-model="filtro.type" :items="filtros" item-text="name" item-value="name"
+            <v-select v-if=false solo append-icon="filter_list" v-model="filtro.type" :items="filtros" item-text="name" item-value="name"
                 label="Filtros" persistent-hint :rules='rules.profile'></v-select>
         </v-flex>
         <v-flex xs12 md5>
@@ -29,7 +29,7 @@
                     <v-item-group v-model='view.selected_employee'>
                         <template v-for="(e,i) in models.employee.list">
                             <v-item>
-                                <v-list-tile xs12 slot-scope="{ active, toggle }" @click=''>
+                                <v-list-tile xs12 slot-scope="{ active, toggle }" @click='view.selected_user=i'>
                                     <v-list-tile-content @click="toggle">
                                         <v-list-title-title :class="active?'red--text':''">
                                             @{{e.name}}
@@ -99,7 +99,7 @@
                             <p class='grey--text'>Lista de tarefas</p>
                             <v-list style='max-height:200px;overflow:auto'>
                                 <template v-for='t in models.checklist.list'>
-                                    <v-list-tile>
+                                    <v-list-tile @click=''>
                                         <v-list-tile-content>
                                             <v-list-tile-title @click='view_checklist(t.id,t.checklist_template_id)' style='cursor:pointer'>@{{get_model(models.template,t.checklist_template_id).name}}</v-list-tile-title>
                                         </v-list-tile-content>
@@ -210,7 +210,7 @@
                             </v-flex>
                             <v-flex xs12>
                                 <Tree :data="view.checklist.data.tasks" ref='tree'>
-                                    <div slot-scope="{data, store}" class='text-truncate'>
+                                    <div slot-scope="{data, store}" class='text-truncate' >
                                         <table v-if='!data.isDragPlaceHolder'>
                                             <tr>
                                                 <td>
