@@ -152,7 +152,7 @@
                 rules: {
                     name: [
                         v => !!v || 'Campo obrigtório',
-                        v => (v && v.length <= 25) || 'Máximo 25 caracteres'
+                        v => (v && v.length <= 50) || 'Máximo 50 caracteres'
                     ],
                     description: [
                         v => !!v || 'Campo obrigtório',

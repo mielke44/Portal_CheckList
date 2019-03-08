@@ -53,7 +53,7 @@ sources_model = {
         group_model: function(model,field,id){
             var array = [];
             for(i=0;i<model.list.length;i++){
-                if(model.list[i][field] == id)return array.push(model.list[i]);
+                if(model.list[i][field] == id)array.push(model.list[i]);
             }
             return array;
         }

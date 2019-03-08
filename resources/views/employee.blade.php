@@ -181,7 +181,7 @@
             <v-container grid-list-xs>
                 <v-layout row wrap>
                     <v-flex xs12>
-                        <v-autocomplete v-model="view.new_checklist.id" :items="models.template.list" item-text="name"
+                        <v-autocomplete v-model="view.new_checklist.id" :items="group_model(models.template,'profile_id',selected_employee.profile_id)" item-text="name"
                             item-value="id" label="Modelo de lista de tarefa" persistent-hint required></v-autocomplete>
                     </v-flex>
                 </v-layout>
