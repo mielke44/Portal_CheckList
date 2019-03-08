@@ -59,6 +59,7 @@ class CheckController extends Controller
             //Alteração de estado da tarefa
             if(isset($request['status'])){
                 $Check->status=$request['status']=='true' ? 1:0;
+                $Check->completed = Auth::user()->id;
                 $linker_down_coll = DB::table('linker_checklist')->where('checklist_template_id',$checklist->checklist_template_id)->where('task_id_below',$task->id)->get();
                 if(count($linker_down_coll)>0)foreach($linker_down_coll as $linker_down){
                     $check_down = Check::where('checklist_id',$Check->checklist_id)->where('task_id',$linker_down->task_id)->get()[0];
@@ -213,8 +214,8 @@ class CheckController extends Controller
             }
         }
         foreach($checks as $c){
+            if(isset($c['completed']))$c['completed']=Admin::find($c['completed'])->name;
             $c['user'] = Employee::find(Checklist::find($c['checklist_id'])->employee_id)->name;
-
         }
         return json_encode($checks);
     }
