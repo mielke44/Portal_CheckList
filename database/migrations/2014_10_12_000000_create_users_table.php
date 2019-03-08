@@ -19,7 +19,7 @@ class CreateUsersTable extends Migration
             $table->string('email');
             $table->string('password')->default('');
             $table->integer('site');
-            $table->boolean('is_admin')->default(false);
+            $table->integer('is_admin')->default(0);
             $table->integer('group')->default(0);
             $table->string('token');
             $table->rememberToken();
