@@ -25,10 +25,6 @@ sources_users = {
     computed:{
         user_resp_array() {
             var array = [];
-            array.push({
-                id: 0,
-                name: "Contratado"
-            })
             for (u of this.models.user.list) {
                 array.push({
                     id: u.id,

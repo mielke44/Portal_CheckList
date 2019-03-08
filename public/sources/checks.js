@@ -25,7 +25,7 @@ sources_checks = {
             if(status==0)return "Aberto";
             else if(status==1)return "Concluído";
             else if(status==-1)return "Expirado";
-            else if(status==-2)return "Bloqueado";
+            else if(status==-2)return "Aguardando tarefa";
         },
     }
 }
