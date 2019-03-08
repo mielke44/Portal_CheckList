@@ -67,7 +67,7 @@ class ChecklistController extends Controller
             if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
             else$receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
             $name = ChecklistTemplate::findOrFail($checklist->checklist_template_id)->name;
-            event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,4));
+            //event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,4));
             return 'true';
         }
     }
