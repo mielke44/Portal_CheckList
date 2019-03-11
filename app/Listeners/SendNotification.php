@@ -20,6 +20,11 @@ class SendNotification
     }
 
     public function CheckUpdate(CheckUpdateEvent $event){
+        $msgs=[
+            1=>'',
+            3=> 'Foi criada a lista de tarefas '.$ctemplate->name.' com '.$ctemplate->withCount('tasks').' tarefas',
+            4=> ' Lista de tarefas '.$ctemplate->name. 'foi concluída'
+            ];
         if(count($event->getReceiver()['admin'])>0)foreach($event->getReceiver()['admin'] as $rec){
             
             $flag = new Flag();
@@ -63,7 +68,6 @@ class SendNotification
         |  4 = ChecklistComplete  | 
         |  5 = CheckLimitWarning  |
         /------------------------*/
-
         if($notification-> save()) {
             return json_encode(array('error' => false,
                 'message' => $notification->id));
@@ -75,13 +79,16 @@ class SendNotification
 
     public function ChecklistUpdate(ChecklistUpdateEvent $event)
     {
+        $ctemplate = $event->getChecklist()->getTemplate();
+        $msgs=[3=> 'Foi criada a lista de tarefas '.$ctemplate->name.' com '.$ctemplate->withCount('tasks').' tarefas',4=> ' Lista de tarefas '.$ctemplate->name. 'foi concluída'];
         foreach($event->getReceiver()['admin'] as $rec){
             $flag = new Flag();
             $flag->type = 'notification';
             $flag->receiver = $rec;
             $flag->save();
+            
             $notification = new Notification;
-            $notification->text = $event->getText();
+            $notification->text = $msgs[$event->getType()];
             $notification->name = $event->getName();
             $notification->admin_id = $rec;
             $notification->employee_id = $event->getChecklist()->employee_id;
@@ -93,9 +100,9 @@ class SendNotification
         $flag->type = 'emp notification';
         $flag->receiver = $event->getReceiver()['emp'][0];
         $flag->save();
-        
+
         $notification = new Notification;
-        $notification->text = $event->getText();
+        $notification->text = $msgs[$event->getType()];
         $notification->name = $event->getName();
         $notification->admin_id = 0;
         $notification->employee_id = $event->getChecklist()->employee_id;

@@ -29,16 +29,16 @@ class ChecklistController extends Controller
         $checklist->gestor = Auth::user()->id;
         $checklist->employee_id = $request['employee_id'];
         $checklist->checklist_template_id = $request['template_id'];
-        //$ctemplate = ChecklistTemplate::findOrFail($checklist->checklist_template_id)['name']." ".explode(' ',Carbon::now()->toArray()['formatted']);
+        $ctemplate = ChecklistTemplate::findOrFail($checklist->checklist_template_id)['name']." ".explode(' ',Carbon::now()->toArray()['formatted']);
 
         if($checklist->save()){
-            //$emp = Employee::findOrFail($checklist->employee_id);
-            //$text = 'Teve uma nova lista de tarefas adicionada: '.$ctemplate.' com '.$ctemplate->withCount('tasks').' tarefas!';
-            //$name = $emp->name;
-            // if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
-            // else $receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
+            $emp = Employee::findOrFail($checklist->employee_id);
+            $text = 'Teve uma nova lista de tarefas adicionada: '.$ctemplate.' com '.$ctemplate->withCount('tasks').' tarefas!';
+            $name = $emp->name;
+            if($emp->gestor==$checklist->gestor)$receiver = array('admin'=>[$checklist->gestor],'emp'=>[$emp->id]);
+            else $receiver = array('admin'=>[$checklist->gestor,$emp->gestor],'emp'=>[$emp->id]);
             CheckController::createCheck($request['template_id'],$checklist['id']);
-            //event(new ChecklistUpdateEvent($checklist, $text, $receiver ,$name,3));
+            event(new ChecklistUpdateEvent($checklist, $receiver,$name,3));
         }
 
         return json_encode(array('success'=>"true"));

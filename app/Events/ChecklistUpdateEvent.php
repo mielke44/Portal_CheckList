@@ -21,10 +21,9 @@ class ChecklistUpdateEvent
      *
      * @return void
      */
-    public function __construct(Checklist $checklist,$text,$receiver,$name,$type)
+    public function __construct(Checklist $checklist,$receiver,$name,$type)
     {
         $this->checklist = $checklist;
-        $this->text = $text;
         $this->receiver = $receiver;
         $this->name = $name;
         $this->type=$type;
@@ -35,9 +34,6 @@ class ChecklistUpdateEvent
     }
     public function getChecklist(){
         return $this->checklist;
-    }
-    public function getText(){
-        return $this->text;
     }
     public function getReceiver(){
         return $this->receiver;
