@@ -20,8 +20,7 @@ sources_checks = {
             }
             return null;
         },
-        check_get_status(task_id){
-            status = this.check_get(task_id).status
+        check_get_status(status){
             if(status==0)return "Aberto";
             else if(status==1)return "Concluído";
             else if(status==-1)return "Expirado";
