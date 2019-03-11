@@ -44,7 +44,7 @@ Route::get('employee/check', "CheckController@list")->name('check_list');
 //Comment
 Route::post('comment/store', "CommentController@store")->name('comment_store');
 Route::get('comment/list', "CommentController@list")->name('comment_list');
-Route::delete('comment/delete', "CommentController@destroy")->name('comment_remove');
+Route::delete('comment/destroy', "CommentController@destroy")->name('comment_destroy');
 
 //Admin
 Route::post('Admin/store', "AdminController@store")->name('admin_store');
