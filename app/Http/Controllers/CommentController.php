@@ -20,52 +20,20 @@ class CommentController extends Controller
         $Check = Check::findOrFail($r['check_id']);
         $task = Task::find($Check->task_id);
         $emp = Employee::findOrFail(Checklist::findOrFail($Check->checklist_id)->employee_id);
-        if($Check['resp']==0){
-            $receiver = array ('admin'=> [$emp->gestor],
-            'emp'=> [$emp->id]);
-            //if(Checklist::findOrFail($Check->checklist_id)->gestor!=$emp->gestor)array_push($receiver['admin'],Checklist::findOrFail($Check->checklist_id)->gestor);
-        }else if(strlen($Check['resp'])>5){
-            $receiver = array('admin'=>[],'emp'=>[Checklist::findOrFail($Check->checklist_id)->employee_id]);
-            array_push($receiver['admin'],$emp->gestor);
-            foreach(Admin::where('group',$Check['resp'][5])->get() as $adm){
-                array_push($receiver['admin'],$adm->id);
-            }           
-        }
-        else{
-            if($Check['resp']!=$emp->gestor)array_push($receiver['admin'],$emp->gestor);
-            $receiver = array ('admin'=> [$Check['resp']],
-            'emp'=> [Checklist::findOrFail($Check->checklist_id)->employee_id]);
-        }
-        if(!isset($r['comment_id'])){
+        if(!isset($r['comment_id']) || $r['comment_id'] == 0){
             $comment = new Comment();
-            $text = 'Adicionou uma comentário na tarefa: '.$task->name;
-            $name = Auth::user()->name;
             $status = 'add';
-            $type = 1;
+
         }else {
             $comment = Comment::findOrFail($r['comment_id']);
             $status = 'edit';
             $comment->comment = $r['comment'];
-            $text = 'Alterou uma comentário na tarefa: '.$task->name;
-            $name = Auth::user()->name;
-            $type = 1;
-            if($comment->save()){
-                event(new CheckUpdateEvent($Check, $text,$name, $type,$receiver));
-                return json_encode(array(
-                                        'st' => $status,
-                                        'error' => false,
-                                        'message' => 'Comentário editado com sucesso!'));
-            }else{
-                return json_encode(array('error' =>true,
-                                        'message' => 'Ocorreu um erro, tente novamente ->',$comment->id));
-            }
         }
         $comment->check_id = $r['check_id'];
         $comment->writer = Auth::user()->id;
         $comment->comment = $r['comment'];
 
         if($comment->save()){
-            event(new CheckUpdateEvent($Check, $text,$name, $type,$receiver));
             return json_encode(array(
                                     'st' => $status,
                                     'error' => false,

@@ -80,7 +80,7 @@ class CheckController extends Controller
                         }
                         //event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",$temparray));
                     }//else event(new CheckUpdateEvent($cd,"Está liberada pra ser concluída!","",array('admin'=>$superior_check->resp)));
-                }    
+                }
             }
 
             $text = 'Alterou o estado da tarefa: '.$task->name;
@@ -131,7 +131,7 @@ class CheckController extends Controller
 
     public static function createCheck($template_id,$Checklist_id){
         $user_id = Auth::user();
-        
+
         foreach(ChecklistTemplate::find($template_id)->tasks()->get() as $ct){
             $receiver = array('admin'=>[],'emp'=>[]);
 
@@ -220,8 +220,8 @@ class CheckController extends Controller
         return json_encode($checks);
     }
 
-    public function YourChecklist(){
-        return view("checklist-external");
+    public function YourTasks(){
+        return view("yourtasks");
     }
 
     public static function monitorExpireDate(){

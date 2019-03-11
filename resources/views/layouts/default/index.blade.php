@@ -293,7 +293,7 @@
                         icon: "event_note",
                         text: "Suas tarefas",
                         visible_external: -1,
-                        link: routes.emp_yourchecklist_view
+                        link: routes.yourtasks
                     },
                     {
                         icon: "settings",

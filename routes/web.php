@@ -17,6 +17,7 @@ Route::get('profile/', "ProfileController@index")->name('profile');
 Route::get('employee/', "EmployeeController@index")->name('employee');
 Route::get('task/', "TaskController@index")->name('task');
 Route::get('Admin/', "AdminController@index")->name('admin');
+Route::get('employee/yourtasks', "CheckController@YourTasks")->name('yourtasks');
 
 
 //Employess
@@ -31,7 +32,7 @@ Route::get('employee/checklist', "ChecklistController@list")->name('checklist_li
 Route::delete('employee/checklist/destroy', "ChecklistController@destroy")->name('checklist_destroy');
 
 Route::get('employee/checklist/complete/{id}', "ChecklistController@completeCheckList")->name('checklist_complete');
-Route::get('employee/yourchecklist', "CheckController@YourChecklist")->name('emp_yourchecklist_view');
+
 Route::get('employee/listyourchecklist', "CheckController@listYourChecks")->name('emp_yourchecklist');
 
 
