@@ -17,13 +17,23 @@ use App\Group;
 class CommentController extends Controller
 {
     public function store(Request $r){
+        $receiver = ['admin'=>[],'emp'=>[]];
         $Check = Check::findOrFail($r['check_id']);
         $task = Task::find($Check->task_id);
         $emp = Employee::findOrFail(Checklist::findOrFail($Check->checklist_id)->employee_id);
         if(!isset($r['comment_id']) || $r['comment_id'] == 0){
             $comment = new Comment();
             $status = 'add';
-
+            if(strlen($Check->resp)>6)
+            foreach(Admin::where('group',$Check->resp[5])->get() as $adm){
+                array_push($receiver['admin'],$adm->id);
+            }
+            else if(strlen($Check->resp)>7)
+            foreach(Admin::where('group',$Check->resp[5].$Check->resp[6])->get() as $adm){
+                array_push($receiver['admin'],$adm->id);
+            }
+            else array_push($receiver['admin'],$Check->resp);
+            event( new CheckUpdateEvent($Check,Auth::user(),1,$receiver));
         }else {
             $comment = Comment::findOrFail($r['comment_id']);
             $status = 'edit';

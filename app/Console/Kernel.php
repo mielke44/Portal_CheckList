@@ -14,7 +14,7 @@ class Kernel extends ConsoleKernel
      * @var array
      */
     protected $commands = [
-        //
+        Commands\ExpireDateCheck::class,
     ];
 
     /**
@@ -25,9 +25,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->call(function () {
-            CheckController::monitorExpireDate();
-        })->daily();
+        $schedule->command('expire:check')->dailyAt('12:00');
     }
 
     /**

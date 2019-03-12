@@ -416,6 +416,17 @@
             }
         },
         methods: {
+            update: function () {
+                $.ajax({
+                    url: "{{route('getflagnoti')}}",
+                    method: 'GET',
+                    dataType: "json",
+                }).done(response => {
+                    if (JSON.stringify(response) == "true") {
+                        this.list_notifications()
+                    };
+                });
+            },
             notify: function (text, color) {
                 this.snackbar_notify.text = text;
                 this.snackbar_notify.model = true;
@@ -488,6 +499,7 @@
             }
         },
         mounted() {
+            setInterval(() => this.update(), 5000);
             this.getUser();
             this.list_model(this.models.site);
             this.list_model(this.models.group);

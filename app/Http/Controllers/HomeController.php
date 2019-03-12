@@ -73,9 +73,6 @@ class HomeController extends Controller
     public function getFlagNot(){
         date_default_timezone_set('America/Sao_Paulo');
         HomeController::Cleaner();
-        //OPTIMIZE 
-        if(Carbon::now()->toArray()['hour']=='00' && intval(Carbon::now()->toArray()['minute'])<5)CheckController::monitorExpireDate();
-        //OPTIMIZE 
         if(Auth::user()->is_admin==-1){
             //is_admin -1 = not admin;
             $emp_id = Employee::where('token',Auth::user()->token)->get()[0]->id;

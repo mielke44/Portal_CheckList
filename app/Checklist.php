@@ -12,6 +12,6 @@ class Checklist extends Model
         'employee_id', 'checklist_template_id', 'gestor'
     ];
     public function getTemplate(){
-        return ChecklistTemplate::find($this->id);
+        return ChecklistTemplate::find($this->checklist_template_id);
     }
 }

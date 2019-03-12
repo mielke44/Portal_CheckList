@@ -20,11 +20,14 @@ class SendNotification
     }
 
     public function CheckUpdate(CheckUpdateEvent $event){
+        $task= $event->getCheck()->getTemplate();
         $msgs=[
-            1=>'',
-            3=> 'Foi criada a lista de tarefas '.$ctemplate->name.' com '.$ctemplate->withCount('tasks').' tarefas',
-            4=> ' Lista de tarefas '.$ctemplate->name. 'foi concluída'
-            ];
+            5=>'A tarefa vai expirar em '.intdiv($task->limit,2).' dias!',
+            2=>'Foi selecionado como responsável da tarefa '.$event->getCheck()->getTemplate()->name,
+            1=>'Escreveu um comentário na tarefa '.$event->getCheck()->getTemplate()->name,
+            0=>'Alterou o estado da tarefa '.$event->getCheck()->getTemplate()->name,
+            -1=>'Expirou o tempo de execução!'];
+        
         if(count($event->getReceiver()['admin'])>0)foreach($event->getReceiver()['admin'] as $rec){
             
             $flag = new Flag();
@@ -33,7 +36,7 @@ class SendNotification
             $flag->save();
 
             $notification = new Notification;
-            $notification->text = $event->getText();
+            $notification->text = $msgs[$event->getType()];
             $notification->name = $event->getName();
             $notification->admin_id = $rec;
             $notification->employee_id =0;
@@ -42,21 +45,6 @@ class SendNotification
             $notification->status = 'pending';
             $notification->save();
         }
-        if(count($event->getReceiver()['emp'])>0){
-            $flag = new Flag();
-            $flag->type = 'emp notification';
-            $flag->receiver = $event->getReceiver()['emp'][0];
-            $flag->save();
-        }
-
-        $notification = new Notification;
-        $notification->text = $event->getText();
-        $notification->name = $event->getName();
-        $notification->admin_id = 0;
-        $notification->employee_id = Checklist::findOrFail($event->getCheck()->checklist_id)->employee_id;
-        $notification->type = $event->getType();
-        $notification->check_id = $event->getCheck()->id;
-        $notification->status = 'pending';
         
         /*------------------------/
         |   Notification Types:   |
@@ -69,8 +57,8 @@ class SendNotification
         |  5 = CheckLimitWarning  |
         /------------------------*/
         if($notification-> save()) {
-            return json_encode(array('error' => false,
-                'message' => $notification->id));
+            print_r(json_encode(array('error' => false,
+                'message' => $notification->id)));
         }else{
             return json_encode(array('error' => true,
                 'message' => 'Ocorreu um erro, tente novamente!'));
@@ -79,8 +67,11 @@ class SendNotification
 
     public function ChecklistUpdate(ChecklistUpdateEvent $event)
     {
-        $ctemplate = $event->getChecklist()->getTemplate();
-        $msgs=[3=> 'Foi criada a lista de tarefas '.$ctemplate->name.' com '.$ctemplate->withCount('tasks').' tarefas',4=> ' Lista de tarefas '.$ctemplate->name. 'foi concluída'];
+        $ctemplate=$event->getChecklist()->getTemplate();
+        $msgs=[
+            3=> 'teve a lista de tarefas '.$ctemplate['name'].' criada com '.$ctemplate->tasks()->count().' tarefas',
+            4=> ' Lista de tarefas '.$ctemplate->name. 'foi concluída'
+            ];
         foreach($event->getReceiver()['admin'] as $rec){
             $flag = new Flag();
             $flag->type = 'notification';
@@ -95,20 +86,8 @@ class SendNotification
             $notification->type = $event->getType();
             $notification->check_id = 0;
             $notification->status = 'pending';
+            $notification->save();
         }
-        $flag = new Flag();
-        $flag->type = 'emp notification';
-        $flag->receiver = $event->getReceiver()['emp'][0];
-        $flag->save();
-
-        $notification = new Notification;
-        $notification->text = $msgs[$event->getType()];
-        $notification->name = $event->getName();
-        $notification->admin_id = 0;
-        $notification->employee_id = $event->getChecklist()->employee_id;
-        $notification->type = $event->getType();
-        $notification->check_id = 0;
-        $notification->status = 'pending';
 
         /*------------------------/
         |   Notification Types:   |  
@@ -122,8 +101,8 @@ class SendNotification
         /------------------------*/
 
         if ($notification-> save()) {
-            return json_encode(array('error' => false,
-                'message' => $notification->id));
+            print_r(json_encode(array('error' => false,
+                'message' => $notification->id)));
         } else {
             return json_encode(array('error' => true,
                 'message' => 'Ocorreu um erro, tente novamente!'));
@@ -160,8 +139,8 @@ class SendNotification
         /------------------------*/
 
         if ($notification-> save()) {
-            return json_encode(array('error' => false,
-                'message' => $notification->id));
+            print_r(json_encode(array('error' => false,
+                'message' => $notification->id)));
         } else {
             return json_encode(array('error' => true,
                 'message' => 'Ocorreu um erro, tente novamente!'));

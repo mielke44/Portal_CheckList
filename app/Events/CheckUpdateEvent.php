@@ -21,10 +21,9 @@ class CheckUpdateEvent
      *
      * @return void
      */
-    public function __construct(Check $check, $text, $name, $type, $receiver)
+    public function __construct(Check $check, $name, $type, $receiver)
     {
         $this->check = $check;
-        $this->text = $text;
         $this->name = $name;
         $this->type = $type;
         $this->receiver = $receiver;
@@ -35,9 +34,6 @@ class CheckUpdateEvent
     }
     public function getName(){
         return $this->name;
-    }
-    public function getText(){
-        return $this->text;
     }
     public function getType(){
         return $this->type;
