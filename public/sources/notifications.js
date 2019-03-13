@@ -16,14 +16,14 @@ sources_notifications = {
     methods:{
         notif_clear: function () {
             $.ajax({
-                url: "{{route('clrnot')}}",
+                url: routes.clrnot,
                 method: 'POST',
                 datatype: 'json',
                 headers: app.headers,
             }).done(response => {
                 if (response['error']) app.notify('Ocorreu um erro! Tente Novamente!', 'error');
                 app.notify('notificações excluidas!', 'success');
-                this.list_notifications();
+                this.list_model(this.models.notification);
             })
         },
     }

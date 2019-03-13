@@ -23,17 +23,8 @@ class EmployeeController extends Controller
         return view("employee");
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //$this -> Employee = \Auth::Employee();
-        //print_r($request->all());
-        //return;
         if($request["id"] != ""){
             $Employee = Employee::find($request["id"]);
             $r = 'update';
@@ -51,7 +42,7 @@ class EmployeeController extends Controller
         $Employee -> site = $request['site'];
         $Employee -> gestor = $request['gestor'];
         if ($Employee -> save()) {
-            //event( new NewEmployeeEvent($Employee, Auth::user(),$r));
+            event( new NewEmployeeEvent($Employee, Auth::user(),$r));
             return json_encode(array('error' => false,
                 'message' => $Employee -> id));
         } else {

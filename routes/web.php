@@ -80,14 +80,17 @@ Route::delete('Group/destroy', "GroupController@destroy")->name('group_destroy')
 //Sites
 Route::get('site/list', "SiteController@list")->name('site_list');
 
+//Notifications
+Route::post('/clearnot','HomeController@clearAllNot')->name('clrnot');
+Route::post('/updtnot','HomeController@updateNotification')->name('notification_store');
+Route::get('/getnotifications','HomeController@getNotifications')->name('notification_list');
+
 //Auth
 Auth::routes();
-Route::post('/clearnot','HomeController@clearAllNot')->name('clrnot');
-Route::post('/updtnot','HomeController@updateNotification')->name('updnot');
+
 Route::get('/getflag','HomeController@getFlagNot')->name('getflagnoti');
 Route::get('/logout','HomeController@logout')->name('logout');
 Route::get('/getuser','HomeController@getUser')->name('getuser');
 Route::get('/getname','HomeController@getName')->name('getname');
 Route::get('/getperm','HomeController@getPerm')->name('getperm');
-Route::get('/getnotifications','HomeController@getNotifications')->name('getnoti');
 Route::get('/routes','HomeController@getRoutes')->name('get_routes');

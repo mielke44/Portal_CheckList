@@ -49,8 +49,7 @@ class SendEmail
             if(strlen($event->getCheck()->resp)==1)foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
             else if(strlen($event->getCheck()->resp)==7) $demo['Receiver']=Group::find($event->getCheck()->resp[5].$event->getCheck()->resp[6])->name;
             else $demo['Receiver']=Group::find($event->getCheck()->resp[5])->name;
-            print_r($demo);
-            //Mail::to($d)->send(new Email($demo));
+            Mail::to($d)->send(new Email($demo));
         }
     }
 
@@ -73,8 +72,7 @@ class SendEmail
         );
         foreach($data as $d){
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
-            print_r($demo);
-            //Mail::to($d)->send(new Email($demo));
+            Mail::to($d)->send(new Email($demo));
         }
     }
 

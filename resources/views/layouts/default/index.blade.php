@@ -97,12 +97,12 @@
         <v-menu :close-on-content-click="false" offset-y left transition="slide-y-transition">
             <v-btn icon slot='activator'>
                 <v-badge right color='primary'>
-                    <span slot="badge" v-if='notifications.length>0'>@{{notifications.length}}</span>
+                    <span slot="badge" v-if='models.notification.list.length>0'>@{{models.notification.list.length}}</span>
                     <v-icon>notifications</v-icon>
                 </v-badge>
             </v-btn>
             <v-list class="ma-0 pa-0">
-                <template v-if="notifications.length>0" v-for='n in notifyLimit'>
+                <template v-if="models.notification.list.length>0" v-for='n in notifyLimit'>
                     <v-list-tile @click="get_not_source(n.id)">
                         <v-list-tile-avatar>
                             <v-icon color="red" v-if='n.type==-1' class="twotone">warning</v-icon>
@@ -124,7 +124,7 @@
                     </v-list-tile>
                     <v-divider></v-divider>
                 </template>
-                <template v-if="notifications.length==0">
+                <template v-if="models.notification.list.length==0">
                     <v-list-tile>
                         <v-list-tile-content>
                             <v-list-tile-title>nenhuma notificação</v-list-tile-title>
@@ -133,7 +133,7 @@
                 </template>
                 <v-list-tile class="pa-0">
                     <v-flex xs6>
-                        <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=notifications.length'>
+                        <v-btn class="pa-0 ma-0" color="white" v-if="tam==3" depressed block @click='tam=models.notification.list.length'>
                             <v-icon>expand_more</v-icon>
                         </v-btn>
                         <v-btn class="pa-0 ma-0" color="white" v-if="tam!=3" depressed block @click='tam=3'>
@@ -408,8 +408,8 @@
             notifyLimit: function () {
                 var array = []
                 for (i = 0; i < this.tam; i++) {
-                    if (this.notifications.length >= i + 1)
-                        array.push(this.notifications[i])
+                    if (this.models.notification.list.length >= i + 1)
+                        array.push(this.models.notification.list[i]);
                     else break;
                 }
                 return array;
@@ -423,7 +423,7 @@
                     dataType: "json",
                 }).done(response => {
                     if (JSON.stringify(response) == "true") {
-                        this.list_notifications()
+                        this.list_model(this.models.notification);
                     };
                 });
             },
@@ -501,6 +501,7 @@
         mounted() {
             setInterval(() => this.update(), 5000);
             this.getUser();
+            this.list_model(this.models.notification);
             this.list_model(this.models.site);
             this.list_model(this.models.group);
             this.list_model(this.models.user);
