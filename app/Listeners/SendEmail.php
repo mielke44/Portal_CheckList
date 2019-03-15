@@ -70,14 +70,14 @@ class SendEmail
             'sender' => 'T-Systems Portal Checklist',
             'link' => 'http://apps.t-systems.com.br/portal_checklist',
         );
-        foreach($data as $d){
+        foreach($data as $d){ 
             foreach($event->getReceiver()['admin'] as $a)$demo['Receiver']=Admin::findOrFail($a)->name;
             Mail::to($d)->send(new Email($demo));
         }
     }
 
     public function handleEmployee(NewEmployeeEvent $event){
-        $data=array(0=>$event->getEmployee()['email']);
+        $data=array(0=>$event->getAdmin()->email);
         if($event->getReason()=='new'){
             $demo=array(
                             'Receiver' => $event->getEmployee()['name'],
