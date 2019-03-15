@@ -499,7 +499,7 @@
             }
         },
         mounted() {
-            setInterval(() => this.update(), 5000);
+            setInterval(() => this.update(), 30000);
             this.getUser();
             this.list_model(this.models.notification);
             this.list_model(this.models.site);

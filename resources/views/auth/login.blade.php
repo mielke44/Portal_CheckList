@@ -55,7 +55,7 @@ Login - Portal Checklist
 
 
 @section('js')
-<script src='/vuetify/theme.js'></script>
+<script src='{{asset("vuetify/theme.js")}}'></script>
 <script>
     app = new Vue({
         el: '#app',
@@ -115,6 +115,13 @@ Login - Portal Checklist
                 this.snackbar_notify.color = color;
             }
 
+        },
+        mounted(){
+            $(document).keydown((event) => {
+                if (event.which == 13) {
+                    this.login();
+                }
+            });
         }
     });
 </script>
