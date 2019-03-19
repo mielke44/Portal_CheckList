@@ -25,6 +25,7 @@ sources_model = {
                 headers: this.headers,
                 data: data_model,
                 success: (response) => {
+                    if(response['error']==true)this.notify(response['mesage'],'error');
                     if(typeof callback != 'undefined')callback(response);
                 }
             });
@@ -40,6 +41,8 @@ sources_model = {
                     id: id
                 },
                 success: (response) => {
+                    if(response['error'])this.notify(response['message'],'error');
+                    else this.notify("Registro deletado", "red");
                     if(typeof callback != 'undefined')callback(response);
                 }
             });

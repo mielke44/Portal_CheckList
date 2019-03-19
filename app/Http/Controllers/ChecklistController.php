@@ -24,6 +24,7 @@ class ChecklistController extends Controller
     }
 
     public function store(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         date_default_timezone_set('America/Sao_Paulo');
         $checklist = new Checklist();
         $checklist->gestor = Auth::user()->id;
@@ -71,6 +72,7 @@ class ChecklistController extends Controller
     }
 
     public function destroy(Request $r){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $checklist = Checklist::findOrFail($r->id);
         $Checks = Check::where('checklist_id',$checklist->id)->get();
 

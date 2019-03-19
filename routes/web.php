@@ -13,10 +13,10 @@
 
 //Views
 Route::get('/', "DashboardController@index")->name('dashboard');
-Route::get('profile/', "ProfileController@index")->name('profile');
-Route::get('employee/', "EmployeeController@index")->name('employee');
-Route::get('task/', "TaskController@index")->name('task');
-Route::get('Admin/', "AdminController@index")->name('admin');
+Route::get('profile/', "ProfileController@index")->name('profile')->middleware('check');
+Route::get('employee/', "EmployeeController@index")->name('employee')->middleware('emp_check');
+Route::get('task/', "TaskController@index")->name('task')->middleware('check');
+Route::get('Admin/', "AdminController@index")->name('admin')->middleware('check');
 Route::get('employee/yourtasks', "CheckController@YourTasks")->name('yourtasks');
 
 

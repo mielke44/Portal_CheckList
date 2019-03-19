@@ -21,6 +21,7 @@ class AdminController extends Controller
     }
 
     public function store(Request $request){
+        if(Auth::user()->is_admin!=2 && Auth::user()->id!=$request['id'])return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         if(isset($request["id"])) $admin = Admin::find($request["id"]);
         else $admin = new Admin();
         $admin->is_admin = $request['is_admin'];
@@ -54,6 +55,7 @@ class AdminController extends Controller
     }
 
     public function destroy(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $admin = Admin::findOrFail($request["id"]);
         try{
             $admin->delete();

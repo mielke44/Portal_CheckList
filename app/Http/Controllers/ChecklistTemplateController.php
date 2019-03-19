@@ -24,6 +24,7 @@ class ChecklistTemplateController extends Controller
     }
 
     public function store(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $pid = $request['profile_id'];
         if(isset($request['id'])) $clist = ChecklistTemplate::find($request["id"]);
         else $clist = new ChecklistTemplate();
@@ -91,6 +92,7 @@ class ChecklistTemplateController extends Controller
     }
 
     public function destroy(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $clist = ChecklistTemplate::findOrFail($request["id"]);
         $clist->tasks()->detach();
         if($clist->delete()){

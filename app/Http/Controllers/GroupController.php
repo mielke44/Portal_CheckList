@@ -8,10 +8,12 @@ use App\Admin;
 use App\Check;
 use App\Task;
 use App\User;
+use Auth;
 
 class GroupController extends Controller
 {
     public function store(Request $r){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         if($r['id']==''){
             $group = new Group;
         }else{
@@ -40,6 +42,7 @@ class GroupController extends Controller
     }
 
     public function destroy(Request $r){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $Admin = Admin::where("group",$r['id'])->get();
         $task = Task::where("resp",'group'.$r['id'])->get();
         $Check = Check::where("resp",'group'.$r['id'])->get();

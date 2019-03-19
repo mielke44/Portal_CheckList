@@ -499,7 +499,6 @@
                         "Deseja mesmo deletar esse empregado? Todas sas informações e listas de tarefas serão removidas",
                         "red", () => {
                             this.destroy_model(this.models.employee, id, () => {
-                                this.notify("Empregado deletado", "red");
                                 this.list_model(this.models.employee);
                             });
                         });

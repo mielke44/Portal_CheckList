@@ -23,6 +23,7 @@ class ProfileController extends Controller
     }
 
     public function store(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         if($request["id"] != "") $profile = Profile::find($request["id"]);
         else $profile = new Profile();
         $profile->name = $request["name"];
@@ -36,6 +37,7 @@ class ProfileController extends Controller
     }
 
     public function destroy(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $profile= Profile::findOrFail($request["id"]);
         $emp = Employee::where('profile_id',$profile->id);
         foreach(ChecklistTemplate::where('profile_id',$profile->id)->get() as $clinker){
@@ -44,6 +46,7 @@ class ProfileController extends Controller
 
         }
         if($profile->delete()){
+            if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
             foreach($emp as $e)$e->profile_id = null;
             return json_encode(['error'=>false]);
         }

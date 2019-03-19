@@ -313,7 +313,6 @@
                     if (this.models.profile.list.length == 1) this.view.selected_profile = -1;
                     this.destroy_model(this.models.profile, id, () => {
                         this.list_model(this.models.profile);
-                        this.notify("Perfil removido", "error");
                     })
                 })
             },
@@ -369,7 +368,6 @@
             destroy_template: function (id) {
                 this.confirm("Exclusão", 'Deseja mesmo excluir essa lista de tarefa?', 'grey', () => {
                     this.destroy_model(this.models.template, id, () => {
-                        this.notify('A lista de tarefa foi deletada!', 'red', 2000);
                         this.list_model(this.models.template, {
                             id: this.selected_profile.id
                         });

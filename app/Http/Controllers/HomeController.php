@@ -38,7 +38,7 @@ class HomeController extends Controller
         return Auth::user()->is_admin;
     }
     public static function getUser(){
-        return Auth::user();
+        return Auth::user()->select('id','name','is_admin','email')->where('id',Auth::user()->id)->get()[0];
     }
     public function getNotifications(){
         $session_id = Auth::user()->id;

@@ -34,13 +34,13 @@ class EmployeeController extends Controller
             $Employee ->token = bcrypt($request['name'].rand(100000,999999));
             $r = 'new';
         }
-        $Employee -> name = $request['name'];
-        $Employee -> email = $request['email'];
-        $Employee -> profile_id = $request['profile_id'];
-        $Employee -> CPF = $request['cpf'];
-        $Employee -> fone = $request['fone'];
-        $Employee -> site = $request['site'];
-        $Employee -> gestor = $request['gestor'];
+        $Employee->name = $request['name'];
+        $Employee->email = $request['email'];
+        $Employee->profile_id = $request['profile_id'];
+        $Employee->CPF = $request['cpf'];
+        $Employee->fone = $request['fone'];
+        $Employee->site = $request['site'];
+        $Employee->gestor = $request['gestor'];
         if ($Employee -> save()) {
             event( new NewEmployeeEvent($Employee, Auth::user(),$r));
             return json_encode(array('error' => false,
@@ -61,6 +61,7 @@ class EmployeeController extends Controller
 
     public function destroy(Request $request)
     {
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $employee = Employee::findOrFail($request["id"]);
         if($employee->delete()) return json_encode(array('success'=>"true"));
         else return json_encode(array('error'=>"true"));

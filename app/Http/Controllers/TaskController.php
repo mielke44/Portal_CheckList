@@ -20,9 +20,7 @@ class TaskController extends Controller
     }
 
     public function list(){
-
         $tasks = Task::all();
-
         foreach($tasks as  $t){
             if(strstr($t->resp,"group")){
                 $t->resp_name=Group::find(str_replace("group","",$t->resp))->name;
@@ -32,11 +30,11 @@ class TaskController extends Controller
                 else $t->resp_name = Admin::find($t->resp)->name;
             }
         }
-
         return json_encode($tasks);
     }
 
     public function store(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         if(isset($request["id"])) $task = Task::find($request["id"]);
         else $task = new Task();
         $task->name = $request["name"];
@@ -44,12 +42,12 @@ class TaskController extends Controller
         $task->type = $request["type"];
         $task->resp = $request["resp"];
         $task->limit= $request["limit"];
-
         if($task->save())return json_encode(array('success'=>"true"));
         else return json_encode(array('error'=>"true"));
     }
 
     public function edit(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $task = Task::findOrFail($request["id"]);
         if(strlen($task->resp)==7){
             try{$task->resp_name=Group::findOrFail($task->resp[5].$task->resp[6])->name;}
@@ -59,6 +57,7 @@ class TaskController extends Controller
     }
 
     public function destroy(Request $request){
+        if(Auth::user()->is_admin!=2)return json_encode(['error'=>true,'message'=>'Seu usuário não tem permissão para realizar esta ação!']);
         $task = Task::findOrFail($request["id"]);
         $task->checklists()->detach();
         if($task->delete()) return json_encode(array('success'=>"true"));

@@ -294,7 +294,6 @@
                 }
                 this.confirm('Confirmação', 'Deseja mesmo deletar esse usuário?', 'red', () => {
                     this.destroy_model(this.models.user, id, () => {
-                        this.notify('Usuário deletado', 'yellow darken-3');
                         this.list_model(this.models.user);
                         this.dialog_user.show = false;
                     });
@@ -354,7 +353,6 @@
             group_destroy: function (id) {
                 this.confirm('Confirmação', 'Deseja mesmo deletar esse grupo?', 'red', () => {
                     this.destroy_model(this.models.group, id, () => {
-                        this.notify('Grupo deletado', 'yellow darken-3');
                         this.list_model(this.models.group);
                     });
                 });

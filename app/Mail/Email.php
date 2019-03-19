@@ -20,7 +20,7 @@ class Email extends Mailable
 
     public function build()
     {
-        return $this->from(['address'=>'Checklist.no-reply@webexchange.t-systems.com.br', 'name'=>'Portal CheckList'])
+        return $this->from(['address'=>'Checklist_no-reply@webexchange.t-systems.com.br', 'name'=>'Portal CheckList'])
                     ->subject('Nova atualização no portal!')
                     ->view('mail')->with(['demo'=> $this->demo]);
 

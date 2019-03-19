@@ -257,7 +257,6 @@
                 app.confirm("Remover Registro!", "Deseja remover este Registro?", "red", () => {
                     this.destroy_model(this.models.task, task_id, () => {
                         this.list_model(this.models.list);
-                        app.notify("Tarefa removida", "error");
                     })
 
                 })
